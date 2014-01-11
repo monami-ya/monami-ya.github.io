@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://products.monami-ya.jp/sitemap.xml 
