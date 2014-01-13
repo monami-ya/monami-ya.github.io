@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[合同会社もなみ屋]]></title>
+  <link href="http://products.monami-ya.jp/atom.xml" rel="self"/>
+  <link href="http://products.monami-ya.jp/"/>
+  <updated>2014-01-13T04:56:42+09:00</updated>
+  <id>http://products.monami-ya.jp/</id>
+  <author>
+    <name><![CDATA[Sales Division]]></name>
+    <email><![CDATA[sales@monami-ya.jp]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+</feed>
