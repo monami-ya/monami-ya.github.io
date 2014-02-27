@@ -1,0 +1,896 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - mrbgems/mruby-struct/src/struct.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">mrbgems/mruby-struct/src</a> - struct.c<span style="font-size: 80%;"> (source / <a href="struct.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">150</td>
+            <td class="headerCovTableEntry">314</td>
+            <td class="headerCovTableEntryLo">47.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntryLo">48.8 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** struct.c - Struct class
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;stdarg.h&gt;
+<span class="lineNum">       9 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      10 </span>            : #include &quot;mruby/array.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;mruby/string.h&quot;
+<span class="lineNum">      12 </span>            : #include &quot;mruby/class.h&quot;
+<span class="lineNum">      13 </span>            : #include &quot;mruby/data.h&quot;
+<span class="lineNum">      14 </span>            : #include &quot;mruby/panic.h&quot;
+<span class="lineNum">      15 </span>            : #include &quot;mruby/variable.h&quot;
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : #define RSTRUCT_ARY(st) mrb_ary_ptr(st)
+<span class="lineNum">      18 </span>            : #define RSTRUCT_LEN(st) RSTRUCT_ARY(st)-&gt;len
+<span class="lineNum">      19 </span>            : #define RSTRUCT_PTR(st) RSTRUCT_ARY(st)-&gt;ptr
+<span class="lineNum">      20 </span>            : 
+<a name="21"><span class="lineNum">      21 </span>            : static struct RClass *</a>
+<span class="lineNum">      22 </span>            : struct_class(mrb_state *mrb)
+<span class="lineNum">      23 </span><span class="lineCov">         33 : {</span>
+<span class="lineNum">      24 </span><span class="lineCov">         33 :   return mrb_class_get(mrb, &quot;Struct&quot;);</span>
+<span class="lineNum">      25 </span>            : }
+<span class="lineNum">      26 </span>            : 
+<a name="27"><span class="lineNum">      27 </span>            : static inline mrb_value</a>
+<span class="lineNum">      28 </span>            : struct_ivar_get(mrb_state *mrb, mrb_value c, mrb_sym id)
+<span class="lineNum">      29 </span><span class="lineCov">         24 : {</span>
+<span class="lineNum">      30 </span>            :   struct RClass* kclass;
+<span class="lineNum">      31 </span><span class="lineCov">         24 :   struct RClass* sclass = struct_class(mrb);</span>
+<span class="lineNum">      32 </span>            :   mrb_value ans;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            :   for (;;) {
+<span class="lineNum">      35 </span><span class="lineCov">         24 :     ans = mrb_iv_get(mrb, c, id);</span>
+<span class="lineNum">      36 </span><span class="lineCov">         24 :     if (!mrb_nil_p(ans)) return ans;</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :     kclass = RCLASS_SUPER(c);</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :     if (kclass == 0 || kclass == sclass)</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :       return mrb_nil_value();</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :     c = mrb_obj_value(kclass);</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :   }</span>
+<span class="lineNum">      42 </span>            : }
+<span class="lineNum">      43 </span>            : 
+<a name="44"><span class="lineNum">      44 </span>            : mrb_value</a>
+<span class="lineNum">      45 </span>            : mrb_struct_iv_get(mrb_state *mrb, mrb_value c, const char *name)
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :   return struct_ivar_get(mrb, c, mrb_intern(mrb, name));</span>
+<span class="lineNum">      48 </span>            : }
+<span class="lineNum">      49 </span>            : 
+<a name="50"><span class="lineNum">      50 </span>            : mrb_value</a>
+<span class="lineNum">      51 </span>            : mrb_struct_s_members(mrb_state *mrb, mrb_value klass)
+<span class="lineNum">      52 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">      53 </span><span class="lineCov">         16 :   mrb_value members = struct_ivar_get(mrb, klass, mrb_intern2(mrb, &quot;__members__&quot;, 11));</span>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span><span class="lineCov">         16 :   if (mrb_nil_p(members)) {</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_TYPE_ERROR, &quot;uninitialized struct&quot;);</span>
+<span class="lineNum">      57 </span>            :   }
+<span class="lineNum">      58 </span><span class="lineCov">         16 :   if (!mrb_array_p(members)) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_TYPE_ERROR, &quot;corrupted struct&quot;);</span>
+<span class="lineNum">      60 </span>            :   }
+<span class="lineNum">      61 </span><span class="lineCov">         16 :   return members;</span>
+<span class="lineNum">      62 </span>            : }
+<span class="lineNum">      63 </span>            : 
+<a name="64"><span class="lineNum">      64 </span>            : mrb_value</a>
+<span class="lineNum">      65 </span>            : mrb_struct_members(mrb_state *mrb, mrb_value s)
+<span class="lineNum">      66 </span><span class="lineCov">         10 : {</span>
+<span class="lineNum">      67 </span><span class="lineCov">         10 :   mrb_value members = mrb_struct_s_members(mrb, mrb_obj_value(mrb_obj_class(mrb, s)));</span>
+<span class="lineNum">      68 </span><span class="lineCov">         10 :   if (!strcmp(mrb_class_name(mrb, mrb_obj_class(mrb, s)), &quot;Struct&quot;)) {</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :     if (RSTRUCT_LEN(s) != RARRAY_LEN(members)) {</span>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :       mrb_raisef(mrb, E_TYPE_ERROR,</span>
+<span class="lineNum">      71 </span>            :                  &quot;struct size differs (%S required %S given)&quot;,
+<span class="lineNum">      72 </span>            :                  mrb_fixnum_value(RARRAY_LEN(members)), mrb_fixnum_value(RSTRUCT_LEN(s)));
+<span class="lineNum">      73 </span>            :     }
+<span class="lineNum">      74 </span>            :   }
+<span class="lineNum">      75 </span><span class="lineCov">         10 :   return members;</span>
+<span class="lineNum">      76 </span>            : }
+<span class="lineNum">      77 </span>            : 
+<a name="78"><span class="lineNum">      78 </span>            : static mrb_value</a>
+<span class="lineNum">      79 </span>            : mrb_struct_s_members_m(mrb_state *mrb, mrb_value klass)
+<span class="lineNum">      80 </span><span class="lineCov">          6 : {</span>
+<span class="lineNum">      81 </span>            :   mrb_value members, ary;
+<span class="lineNum">      82 </span>            :   mrb_value *p, *pend;
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span><span class="lineCov">          6 :   members = mrb_struct_s_members(mrb, klass);</span>
+<span class="lineNum">      85 </span><span class="lineCov">          6 :   ary = mrb_ary_new_capa(mrb, RARRAY_LEN(members));</span>
+<span class="lineNum">      86 </span><span class="lineCov">          6 :   p = RARRAY_PTR(members); pend = p + RARRAY_LEN(members);</span>
+<span class="lineNum">      87 </span><span class="lineCov">         22 :   while (p &lt; pend) {</span>
+<span class="lineNum">      88 </span><span class="lineCov">         10 :     mrb_ary_push(mrb, ary, *p);</span>
+<span class="lineNum">      89 </span><span class="lineCov">         10 :     p++;</span>
+<span class="lineNum">      90 </span>            :   }
+<span class="lineNum">      91 </span><span class="lineCov">          6 :   return ary;</span>
+<span class="lineNum">      92 </span>            : }
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : /* 15.2.18.4.6  */
+<span class="lineNum">      95 </span>            : /*
+<span class="lineNum">      96 </span>            :  *  call-seq:
+<span class="lineNum">      97 </span>            :  *     struct.members    -&gt; array
+<span class="lineNum">      98 </span>            :  *
+<span class="lineNum">      99 </span>            :  *  Returns an array of strings representing the names of the instance
+<span class="lineNum">     100 </span>            :  *  variables.
+<span class="lineNum">     101 </span>            :  *
+<span class="lineNum">     102 </span>            :  *     Customer = Struct.new(:name, :address, :zip)
+<span class="lineNum">     103 </span>            :  *     joe = Customer.new(&quot;Joe Smith&quot;, &quot;123 Maple, Anytown NC&quot;, 12345)
+<span class="lineNum">     104 </span>            :  *     joe.members   #=&gt; [:name, :address, :zip]
+<span class="lineNum">     105 </span>            :  */
+<span class="lineNum">     106 </span>            : 
+<a name="107"><span class="lineNum">     107 </span>            : static mrb_value</a>
+<span class="lineNum">     108 </span>            : mrb_struct_members_m(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     109 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     110 </span><span class="lineCov">          1 :   return mrb_struct_s_members_m(mrb, mrb_obj_value(mrb_obj_class(mrb, obj)));</span>
+<span class="lineNum">     111 </span>            : }
+<span class="lineNum">     112 </span>            : 
+<a name="113"><span class="lineNum">     113 </span>            : mrb_value</a>
+<span class="lineNum">     114 </span>            : mrb_struct_getmember(mrb_state *mrb, mrb_value obj, mrb_sym id)
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     116 </span>            :   mrb_value members, slot, *ptr, *ptr_members;
+<span class="lineNum">     117 </span>            :   mrb_int i, len;
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :   ptr = RSTRUCT_PTR(obj);</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :   members = mrb_struct_members(mrb, obj);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :   ptr_members = RARRAY_PTR(members);</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :   slot = mrb_symbol_value(id);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :   len = RARRAY_LEN(members);</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :   for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :     if (mrb_obj_equal(mrb, ptr_members[i], slot)) {</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :       return ptr[i];</span>
+<span class="lineNum">     127 </span>            :     }
+<span class="lineNum">     128 </span>            :   }
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :   mrb_raisef(mrb, E_INDEX_ERROR, &quot;%S is not struct member&quot;, mrb_sym2str(mrb, id));</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :   return mrb_nil_value();       /* not reached */</span>
+<span class="lineNum">     131 </span>            : }
+<span class="lineNum">     132 </span>            : 
+<a name="133"><span class="lineNum">     133 </span>            : static mrb_value</a>
+<span class="lineNum">     134 </span>            : mrb_struct_ref(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :   return mrb_struct_getmember(mrb, obj, mrb-&gt;ci-&gt;mid);</span>
+<a name="137"><span class="lineNum">     137 </span>            : }</a>
+<a name="138"><span class="lineNum">     138 </span>            : </a>
+<a name="139"><span class="lineNum">     139 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref0(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[0];}</span></a>
+<a name="140"><span class="lineNum">     140 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref1(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[1];}</span></a>
+<a name="141"><span class="lineNum">     141 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref2(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[2];}</span></a>
+<a name="142"><span class="lineNum">     142 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref3(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[3];}</span></a>
+<a name="143"><span class="lineNum">     143 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref4(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[4];}</span></a>
+<a name="144"><span class="lineNum">     144 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref5(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[5];}</span></a>
+<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref6(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[6];}</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref7(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[7];}</span></a>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref8(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[8];}</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 : static mrb_value mrb_struct_ref9(mrb_state* mrb, mrb_value obj) {return RSTRUCT_PTR(obj)[9];}</span>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            : #define numberof(array) (int)(sizeof(array) / sizeof((array)[0]))
+<span class="lineNum">     151 </span>            : #define N_REF_FUNC numberof(ref_func)
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : static mrb_value (*const ref_func[])(mrb_state*, mrb_value) = {
+<span class="lineNum">     154 </span>            :   mrb_struct_ref0,
+<span class="lineNum">     155 </span>            :   mrb_struct_ref1,
+<span class="lineNum">     156 </span>            :   mrb_struct_ref2,
+<span class="lineNum">     157 </span>            :   mrb_struct_ref3,
+<span class="lineNum">     158 </span>            :   mrb_struct_ref4,
+<span class="lineNum">     159 </span>            :   mrb_struct_ref5,
+<span class="lineNum">     160 </span>            :   mrb_struct_ref6,
+<span class="lineNum">     161 </span>            :   mrb_struct_ref7,
+<span class="lineNum">     162 </span>            :   mrb_struct_ref8,
+<span class="lineNum">     163 </span>            :   mrb_struct_ref9,
+<span class="lineNum">     164 </span>            : };
+<span class="lineNum">     165 </span>            : 
+<a name="166"><span class="lineNum">     166 </span>            : mrb_sym</a>
+<span class="lineNum">     167 </span>            : mrb_id_attrset(mrb_state *mrb, mrb_sym id)
+<span class="lineNum">     168 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">     169 </span>            :   const char *name;
+<span class="lineNum">     170 </span>            :   char *buf;
+<span class="lineNum">     171 </span>            :   size_t len;
+<span class="lineNum">     172 </span>            :   mrb_sym mid;
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineCov">         16 :   name = mrb_sym2name_len(mrb, id, &amp;len);</span>
+<span class="lineNum">     175 </span><span class="lineCov">         16 :   buf = (char *)mrb_malloc(mrb, len+2);</span>
+<span class="lineNum">     176 </span><span class="lineCov">         16 :   memcpy(buf, name, len);</span>
+<span class="lineNum">     177 </span><span class="lineCov">         16 :   buf[len] = '=';</span>
+<span class="lineNum">     178 </span><span class="lineCov">         16 :   buf[len+1] = '\0';</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">         16 :   mid = mrb_intern2(mrb, buf, len+1);</span>
+<span class="lineNum">     181 </span><span class="lineCov">         16 :   mrb_free(mrb, buf);</span>
+<span class="lineNum">     182 </span><span class="lineCov">         16 :   return mid;</span>
+<span class="lineNum">     183 </span>            : }
+<span class="lineNum">     184 </span>            : 
+<a name="185"><span class="lineNum">     185 </span>            : static mrb_value</a>
+<span class="lineNum">     186 </span>            : mrb_struct_set(mrb_state *mrb, mrb_value obj, mrb_value val)
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     188 </span>            :   const char *name;
+<span class="lineNum">     189 </span>            :   int i;
+<span class="lineNum">     190 </span>            :   size_t len;
+<span class="lineNum">     191 </span>            :   mrb_sym mid;
+<span class="lineNum">     192 </span>            :   mrb_value members, slot, *ptr, *ptr_members;
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span>            :   /* get base id */
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :   name = mrb_sym2name_len(mrb, mrb-&gt;ci-&gt;mid, &amp;len);</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :   mid = mrb_intern2(mrb, name, len-1); /* omit last &quot;=&quot; */</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :   members = mrb_struct_members(mrb, obj);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :   ptr_members = RARRAY_PTR(members);</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :   len = RARRAY_LEN(members);</span>
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :   ptr = RSTRUCT_PTR(obj);</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :   for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :     slot = ptr_members[i];</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :     if (mrb_symbol(slot) == mid) {</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :       return ptr[i] = val;</span>
+<span class="lineNum">     206 </span>            :     }
+<span class="lineNum">     207 </span>            :   }
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :   mrb_raisef(mrb, E_INDEX_ERROR, &quot;`%S' is not a struct member&quot;,</span>
+<span class="lineNum">     209 </span>            :              mrb_sym2str(mrb, mid));
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :   return mrb_nil_value();            /* not reached */</span>
+<span class="lineNum">     211 </span>            : }
+<span class="lineNum">     212 </span>            : 
+<a name="213"><span class="lineNum">     213 </span>            : static mrb_value</a>
+<span class="lineNum">     214 </span>            : mrb_struct_set_m(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     216 </span>            :   mrb_value val;
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;o&quot;, &amp;val);</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :   return mrb_struct_set(mrb, obj, val);</span>
+<span class="lineNum">     220 </span>            : }
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            : #define is_notop_id(id) (id)//((id)&gt;tLAST_TOKEN)
+<span class="lineNum">     223 </span>            : #define is_local_id(id) (is_notop_id(id))//&amp;&amp;((id)&amp;ID_SCOPE_MASK)==ID_LOCAL)
+<a name="224"><span class="lineNum">     224 </span>            : int</a>
+<span class="lineNum">     225 </span>            : mrb_is_local_id(mrb_sym id)
+<span class="lineNum">     226 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">     227 </span><span class="lineCov">         16 :   return is_local_id(id);</span>
+<span class="lineNum">     228 </span>            : }
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            : #define is_const_id(id) (is_notop_id(id))//&amp;&amp;((id)&amp;ID_SCOPE_MASK)==ID_CONST)
+<a name="231"><span class="lineNum">     231 </span>            : int</a>
+<span class="lineNum">     232 </span>            : mrb_is_const_id(mrb_sym id)
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :   return is_const_id(id);</span>
+<span class="lineNum">     235 </span>            : }
+<span class="lineNum">     236 </span>            : 
+<a name="237"><span class="lineNum">     237 </span>            : static mrb_value</a>
+<span class="lineNum">     238 </span>            : make_struct(mrb_state *mrb, mrb_value name, mrb_value members, struct RClass * klass)
+<span class="lineNum">     239 </span><span class="lineCov">          9 : {</span>
+<span class="lineNum">     240 </span>            :   mrb_value nstr, *ptr_members;
+<span class="lineNum">     241 </span>            :   mrb_sym id;
+<span class="lineNum">     242 </span>            :   mrb_int i, len;
+<span class="lineNum">     243 </span>            :   struct RClass *c;
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineCov">         18 :   if (mrb_nil_p(name)) {</span>
+<span class="lineNum">     246 </span><span class="lineCov">          9 :     c = mrb_class_new(mrb, klass);</span>
+<span class="lineNum">     247 </span>            :   }
+<span class="lineNum">     248 </span>            :   else {
+<span class="lineNum">     249 </span>            :     /* old style: should we warn? */
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :     name = mrb_str_to_str(mrb, name);</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :     id = mrb_obj_to_sym(mrb, name);</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :     if (!mrb_is_const_id(id)) {</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :       mrb_name_error(mrb, id, &quot;identifier %S needs to be constant&quot;, name);</span>
+<span class="lineNum">     254 </span>            :     }
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :     if (mrb_const_defined_at(mrb, klass, id)) {</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :       mrb_warn(&quot;redefining constant Struct::%s&quot;, mrb_string_value_ptr(mrb, name));</span>
+<span class="lineNum">     257 </span>            :       //?rb_mod_remove_const(klass, mrb_sym2name(mrb, id));
+<span class="lineNum">     258 </span>            :     }
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :     c = mrb_define_class_under(mrb, klass, RSTRING_PTR(name), klass);</span>
+<span class="lineNum">     260 </span>            :   }
+<span class="lineNum">     261 </span><span class="lineCov">          9 :   MRB_SET_INSTANCE_TT(c, MRB_TT_ARRAY);</span>
+<span class="lineNum">     262 </span><span class="lineCov">          9 :   nstr = mrb_obj_value(c);</span>
+<span class="lineNum">     263 </span><span class="lineCov">          9 :   mrb_iv_set(mrb, nstr, mrb_intern2(mrb, &quot;__members__&quot;, 11), members);</span>
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineCov">          9 :   mrb_define_class_method(mrb, c, &quot;new&quot;, mrb_instance_new, MRB_ARGS_ANY());</span>
+<span class="lineNum">     266 </span><span class="lineCov">          9 :   mrb_define_class_method(mrb, c, &quot;[]&quot;, mrb_instance_new, MRB_ARGS_ANY());</span>
+<span class="lineNum">     267 </span><span class="lineCov">          9 :   mrb_define_class_method(mrb, c, &quot;members&quot;, mrb_struct_s_members_m, MRB_ARGS_NONE());</span>
+<span class="lineNum">     268 </span>            :   //RSTRUCT(nstr)-&gt;basic.c-&gt;super = c-&gt;c;
+<span class="lineNum">     269 </span><span class="lineCov">          9 :   ptr_members = RARRAY_PTR(members);</span>
+<span class="lineNum">     270 </span><span class="lineCov">          9 :   len = RARRAY_LEN(members);</span>
+<span class="lineNum">     271 </span><span class="lineCov">         25 :   for (i=0; i&lt; len; i++) {</span>
+<span class="lineNum">     272 </span><span class="lineCov">         16 :     mrb_sym id = mrb_symbol(ptr_members[i]);</span>
+<span class="lineNum">     273 </span><span class="lineCov">         16 :     if (mrb_is_local_id(id) || mrb_is_const_id(id)) {</span>
+<span class="lineNum">     274 </span><span class="lineCov">         16 :       if (i &lt; N_REF_FUNC) {</span>
+<span class="lineNum">     275 </span><span class="lineCov">         16 :         mrb_define_method_id(mrb, c, id, ref_func[i], MRB_ARGS_NONE());</span>
+<span class="lineNum">     276 </span>            :       }
+<span class="lineNum">     277 </span>            :       else {
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :         mrb_define_method_id(mrb, c, id, mrb_struct_ref, MRB_ARGS_NONE());</span>
+<span class="lineNum">     279 </span>            :       }
+<span class="lineNum">     280 </span><span class="lineCov">         16 :       mrb_define_method_id(mrb, c, mrb_id_attrset(mrb, id), mrb_struct_set_m, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     281 </span>            :     }
+<span class="lineNum">     282 </span>            :   }
+<span class="lineNum">     283 </span><span class="lineCov">          9 :   return nstr;</span>
+<span class="lineNum">     284 </span>            : }
+<span class="lineNum">     285 </span>            : 
+<a name="286"><span class="lineNum">     286 </span>            : mrb_value</a>
+<span class="lineNum">     287 </span>            : mrb_struct_define(mrb_state *mrb, const char *name, ...)
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     289 </span>            :   va_list ar;
+<span class="lineNum">     290 </span>            :   mrb_value nm, ary;
+<span class="lineNum">     291 </span>            :   char *mem;
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :   if (!name) nm = mrb_nil_value();</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :   else nm = mrb_str_new_cstr(mrb, name);</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :   ary = mrb_ary_new(mrb);</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :   va_start(ar, name);</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :   while ((mem = va_arg(ar, char*)) != 0) {</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :     mrb_sym slot = mrb_intern(mrb, mem);</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :     mrb_ary_push(mrb, ary, mrb_symbol_value(slot));</span>
+<span class="lineNum">     301 </span>            :   }
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :   va_end(ar);</span>
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :   return make_struct(mrb, nm, ary, struct_class(mrb));</span>
+<span class="lineNum">     305 </span>            : }
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            : /* 15.2.18.3.1  */
+<span class="lineNum">     308 </span>            : /*
+<span class="lineNum">     309 </span>            :  *  call-seq:
+<span class="lineNum">     310 </span>            :  *     Struct.new( [aString] [, aSym]+&gt; )    -&gt; StructClass
+<span class="lineNum">     311 </span>            :  *     StructClass.new(arg, ...)             -&gt; obj
+<span class="lineNum">     312 </span>            :  *     StructClass[arg, ...]                 -&gt; obj
+<span class="lineNum">     313 </span>            :  *
+<span class="lineNum">     314 </span>            :  *  Creates a new class, named by &lt;i&gt;aString&lt;/i&gt;, containing accessor
+<span class="lineNum">     315 </span>            :  *  methods for the given symbols. If the name &lt;i&gt;aString&lt;/i&gt; is
+<span class="lineNum">     316 </span>            :  *  omitted, an anonymous structure class will be created. Otherwise,
+<span class="lineNum">     317 </span>            :  *  the name of this struct will appear as a constant in class
+<span class="lineNum">     318 </span>            :  *  &lt;code&gt;Struct&lt;/code&gt;, so it must be unique for all
+<span class="lineNum">     319 </span>            :  *  &lt;code&gt;Struct&lt;/code&gt;s in the system and should start with a capital
+<span class="lineNum">     320 </span>            :  *  letter. Assigning a structure class to a constant effectively gives
+<span class="lineNum">     321 </span>            :  *  the class the name of the constant.
+<span class="lineNum">     322 </span>            :  *
+<span class="lineNum">     323 </span>            :  *  &lt;code&gt;Struct::new&lt;/code&gt; returns a new &lt;code&gt;Class&lt;/code&gt; object,
+<span class="lineNum">     324 </span>            :  *  which can then be used to create specific instances of the new
+<span class="lineNum">     325 </span>            :  *  structure. The number of actual parameters must be
+<span class="lineNum">     326 </span>            :  *  less than or equal to the number of attributes defined for this
+<span class="lineNum">     327 </span>            :  *  class; unset parameters default to &lt;code&gt;nil&lt;/code&gt;.  Passing too many
+<span class="lineNum">     328 </span>            :  *  parameters will raise an &lt;code&gt;ArgumentError&lt;/code&gt;.
+<span class="lineNum">     329 </span>            :  *
+<span class="lineNum">     330 </span>            :  *  The remaining methods listed in this section (class and instance)
+<span class="lineNum">     331 </span>            :  *  are defined for this generated class.
+<span class="lineNum">     332 </span>            :  *
+<span class="lineNum">     333 </span>            :  *     # Create a structure with a name in Struct
+<span class="lineNum">     334 </span>            :  *     Struct.new(&quot;Customer&quot;, :name, :address)    #=&gt; Struct::Customer
+<span class="lineNum">     335 </span>            :  *     Struct::Customer.new(&quot;Dave&quot;, &quot;123 Main&quot;)   #=&gt; #&lt;struct Struct::Customer name=&quot;Dave&quot;, address=&quot;123 Main&quot;&gt;
+<span class="lineNum">     336 </span>            :  *
+<span class="lineNum">     337 </span>            :  *     # Create a structure named by its constant
+<span class="lineNum">     338 </span>            :  *     Customer = Struct.new(:name, :address)     #=&gt; Customer
+<span class="lineNum">     339 </span>            :  *     Customer.new(&quot;Dave&quot;, &quot;123 Main&quot;)           #=&gt; #&lt;struct Customer name=&quot;Dave&quot;, address=&quot;123 Main&quot;&gt;
+<span class="lineNum">     340 </span>            :  */
+<a name="341"><span class="lineNum">     341 </span>            : static mrb_value</a>
+<span class="lineNum">     342 </span>            : mrb_struct_s_def(mrb_state *mrb, mrb_value klass)
+<span class="lineNum">     343 </span><span class="lineCov">          9 : {</span>
+<span class="lineNum">     344 </span>            :   mrb_value name, rest;
+<span class="lineNum">     345 </span>            :   mrb_value *pargv;
+<span class="lineNum">     346 </span>            :   int argcnt;
+<span class="lineNum">     347 </span>            :   mrb_int i;
+<span class="lineNum">     348 </span>            :   mrb_value b, st;
+<span class="lineNum">     349 </span>            :   mrb_sym id;
+<span class="lineNum">     350 </span>            :   mrb_value *argv;
+<span class="lineNum">     351 </span>            :   int argc;
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span><span class="lineCov">          9 :   name = mrb_nil_value();</span>
+<span class="lineNum">     354 </span><span class="lineCov">          9 :   rest = mrb_nil_value();</span>
+<span class="lineNum">     355 </span><span class="lineCov">          9 :   mrb_get_args(mrb, &quot;*&amp;&quot;, &amp;argv, &amp;argc, &amp;b);</span>
+<span class="lineNum">     356 </span><span class="lineCov">          9 :   if (argc == 0) { /* special case to avoid crash */</span>
+<span class="lineNum">     357 </span><span class="lineCov">          1 :     rest = mrb_ary_new(mrb);</span>
+<span class="lineNum">     358 </span>            :   }
+<span class="lineNum">     359 </span>            :   else {
+<span class="lineNum">     360 </span><span class="lineCov">          8 :     if (argc &gt; 0) name = argv[0];</span>
+<span class="lineNum">     361 </span><span class="lineCov">          8 :     if (argc &gt; 1) rest = argv[1];</span>
+<span class="lineNum">     362 </span><span class="lineCov">          8 :     if (mrb_array_p(rest)) {</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :       if (!mrb_nil_p(name) &amp;&amp; mrb_symbol_p(name)) {</span>
+<span class="lineNum">     364 </span>            :         /* 1stArgument:symbol -&gt; name=nil rest=argv[0]-[n] */
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :         mrb_ary_unshift(mrb, rest, name);</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         name = mrb_nil_value();</span>
+<span class="lineNum">     367 </span>            :       }
+<span class="lineNum">     368 </span>            :     }
+<span class="lineNum">     369 </span>            :     else {
+<span class="lineNum">     370 </span><span class="lineCov">          8 :       pargv = &amp;argv[1];</span>
+<span class="lineNum">     371 </span><span class="lineCov">          8 :       argcnt = argc-1;</span>
+<span class="lineNum">     372 </span><span class="lineCov">          8 :       if (!mrb_nil_p(name) &amp;&amp; mrb_symbol_p(name)) {</span>
+<span class="lineNum">     373 </span>            :         /* 1stArgument:symbol -&gt; name=nil rest=argv[0]-[n] */
+<span class="lineNum">     374 </span><span class="lineCov">          8 :         name = mrb_nil_value();</span>
+<span class="lineNum">     375 </span><span class="lineCov">          8 :         pargv = &amp;argv[0];</span>
+<span class="lineNum">     376 </span><span class="lineCov">          8 :         argcnt++;</span>
+<span class="lineNum">     377 </span>            :       }
+<span class="lineNum">     378 </span><span class="lineCov">          8 :       rest = mrb_ary_new_from_values(mrb, argcnt, pargv);</span>
+<span class="lineNum">     379 </span>            :     }
+<span class="lineNum">     380 </span><span class="lineCov">         24 :     for (i=0; i&lt;RARRAY_LEN(rest); i++) {</span>
+<span class="lineNum">     381 </span><span class="lineCov">         16 :       id = mrb_obj_to_sym(mrb, RARRAY_PTR(rest)[i]);</span>
+<span class="lineNum">     382 </span><span class="lineCov">         16 :       RARRAY_PTR(rest)[i] = mrb_symbol_value(id);</span>
+<span class="lineNum">     383 </span>            :     }
+<span class="lineNum">     384 </span>            :   }
+<span class="lineNum">     385 </span><span class="lineCov">          9 :   st = make_struct(mrb, name, rest, struct_class(mrb));</span>
+<span class="lineNum">     386 </span><span class="lineCov">          9 :   if (!mrb_nil_p(b)) {</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :     mrb_funcall(mrb, b, &quot;call&quot;, 1, &amp;st);</span>
+<span class="lineNum">     388 </span>            :   }
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span><span class="lineCov">          9 :   return st;</span>
+<span class="lineNum">     391 </span>            : }
+<span class="lineNum">     392 </span>            : 
+<a name="393"><span class="lineNum">     393 </span>            : static int</a>
+<span class="lineNum">     394 </span>            : num_members(mrb_state *mrb, struct RClass *klass)
+<span class="lineNum">     395 </span><span class="lineCov">          8 : {</span>
+<span class="lineNum">     396 </span>            :   mrb_value members;
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineCov">          8 :   members = struct_ivar_get(mrb, mrb_obj_value(klass), mrb_intern2(mrb, &quot;__members__&quot;, 11));</span>
+<span class="lineNum">     399 </span><span class="lineCov">          8 :   if (!mrb_array_p(members)) {</span>
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_TYPE_ERROR, &quot;broken members&quot;);</span>
+<span class="lineNum">     401 </span>            :   }
+<span class="lineNum">     402 </span><span class="lineCov">          8 :   return RARRAY_LEN(members);</span>
+<span class="lineNum">     403 </span>            : }
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span>            : /* 15.2.18.4.8  */
+<span class="lineNum">     406 </span>            : /*
+<span class="lineNum">     407 </span>            :  */
+<a name="408"><span class="lineNum">     408 </span>            : static mrb_value</a>
+<span class="lineNum">     409 </span>            : mrb_struct_initialize_withArg(mrb_state *mrb, int argc, mrb_value *argv, mrb_value self)
+<span class="lineNum">     410 </span><span class="lineCov">          8 : {</span>
+<span class="lineNum">     411 </span><span class="lineCov">          8 :   struct RClass *klass = mrb_obj_class(mrb, self);</span>
+<span class="lineNum">     412 </span>            :   int i, n;
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span><span class="lineCov">          8 :   n = num_members(mrb, klass);</span>
+<span class="lineNum">     415 </span><span class="lineCov">          8 :   if (n &lt; argc) {</span>
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;struct size differs&quot;);</span>
+<span class="lineNum">     417 </span>            :   }
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span><span class="lineCov">         24 :   for (i = 0; i &lt; argc; i++) {</span>
+<span class="lineNum">     420 </span><span class="lineCov">         16 :     mrb_ary_set(mrb, self, i, argv[i]);</span>
+<span class="lineNum">     421 </span>            :   }
+<span class="lineNum">     422 </span><span class="lineCov">          8 :   for (i = argc; i &lt; n; i++) {</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :     mrb_ary_set(mrb, self, i, mrb_nil_value());</span>
+<span class="lineNum">     424 </span>            :   }
+<span class="lineNum">     425 </span><span class="lineCov">          8 :   return self;</span>
+<span class="lineNum">     426 </span>            : }
+<span class="lineNum">     427 </span>            : 
+<a name="428"><span class="lineNum">     428 </span>            : static mrb_value</a>
+<span class="lineNum">     429 </span>            : mrb_struct_initialize_m(mrb_state *mrb, /*int argc, mrb_value *argv,*/ mrb_value self)
+<span class="lineNum">     430 </span><span class="lineCov">          8 : {</span>
+<span class="lineNum">     431 </span>            :   mrb_value *argv;
+<span class="lineNum">     432 </span>            :   int argc;
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineCov">          8 :   mrb_get_args(mrb, &quot;*&quot;, &amp;argv, &amp;argc);</span>
+<span class="lineNum">     435 </span><span class="lineCov">          8 :   return mrb_struct_initialize_withArg(mrb, argc, argv, self);</span>
+<span class="lineNum">     436 </span>            : }
+<span class="lineNum">     437 </span>            : 
+<a name="438"><span class="lineNum">     438 </span>            : mrb_value</a>
+<span class="lineNum">     439 </span>            : mrb_struct_initialize(mrb_state *mrb, mrb_value self, mrb_value values)
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     441 </span><span class="lineNoCov">          0 :   return mrb_struct_initialize_withArg(mrb, RARRAY_LEN(values), RARRAY_PTR(values), self);</span>
+<span class="lineNum">     442 </span>            : }
+<span class="lineNum">     443 </span>            : 
+<a name="444"><span class="lineNum">     444 </span>            : static mrb_value</a>
+<span class="lineNum">     445 </span>            : inspect_struct(mrb_state *mrb, mrb_value s, int recur)
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :   const char *cn = mrb_class_name(mrb, mrb_obj_class(mrb, s));</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :   mrb_value members, str = mrb_str_new(mrb, &quot;#&lt;struct &quot;, 9);</span>
+<span class="lineNum">     449 </span>            :   mrb_value *ptr, *ptr_members;
+<span class="lineNum">     450 </span>            :   mrb_int i, len;
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :   if (cn) {</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :     mrb_str_append(mrb, str, mrb_str_new_cstr(mrb, cn));</span>
+<span class="lineNum">     454 </span>            :   }
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :   if (recur) {</span>
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :     return mrb_str_cat2(mrb, str, &quot;:...&gt;&quot;);</span>
+<span class="lineNum">     457 </span>            :   }
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :   members = mrb_struct_members(mrb, s);</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :   ptr_members = RARRAY_PTR(members);</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :   ptr = RSTRUCT_PTR(s);</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :   len = RSTRUCT_LEN(s);</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :   for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">     464 </span>            :     mrb_value slot;
+<span class="lineNum">     465 </span>            :     mrb_sym id;
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :     if (i &gt; 0) {</span>
+<span class="lineNum">     468 </span><span class="lineNoCov">          0 :       mrb_str_cat2(mrb, str, &quot;, &quot;);</span>
+<span class="lineNum">     469 </span>            :     }
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :     else if (cn) {</span>
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :       mrb_str_cat2(mrb, str, &quot; &quot;);</span>
+<span class="lineNum">     472 </span>            :     }
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :     slot = ptr_members[i];</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :     id = mrb_symbol(slot);</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :     if (mrb_is_local_id(id) || mrb_is_const_id(id)) {</span>
+<span class="lineNum">     476 </span>            :       const char *name;
+<span class="lineNum">     477 </span>            :       size_t len;
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :       name = mrb_sym2name_len(mrb, id, &amp;len);</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :       mrb_str_append(mrb, str, mrb_str_new(mrb, name, len));</span>
+<span class="lineNum">     481 </span>            :     }
+<span class="lineNum">     482 </span>            :     else {
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :       mrb_str_append(mrb, str, mrb_inspect(mrb, slot));</span>
+<span class="lineNum">     484 </span>            :     }
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :     mrb_str_cat2(mrb, str, &quot;=&quot;);</span>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :     mrb_str_append(mrb, str, mrb_inspect(mrb, ptr[i]));</span>
+<span class="lineNum">     487 </span>            :   }
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :   mrb_str_cat2(mrb, str, &quot;&gt;&quot;);</span>
+<span class="lineNum">     489 </span>            : 
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :   return str;</span>
+<span class="lineNum">     491 </span>            : }
+<span class="lineNum">     492 </span>            : 
+<span class="lineNum">     493 </span>            : /*
+<span class="lineNum">     494 </span>            :  * call-seq:
+<span class="lineNum">     495 </span>            :  *   struct.to_s      -&gt; string
+<span class="lineNum">     496 </span>            :  *   struct.inspect   -&gt; string
+<span class="lineNum">     497 </span>            :  *
+<span class="lineNum">     498 </span>            :  * Describe the contents of this struct in a string.
+<span class="lineNum">     499 </span>            :  */
+<a name="500"><span class="lineNum">     500 </span>            : static mrb_value</a>
+<span class="lineNum">     501 </span>            : mrb_struct_inspect(mrb_state *mrb, mrb_value s)
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :   return inspect_struct(mrb, s, 0);</span>
+<span class="lineNum">     504 </span>            : }
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span>            : /* 15.2.18.4.9  */
+<span class="lineNum">     507 </span>            : /* :nodoc: */
+<a name="508"><span class="lineNum">     508 </span>            : mrb_value</a>
+<span class="lineNum">     509 </span>            : mrb_struct_init_copy(mrb_state *mrb, mrb_value copy)
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     511 </span>            :   mrb_value s;
+<span class="lineNum">     512 </span>            :   int i, len;
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;o&quot;, &amp;s);</span>
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :   if (mrb_obj_equal(mrb, copy, s)) return copy;</span>
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :   if (!mrb_obj_is_instance_of(mrb, s, mrb_obj_class(mrb, copy))) {</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_TYPE_ERROR, &quot;wrong argument class&quot;);</span>
+<span class="lineNum">     519 </span>            :   }
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :   if (!mrb_array_p(s)) {</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_TYPE_ERROR, &quot;corrupted struct&quot;);</span>
+<span class="lineNum">     522 </span>            :   }
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :   if (RSTRUCT_LEN(copy) != RSTRUCT_LEN(s)) {</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_TYPE_ERROR, &quot;struct size mismatch&quot;);</span>
+<span class="lineNum">     525 </span>            :   }
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :   len = RSTRUCT_LEN(copy);</span>
+<span class="lineNum">     527 </span><span class="lineNoCov">          0 :   for (i = 0; i &lt; len; i++) {</span>
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :     mrb_ary_set(mrb, copy, i, RSTRUCT_PTR(s)[i]);</span>
+<span class="lineNum">     529 </span>            :   }
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :   return copy;</span>
+<span class="lineNum">     531 </span>            : }
+<span class="lineNum">     532 </span>            : 
+<a name="533"><span class="lineNum">     533 </span>            : static mrb_value</a>
+<span class="lineNum">     534 </span>            : mrb_struct_aref_id(mrb_state *mrb, mrb_value s, mrb_sym id)
+<span class="lineNum">     535 </span><span class="lineCov">          9 : {</span>
+<span class="lineNum">     536 </span>            :   mrb_value *ptr, members, *ptr_members;
+<span class="lineNum">     537 </span>            :   mrb_int i, len;
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span><span class="lineCov">          9 :   ptr = RSTRUCT_PTR(s);</span>
+<span class="lineNum">     540 </span><span class="lineCov">          9 :   members = mrb_struct_members(mrb, s);</span>
+<span class="lineNum">     541 </span><span class="lineCov">          9 :   ptr_members = RARRAY_PTR(members);</span>
+<span class="lineNum">     542 </span><span class="lineCov">          9 :   len = RARRAY_LEN(members);</span>
+<span class="lineNum">     543 </span><span class="lineCov">         13 :   for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">     544 </span><span class="lineCov">         13 :     if (mrb_symbol(ptr_members[i]) == id) {</span>
+<span class="lineNum">     545 </span><span class="lineCov">          9 :       return ptr[i];</span>
+<span class="lineNum">     546 </span>            :     }
+<span class="lineNum">     547 </span>            :   }
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :   mrb_raisef(mrb, E_INDEX_ERROR, &quot;no member '%S' in struct&quot;, mrb_sym2str(mrb, id));</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :   return mrb_nil_value();       /* not reached */</span>
+<span class="lineNum">     550 </span>            : }
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span>            : /* 15.2.18.4.2  */
+<span class="lineNum">     553 </span>            : /*
+<span class="lineNum">     554 </span>            :  *  call-seq:
+<span class="lineNum">     555 </span>            :  *     struct[symbol]    -&gt; anObject
+<span class="lineNum">     556 </span>            :  *     struct[fixnum]    -&gt; anObject
+<span class="lineNum">     557 </span>            :  *
+<span class="lineNum">     558 </span>            :  *  Attribute Reference---Returns the value of the instance variable
+<span class="lineNum">     559 </span>            :  *  named by &lt;i&gt;symbol&lt;/i&gt;, or indexed (0..length-1) by
+<span class="lineNum">     560 </span>            :  *  &lt;i&gt;fixnum&lt;/i&gt;. Will raise &lt;code&gt;NameError&lt;/code&gt; if the named
+<span class="lineNum">     561 </span>            :  *  variable does not exist, or &lt;code&gt;IndexError&lt;/code&gt; if the index is
+<span class="lineNum">     562 </span>            :  *  out of range.
+<span class="lineNum">     563 </span>            :  *
+<span class="lineNum">     564 </span>            :  *     Customer = Struct.new(:name, :address, :zip)
+<span class="lineNum">     565 </span>            :  *     joe = Customer.new(&quot;Joe Smith&quot;, &quot;123 Maple, Anytown NC&quot;, 12345)
+<span class="lineNum">     566 </span>            :  *
+<span class="lineNum">     567 </span>            :  *     joe[&quot;name&quot;]   #=&gt; &quot;Joe Smith&quot;
+<span class="lineNum">     568 </span>            :  *     joe[:name]    #=&gt; &quot;Joe Smith&quot;
+<span class="lineNum">     569 </span>            :  *     joe[0]        #=&gt; &quot;Joe Smith&quot;
+<span class="lineNum">     570 </span>            :  */
+<a name="571"><span class="lineNum">     571 </span>            : mrb_value</a>
+<span class="lineNum">     572 </span>            : mrb_struct_aref_n(mrb_state *mrb, mrb_value s, mrb_value idx)
+<span class="lineNum">     573 </span><span class="lineCov">          9 : {</span>
+<span class="lineNum">     574 </span>            :   mrb_int i;
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span><span class="lineCov">          9 :   if (mrb_string_p(idx)) {</span>
+<span class="lineNum">     577 </span><span class="lineCov">          1 :     mrb_value sym = mrb_check_intern_str(mrb, idx);</span>
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span><span class="lineCov">          1 :     if (mrb_nil_p(sym)) {</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :       mrb_raisef(mrb, E_INDEX_ERROR, &quot;no member '%S' in struct&quot;, idx);</span>
+<span class="lineNum">     581 </span>            :     }
+<span class="lineNum">     582 </span><span class="lineCov">          1 :     idx = sym;</span>
+<span class="lineNum">     583 </span>            :   }
+<span class="lineNum">     584 </span><span class="lineCov">          9 :   if (mrb_symbol_p(idx)) {</span>
+<span class="lineNum">     585 </span><span class="lineCov">          9 :     return mrb_struct_aref_id(mrb, s, mrb_symbol(idx));</span>
+<span class="lineNum">     586 </span>            :   }
+<span class="lineNum">     587 </span>            : 
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :   i = mrb_fixnum(idx);</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :   if (i &lt; 0) i = RSTRUCT_LEN(s) + i;</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :   if (i &lt; 0)</span>
+<span class="lineNum">     591 </span><span class="lineNoCov">          0 :       mrb_raisef(mrb, E_INDEX_ERROR,</span>
+<span class="lineNum">     592 </span>            :                  &quot;offset %S too small for struct(size:%S)&quot;,
+<span class="lineNum">     593 </span>            :                  mrb_fixnum_value(i), mrb_fixnum_value(RSTRUCT_LEN(s)));
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :   if (RSTRUCT_LEN(s) &lt;= i)</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :     mrb_raisef(mrb, E_INDEX_ERROR,</span>
+<span class="lineNum">     596 </span>            :                &quot;offset %S too large for struct(size:%S)&quot;,
+<span class="lineNum">     597 </span>            :                mrb_fixnum_value(i), mrb_fixnum_value(RSTRUCT_LEN(s)));
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :   return RSTRUCT_PTR(s)[i];</span>
+<span class="lineNum">     599 </span>            : }
+<span class="lineNum">     600 </span>            : 
+<a name="601"><span class="lineNum">     601 </span>            : mrb_value</a>
+<span class="lineNum">     602 </span>            : mrb_struct_aref(mrb_state *mrb, mrb_value s)
+<span class="lineNum">     603 </span><span class="lineCov">          9 : {</span>
+<span class="lineNum">     604 </span>            :   mrb_value idx;
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span><span class="lineCov">          9 :   mrb_get_args(mrb, &quot;o&quot;, &amp;idx);</span>
+<span class="lineNum">     607 </span><span class="lineCov">          9 :   return mrb_struct_aref_n(mrb, s, idx);</span>
+<span class="lineNum">     608 </span>            : }
+<span class="lineNum">     609 </span>            : 
+<a name="610"><span class="lineNum">     610 </span>            : static mrb_value</a>
+<span class="lineNum">     611 </span>            : mrb_struct_aset_id(mrb_state *mrb, mrb_value s, mrb_sym id, mrb_value val)
+<span class="lineNum">     612 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     613 </span>            :   mrb_value members, *ptr, *ptr_members;
+<span class="lineNum">     614 </span>            :   mrb_int i, len;
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span><span class="lineCov">          1 :   members = mrb_struct_members(mrb, s);</span>
+<span class="lineNum">     617 </span><span class="lineCov">          1 :   len = RARRAY_LEN(members);</span>
+<span class="lineNum">     618 </span><span class="lineCov">          1 :   if (RSTRUCT_LEN(s) != len) {</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :     mrb_raisef(mrb, E_TYPE_ERROR,</span>
+<span class="lineNum">     620 </span>            :                &quot;struct size differs (%S required %S given)&quot;,
+<span class="lineNum">     621 </span>            :                mrb_fixnum_value(len), mrb_fixnum_value(RSTRUCT_LEN(s)));
+<span class="lineNum">     622 </span>            :   }
+<span class="lineNum">     623 </span><span class="lineCov">          1 :   ptr = RSTRUCT_PTR(s);</span>
+<span class="lineNum">     624 </span><span class="lineCov">          1 :   ptr_members = RARRAY_PTR(members);</span>
+<span class="lineNum">     625 </span><span class="lineCov">          1 :   for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">     626 </span><span class="lineCov">          1 :     if (mrb_symbol(ptr_members[i]) == id) {</span>
+<span class="lineNum">     627 </span><span class="lineCov">          1 :       ptr[i] = val;</span>
+<span class="lineNum">     628 </span><span class="lineCov">          1 :       return val;</span>
+<span class="lineNum">     629 </span>            :     }
+<span class="lineNum">     630 </span>            :   }
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :   mrb_raisef(mrb, E_INDEX_ERROR, &quot;no member '%S' in struct&quot;, mrb_sym2str(mrb, id));</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :   return val;                   /* not reach */</span>
+<span class="lineNum">     633 </span>            : }
+<span class="lineNum">     634 </span>            : 
+<span class="lineNum">     635 </span>            : /* 15.2.18.4.3  */
+<span class="lineNum">     636 </span>            : /*
+<span class="lineNum">     637 </span>            :  *  call-seq:
+<span class="lineNum">     638 </span>            :  *     struct[symbol] = obj    -&gt; obj
+<span class="lineNum">     639 </span>            :  *     struct[fixnum] = obj    -&gt; obj
+<span class="lineNum">     640 </span>            :  *
+<span class="lineNum">     641 </span>            :  *  Attribute Assignment---Assigns to the instance variable named by
+<span class="lineNum">     642 </span>            :  *  &lt;i&gt;symbol&lt;/i&gt; or &lt;i&gt;fixnum&lt;/i&gt; the value &lt;i&gt;obj&lt;/i&gt; and
+<span class="lineNum">     643 </span>            :  *  returns it. Will raise a &lt;code&gt;NameError&lt;/code&gt; if the named
+<span class="lineNum">     644 </span>            :  *  variable does not exist, or an &lt;code&gt;IndexError&lt;/code&gt; if the index
+<span class="lineNum">     645 </span>            :  *  is out of range.
+<span class="lineNum">     646 </span>            :  *
+<span class="lineNum">     647 </span>            :  *     Customer = Struct.new(:name, :address, :zip)
+<span class="lineNum">     648 </span>            :  *     joe = Customer.new(&quot;Joe Smith&quot;, &quot;123 Maple, Anytown NC&quot;, 12345)
+<span class="lineNum">     649 </span>            :  *
+<span class="lineNum">     650 </span>            :  *     joe[&quot;name&quot;] = &quot;Luke&quot;
+<span class="lineNum">     651 </span>            :  *     joe[:zip]   = &quot;90210&quot;
+<span class="lineNum">     652 </span>            :  *
+<span class="lineNum">     653 </span>            :  *     joe.name   #=&gt; &quot;Luke&quot;
+<span class="lineNum">     654 </span>            :  *     joe.zip    #=&gt; &quot;90210&quot;
+<span class="lineNum">     655 </span>            :  */
+<span class="lineNum">     656 </span>            : 
+<a name="657"><span class="lineNum">     657 </span>            : mrb_value</a>
+<span class="lineNum">     658 </span>            : mrb_struct_aset(mrb_state *mrb, mrb_value s)
+<span class="lineNum">     659 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     660 </span>            :   mrb_int i;
+<span class="lineNum">     661 </span>            :   mrb_value idx;
+<span class="lineNum">     662 </span>            :   mrb_value val;
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;oo&quot;, &amp;idx, &amp;val);</span>
+<span class="lineNum">     665 </span>            : 
+<span class="lineNum">     666 </span><span class="lineCov">          1 :   if (mrb_string_p(idx) || mrb_symbol_p(idx)) {</span>
+<span class="lineNum">     667 </span><span class="lineCov">          1 :     return mrb_struct_aset_id(mrb, s, mrb_obj_to_sym(mrb, idx), val);</span>
+<span class="lineNum">     668 </span>            :   }
+<span class="lineNum">     669 </span>            : 
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 :   i = mrb_fixnum(idx);</span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :   if (i &lt; 0) i = RSTRUCT_LEN(s) + i;</span>
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :   if (i &lt; 0) {</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :     mrb_raisef(mrb, E_INDEX_ERROR,</span>
+<span class="lineNum">     674 </span>            :                &quot;offset %S too small for struct(size:%S)&quot;,
+<span class="lineNum">     675 </span>            :                mrb_fixnum_value(i), mrb_fixnum_value(RSTRUCT_LEN(s)));
+<span class="lineNum">     676 </span>            :   }
+<span class="lineNum">     677 </span><span class="lineNoCov">          0 :   if (RSTRUCT_LEN(s) &lt;= i) {</span>
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :     mrb_raisef(mrb, E_INDEX_ERROR,</span>
+<span class="lineNum">     679 </span>            :                &quot;offset %S too large for struct(size:%S)&quot;,
+<span class="lineNum">     680 </span>            :                mrb_fixnum_value(i), mrb_fixnum_value(RSTRUCT_LEN(s)));
+<span class="lineNum">     681 </span>            :   }
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :   return RSTRUCT_PTR(s)[i] = val;</span>
+<span class="lineNum">     683 </span>            : }
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span>            : /* 15.2.18.4.1  */
+<span class="lineNum">     686 </span>            : /*
+<span class="lineNum">     687 </span>            :  *  call-seq:
+<span class="lineNum">     688 </span>            :  *     struct == other_struct     -&gt; true or false
+<span class="lineNum">     689 </span>            :  *
+<span class="lineNum">     690 </span>            :  *  Equality---Returns &lt;code&gt;true&lt;/code&gt; if &lt;i&gt;other_struct&lt;/i&gt; is
+<span class="lineNum">     691 </span>            :  *  equal to this one: they must be of the same class as generated by
+<span class="lineNum">     692 </span>            :  *  &lt;code&gt;Struct::new&lt;/code&gt;, and the values of all instance variables
+<span class="lineNum">     693 </span>            :  *  must be equal (according to &lt;code&gt;Object#==&lt;/code&gt;).
+<span class="lineNum">     694 </span>            :  *
+<span class="lineNum">     695 </span>            :  *     Customer = Struct.new(:name, :address, :zip)
+<span class="lineNum">     696 </span>            :  *     joe   = Customer.new(&quot;Joe Smith&quot;, &quot;123 Maple, Anytown NC&quot;, 12345)
+<span class="lineNum">     697 </span>            :  *     joejr = Customer.new(&quot;Joe Smith&quot;, &quot;123 Maple, Anytown NC&quot;, 12345)
+<span class="lineNum">     698 </span>            :  *     jane  = Customer.new(&quot;Jane Doe&quot;, &quot;456 Elm, Anytown NC&quot;, 12345)
+<span class="lineNum">     699 </span>            :  *     joe == joejr   #=&gt; true
+<span class="lineNum">     700 </span>            :  *     joe == jane    #=&gt; false
+<span class="lineNum">     701 </span>            :  */
+<span class="lineNum">     702 </span>            : 
+<a name="703"><span class="lineNum">     703 </span>            : static mrb_value</a>
+<span class="lineNum">     704 </span>            : mrb_struct_equal(mrb_state *mrb, mrb_value s)
+<span class="lineNum">     705 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     706 </span>            :   mrb_value s2;
+<span class="lineNum">     707 </span>            :   mrb_value *ptr, *ptr2;
+<span class="lineNum">     708 </span>            :   mrb_int i, len;
+<span class="lineNum">     709 </span>            :   mrb_bool equal_p;
+<span class="lineNum">     710 </span>            : 
+<span class="lineNum">     711 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;o&quot;, &amp;s2);</span>
+<span class="lineNum">     712 </span><span class="lineCov">          1 :   if (mrb_obj_equal(mrb, s, s2)) {</span>
+<span class="lineNum">     713 </span><span class="lineNoCov">          0 :     equal_p = 1;</span>
+<span class="lineNum">     714 </span>            :   }
+<span class="lineNum">     715 </span><span class="lineCov">          1 :   else if (!strcmp(mrb_class_name(mrb, mrb_obj_class(mrb, s)), &quot;Struct&quot;) ||</span>
+<span class="lineNum">     716 </span>            :            mrb_obj_class(mrb, s) != mrb_obj_class(mrb, s2)) {
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :     equal_p = 0;</span>
+<span class="lineNum">     718 </span>            :   }
+<span class="lineNum">     719 </span><span class="lineCov">          1 :   else if (RSTRUCT_LEN(s) != RSTRUCT_LEN(s2)) {</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :     mrb_panic(mrb); /* inconsitent struct -- should never happen */</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :     equal_p = 0; /* This substuture is just to suppress warnings. never called. */</span>
+<span class="lineNum">     722 </span>            :   }
+<span class="lineNum">     723 </span>            :   else {
+<span class="lineNum">     724 </span><span class="lineCov">          1 :     ptr = RSTRUCT_PTR(s);</span>
+<span class="lineNum">     725 </span><span class="lineCov">          1 :     ptr2 = RSTRUCT_PTR(s2);</span>
+<span class="lineNum">     726 </span><span class="lineCov">          1 :     len = RSTRUCT_LEN(s);</span>
+<span class="lineNum">     727 </span><span class="lineCov">          1 :     equal_p = 1;</span>
+<span class="lineNum">     728 </span><span class="lineCov">          3 :     for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">     729 </span><span class="lineCov">          2 :       if (!mrb_equal(mrb, ptr[i], ptr2[i])) {</span>
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :         equal_p = 0;</span>
+<span class="lineNum">     731 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     732 </span>            :       }
+<span class="lineNum">     733 </span>            :     }
+<span class="lineNum">     734 </span>            :   }
+<span class="lineNum">     735 </span>            : 
+<span class="lineNum">     736 </span><span class="lineCov">          1 :   return mrb_bool_value(equal_p);</span>
+<span class="lineNum">     737 </span>            : }
+<span class="lineNum">     738 </span>            : 
+<span class="lineNum">     739 </span>            : /* 15.2.18.4.12(x)  */
+<span class="lineNum">     740 </span>            : /*
+<span class="lineNum">     741 </span>            :  * code-seq:
+<span class="lineNum">     742 </span>            :  *   struct.eql?(other)   -&gt; true or false
+<span class="lineNum">     743 </span>            :  *
+<span class="lineNum">     744 </span>            :  * Two structures are equal if they are the same object, or if all their
+<span class="lineNum">     745 </span>            :  * fields are equal (using &lt;code&gt;eql?&lt;/code&gt;).
+<span class="lineNum">     746 </span>            :  */
+<a name="747"><span class="lineNum">     747 </span>            : static mrb_value</a>
+<span class="lineNum">     748 </span>            : mrb_struct_eql(mrb_state *mrb, mrb_value s)
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     750 </span>            :   mrb_value s2;
+<span class="lineNum">     751 </span>            :   mrb_value *ptr, *ptr2;
+<span class="lineNum">     752 </span>            :   mrb_int i, len;
+<span class="lineNum">     753 </span>            :   mrb_bool eql_p;
+<span class="lineNum">     754 </span>            : 
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;o&quot;, &amp;s2);</span>
+<span class="lineNum">     756 </span><span class="lineNoCov">          0 :   if (mrb_obj_equal(mrb, s, s2)) {</span>
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :     eql_p = 1;</span>
+<span class="lineNum">     758 </span>            :   }
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :   else if (strcmp(mrb_class_name(mrb, mrb_obj_class(mrb, s2)), &quot;Struct&quot;) ||</span>
+<span class="lineNum">     760 </span>            :            mrb_obj_class(mrb, s) != mrb_obj_class(mrb, s2)) {
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :     eql_p = 0;</span>
+<span class="lineNum">     762 </span>            :   }
+<span class="lineNum">     763 </span><span class="lineNoCov">          0 :   else if (RSTRUCT_LEN(s) != RSTRUCT_LEN(s2)) {</span>
+<span class="lineNum">     764 </span><span class="lineNoCov">          0 :     mrb_panic(mrb); /* inconsistent struct -- should never happen */</span>
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :     eql_p = 0; /* This substuture is just to suppress warnings. never called. */</span>
+<span class="lineNum">     766 </span>            :   }
+<span class="lineNum">     767 </span>            :   else {
+<span class="lineNum">     768 </span><span class="lineNoCov">          0 :     ptr = RSTRUCT_PTR(s);</span>
+<span class="lineNum">     769 </span><span class="lineNoCov">          0 :     ptr2 = RSTRUCT_PTR(s2);</span>
+<span class="lineNum">     770 </span><span class="lineNoCov">          0 :     len = RSTRUCT_LEN(s);</span>
+<span class="lineNum">     771 </span><span class="lineNoCov">          0 :     eql_p = 1;</span>
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :     for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">     773 </span><span class="lineNoCov">          0 :       if (!mrb_eql(mrb, ptr[i], ptr2[i])) {</span>
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :         eql_p = 0;</span>
+<span class="lineNum">     775 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     776 </span>            :       }
+<span class="lineNum">     777 </span>            :     }
+<span class="lineNum">     778 </span>            :   }
+<span class="lineNum">     779 </span>            : 
+<span class="lineNum">     780 </span><span class="lineNoCov">          0 :   return mrb_bool_value(eql_p);</span>
+<span class="lineNum">     781 </span>            : }
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span>            : /*
+<span class="lineNum">     784 </span>            :  *  A &lt;code&gt;Struct&lt;/code&gt; is a convenient way to bundle a number of
+<span class="lineNum">     785 </span>            :  *  attributes together, using accessor methods, without having to write
+<span class="lineNum">     786 </span>            :  *  an explicit class.
+<span class="lineNum">     787 </span>            :  *
+<span class="lineNum">     788 </span>            :  *  The &lt;code&gt;Struct&lt;/code&gt; class is a generator of specific classes,
+<span class="lineNum">     789 </span>            :  *  each one of which is defined to hold a set of variables and their
+<span class="lineNum">     790 </span>            :  *  accessors. In these examples, we'll call the generated class
+<span class="lineNum">     791 </span>            :  *  ``&lt;i&gt;Customer&lt;/i&gt;Class,'' and we'll show an example instance of that
+<span class="lineNum">     792 </span>            :  *  class as ``&lt;i&gt;Customer&lt;/i&gt;Inst.''
+<span class="lineNum">     793 </span>            :  *
+<span class="lineNum">     794 </span>            :  *  In the descriptions that follow, the parameter &lt;i&gt;symbol&lt;/i&gt; refers
+<span class="lineNum">     795 </span>            :  *  to a symbol, which is either a quoted string or a
+<span class="lineNum">     796 </span>            :  *  &lt;code&gt;Symbol&lt;/code&gt; (such as &lt;code&gt;:name&lt;/code&gt;).
+<span class="lineNum">     797 </span>            :  */
+<a name="798"><span class="lineNum">     798 </span>            : void</a>
+<span class="lineNum">     799 </span>            : mrb_mruby_struct_gem_init(mrb_state* mrb)
+<span class="lineNum">     800 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     801 </span>            :   struct RClass *st;
+<span class="lineNum">     802 </span><span class="lineCov">         14 :   st = mrb_define_class(mrb, &quot;Struct&quot;,  mrb-&gt;object_class);</span>
+<span class="lineNum">     803 </span>            : 
+<span class="lineNum">     804 </span><span class="lineCov">         14 :   mrb_define_class_method(mrb, st, &quot;new&quot;,             mrb_struct_s_def,       MRB_ARGS_ANY());  /* 15.2.18.3.1  */</span>
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span><span class="lineCov">         14 :   mrb_define_method(mrb, st,       &quot;==&quot;,              mrb_struct_equal,       MRB_ARGS_REQ(1)); /* 15.2.18.4.1  */</span>
+<span class="lineNum">     807 </span><span class="lineCov">         14 :   mrb_define_method(mrb, st,       &quot;[]&quot;,              mrb_struct_aref,        MRB_ARGS_REQ(1)); /* 15.2.18.4.2  */</span>
+<span class="lineNum">     808 </span><span class="lineCov">         14 :   mrb_define_method(mrb, st,       &quot;[]=&quot;,             mrb_struct_aset,        MRB_ARGS_REQ(2)); /* 15.2.18.4.3  */</span>
+<span class="lineNum">     809 </span><span class="lineCov">         14 :   mrb_define_method(mrb, st,       &quot;members&quot;,         mrb_struct_members_m,   MRB_ARGS_NONE()); /* 15.2.18.4.6  */</span>
+<span class="lineNum">     810 </span><span class="lineCov">         14 :   mrb_define_method(mrb, st,       &quot;initialize&quot;,      mrb_struct_initialize_m,MRB_ARGS_ANY());  /* 15.2.18.4.8  */</span>
+<span class="lineNum">     811 </span><span class="lineCov">         14 :   mrb_define_method(mrb, st,       &quot;initialize_copy&quot;, mrb_struct_init_copy,   MRB_ARGS_REQ(1)); /* 15.2.18.4.9  */</span>
+<span class="lineNum">     812 </span><span class="lineCov">         14 :   mrb_define_method(mrb, st,       &quot;inspect&quot;,         mrb_struct_inspect,     MRB_ARGS_NONE()); /* 15.2.18.4.10(x)  */</span>
+<span class="lineNum">     813 </span><span class="lineCov">         14 :   mrb_define_alias(mrb, st,        &quot;to_s&quot;, &quot;inspect&quot;);                                      /* 15.2.18.4.11(x)  */</span>
+<span class="lineNum">     814 </span><span class="lineCov">         14 :   mrb_define_method(mrb, st,       &quot;eql?&quot;,            mrb_struct_eql,         MRB_ARGS_REQ(1)); /* 15.2.18.4.12(x)  */</span>
+<span class="lineNum">     815 </span><span class="lineCov">         14 : }</span>
+<span class="lineNum">     816 </span>            : 
+<a name="817"><span class="lineNum">     817 </span>            : void</a>
+<span class="lineNum">     818 </span>            : mrb_mruby_struct_gem_final(mrb_state* mrb)
+<span class="lineNum">     819 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     820 </span><span class="lineCov">         14 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,1251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/array.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - array.c<span style="font-size: 80%;"> (source / <a href="array.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">469</td>
+            <td class="headerCovTableEntry">544</td>
+            <td class="headerCovTableEntryMed">86.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntryHi">96.5 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** array.c - Array class
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #ifndef SIZE_MAX
+<span class="lineNum">       8 </span>            :  /* Some versions of VC++
+<span class="lineNum">       9 </span>            :   * has SIZE_MAX in stdint.h
+<span class="lineNum">      10 </span>            :   */
+<span class="lineNum">      11 </span>            : # include &lt;limits.h&gt;
+<span class="lineNum">      12 </span>            : #endif
+<span class="lineNum">      13 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      14 </span>            : #include &quot;mruby/array.h&quot;
+<span class="lineNum">      15 </span>            : #include &quot;mruby/class.h&quot;
+<span class="lineNum">      16 </span>            : #include &quot;mruby/string.h&quot;
+<span class="lineNum">      17 </span>            : #include &quot;value_array.h&quot;
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : #define ARY_DEFAULT_LEN   4
+<span class="lineNum">      20 </span>            : #define ARY_SHRINK_RATIO  5 /* must be larger than 2 */
+<span class="lineNum">      21 </span>            : #define ARY_C_MAX_SIZE (SIZE_MAX / sizeof(mrb_value))
+<span class="lineNum">      22 </span>            : #define ARY_MAX_SIZE ((ARY_C_MAX_SIZE &lt; (size_t)MRB_INT_MAX) ? (mrb_int)ARY_C_MAX_SIZE : MRB_INT_MAX)
+<span class="lineNum">      23 </span>            : 
+<a name="24"><span class="lineNum">      24 </span>            : static inline mrb_value</a>
+<span class="lineNum">      25 </span>            : ary_elt(mrb_value ary, mrb_int offset)
+<span class="lineNum">      26 </span><span class="lineCov">        974 : {</span>
+<span class="lineNum">      27 </span><span class="lineCov">        974 :   if (RARRAY_LEN(ary) == 0) return mrb_nil_value();</span>
+<span class="lineNum">      28 </span><span class="lineCov">        974 :   if (offset &lt; 0 || RARRAY_LEN(ary) &lt;= offset) {</span>
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 :     return mrb_nil_value();</span>
+<span class="lineNum">      30 </span>            :   }
+<span class="lineNum">      31 </span><span class="lineCov">        974 :   return RARRAY_PTR(ary)[offset];</span>
+<span class="lineNum">      32 </span>            : }
+<span class="lineNum">      33 </span>            : 
+<a name="34"><span class="lineNum">      34 </span>            : static struct RArray*</a>
+<span class="lineNum">      35 </span>            : ary_new_capa(mrb_state *mrb, mrb_int capa)
+<span class="lineNum">      36 </span><span class="lineCov">       2274 : {</span>
+<span class="lineNum">      37 </span>            :   struct RArray *a;
+<span class="lineNum">      38 </span>            :   mrb_int blen;
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :   if (capa &gt; ARY_MAX_SIZE) {
+<span class="lineNum">      41 </span>            :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;array size too big&quot;);
+<span class="lineNum">      42 </span>            :   }
+<span class="lineNum">      43 </span><span class="lineCov">       2274 :   blen = capa * sizeof(mrb_value) ;</span>
+<span class="lineNum">      44 </span><span class="lineCov">       2274 :   if (blen &lt; capa) {</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;array size too big&quot;);</span>
+<span class="lineNum">      46 </span>            :   }
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">       2274 :   a = (struct RArray*)mrb_obj_alloc(mrb, MRB_TT_ARRAY, mrb-&gt;array_class);</span>
+<span class="lineNum">      49 </span><span class="lineCov">       2274 :   a-&gt;ptr = (mrb_value *)mrb_malloc(mrb, blen);</span>
+<span class="lineNum">      50 </span><span class="lineCov">       2274 :   a-&gt;aux.capa = capa;</span>
+<span class="lineNum">      51 </span><span class="lineCov">       2274 :   a-&gt;len = 0;</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">       2274 :   return a;</span>
+<span class="lineNum">      54 </span>            : }
+<span class="lineNum">      55 </span>            : 
+<a name="56"><span class="lineNum">      56 </span>            : mrb_value</a>
+<span class="lineNum">      57 </span>            : mrb_ary_new_capa(mrb_state *mrb, mrb_int capa)
+<span class="lineNum">      58 </span><span class="lineCov">       2274 : {</span>
+<span class="lineNum">      59 </span><span class="lineCov">       2274 :   struct RArray *a = ary_new_capa(mrb, capa);</span>
+<span class="lineNum">      60 </span><span class="lineCov">       2274 :   return mrb_obj_value(a);</span>
+<span class="lineNum">      61 </span>            : }
+<span class="lineNum">      62 </span>            : 
+<a name="63"><span class="lineNum">      63 </span>            : mrb_value</a>
+<span class="lineNum">      64 </span>            : mrb_ary_new(mrb_state *mrb)
+<span class="lineNum">      65 </span><span class="lineCov">        123 : {</span>
+<span class="lineNum">      66 </span><span class="lineCov">        123 :   return mrb_ary_new_capa(mrb, 0);</span>
+<span class="lineNum">      67 </span>            : }
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : /*
+<span class="lineNum">      70 </span>            :  * to copy array, use this instead of memcpy because of portability
+<span class="lineNum">      71 </span>            :  * * gcc on ARM may fail optimization of memcpy
+<span class="lineNum">      72 </span>            :  *   http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka3934.html
+<span class="lineNum">      73 </span>            :  * * gcc on MIPS also fail
+<span class="lineNum">      74 </span>            :  *   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=39755
+<span class="lineNum">      75 </span>            :  * * memcpy doesn't exist on freestanding environment
+<span class="lineNum">      76 </span>            :  *
+<span class="lineNum">      77 </span>            :  * If you optimize for binary size, use memcpy instead of this at your own risk
+<span class="lineNum">      78 </span>            :  * of above portability issue.
+<span class="lineNum">      79 </span>            :  *
+<span class="lineNum">      80 </span>            :  * see also http://togetter.com/li/462898
+<span class="lineNum">      81 </span>            :  *
+<span class="lineNum">      82 </span>            :  */
+<a name="83"><span class="lineNum">      83 </span>            : static inline void</a>
+<span class="lineNum">      84 </span>            : array_copy(mrb_value *dst, const mrb_value *src, size_t size)
+<span class="lineNum">      85 </span><span class="lineCov">       2247 : {</span>
+<span class="lineNum">      86 </span>            :   size_t i;
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineCov">       4579 :   for (i = 0; i &lt; size; i++) {</span>
+<span class="lineNum">      89 </span><span class="lineCov">       2332 :     dst[i] = src[i];</span>
+<span class="lineNum">      90 </span>            :   }
+<span class="lineNum">      91 </span><span class="lineCov">       2247 : }</span>
+<span class="lineNum">      92 </span>            : 
+<a name="93"><span class="lineNum">      93 </span>            : mrb_value</a>
+<span class="lineNum">      94 </span>            : mrb_assoc_new(mrb_state *mrb, mrb_value car, mrb_value cdr)
+<span class="lineNum">      95 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">      96 </span>            :   mrb_value arv[2];
+<span class="lineNum">      97 </span><span class="lineCov">          2 :   arv[0] = car;</span>
+<span class="lineNum">      98 </span><span class="lineCov">          2 :   arv[1] = cdr;</span>
+<span class="lineNum">      99 </span><span class="lineCov">          2 :   return mrb_ary_new_from_values(mrb, 2, arv);</span>
+<span class="lineNum">     100 </span>            : }
+<span class="lineNum">     101 </span>            : 
+<a name="102"><span class="lineNum">     102 </span>            : static void</a>
+<span class="lineNum">     103 </span>            : ary_fill_with_nil(mrb_value *ptr, mrb_int size)
+<span class="lineNum">     104 </span><span class="lineCov">         25 : {</span>
+<span class="lineNum">     105 </span><span class="lineCov">         25 :   mrb_value nil = mrb_nil_value();</span>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineCov">         93 :   while ((int)(size--)) {</span>
+<span class="lineNum">     108 </span><span class="lineCov">         43 :     *ptr++ = nil;</span>
+<span class="lineNum">     109 </span>            :   }
+<span class="lineNum">     110 </span><span class="lineCov">         25 : }</span>
+<span class="lineNum">     111 </span>            : 
+<a name="112"><span class="lineNum">     112 </span>            : static void</a>
+<span class="lineNum">     113 </span>            : ary_modify(mrb_state *mrb, struct RArray *a)
+<span class="lineNum">     114 </span><span class="lineCov">       1964 : {</span>
+<span class="lineNum">     115 </span><span class="lineCov">       1964 :   if (a-&gt;flags &amp; MRB_ARY_SHARED) {</span>
+<span class="lineNum">     116 </span><span class="lineCov">          2 :     mrb_shared_array *shared = a-&gt;aux.shared;</span>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">          2 :     if (shared-&gt;refcnt == 1 &amp;&amp; a-&gt;ptr == shared-&gt;ptr) {</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :       a-&gt;ptr = shared-&gt;ptr;</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :       a-&gt;aux.capa = a-&gt;len;</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :       mrb_free(mrb, shared);</span>
+<span class="lineNum">     122 </span>            :     }
+<span class="lineNum">     123 </span>            :     else {
+<span class="lineNum">     124 </span>            :       mrb_value *ptr, *p;
+<span class="lineNum">     125 </span>            :       mrb_int len;
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">          2 :       p = a-&gt;ptr;</span>
+<span class="lineNum">     128 </span><span class="lineCov">          2 :       len = a-&gt;len * sizeof(mrb_value);</span>
+<span class="lineNum">     129 </span><span class="lineCov">          2 :       ptr = (mrb_value *)mrb_malloc(mrb, len);</span>
+<span class="lineNum">     130 </span><span class="lineCov">          2 :       if (p) {</span>
+<span class="lineNum">     131 </span><span class="lineCov">          2 :         array_copy(ptr, p, a-&gt;len);</span>
+<span class="lineNum">     132 </span>            :       }
+<span class="lineNum">     133 </span><span class="lineCov">          2 :       a-&gt;ptr = ptr;</span>
+<span class="lineNum">     134 </span><span class="lineCov">          2 :       a-&gt;aux.capa = a-&gt;len;</span>
+<span class="lineNum">     135 </span><span class="lineCov">          2 :       mrb_ary_decref(mrb, shared);</span>
+<span class="lineNum">     136 </span>            :     }
+<span class="lineNum">     137 </span><span class="lineCov">          2 :     a-&gt;flags &amp;= ~MRB_ARY_SHARED;</span>
+<span class="lineNum">     138 </span>            :   }
+<span class="lineNum">     139 </span><span class="lineCov">       1964 : }</span>
+<span class="lineNum">     140 </span>            : 
+<a name="141"><span class="lineNum">     141 </span>            : static void</a>
+<span class="lineNum">     142 </span>            : ary_make_shared(mrb_state *mrb, struct RArray *a)
+<span class="lineNum">     143 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     144 </span><span class="lineCov">          1 :   if (!(a-&gt;flags &amp; MRB_ARY_SHARED)) {</span>
+<span class="lineNum">     145 </span><span class="lineCov">          1 :     mrb_shared_array *shared = (mrb_shared_array *)mrb_malloc(mrb, sizeof(mrb_shared_array));</span>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineCov">          1 :     shared-&gt;refcnt = 1;</span>
+<span class="lineNum">     148 </span><span class="lineCov">          1 :     if (a-&gt;aux.capa &gt; a-&gt;len) {</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :       a-&gt;ptr = shared-&gt;ptr = (mrb_value *)mrb_realloc(mrb, a-&gt;ptr, sizeof(mrb_value)*a-&gt;len+1);</span>
+<span class="lineNum">     150 </span>            :     }
+<span class="lineNum">     151 </span>            :     else {
+<span class="lineNum">     152 </span><span class="lineCov">          1 :       shared-&gt;ptr = a-&gt;ptr;</span>
+<span class="lineNum">     153 </span>            :     }
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     shared-&gt;len = a-&gt;len;</span>
+<span class="lineNum">     155 </span><span class="lineCov">          1 :     a-&gt;aux.shared = shared;</span>
+<span class="lineNum">     156 </span><span class="lineCov">          1 :     a-&gt;flags |= MRB_ARY_SHARED;</span>
+<span class="lineNum">     157 </span>            :   }
+<span class="lineNum">     158 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     159 </span>            : 
+<a name="160"><span class="lineNum">     160 </span>            : static void</a>
+<span class="lineNum">     161 </span>            : ary_expand_capa(mrb_state *mrb, struct RArray *a, mrb_int len)
+<span class="lineNum">     162 </span><span class="lineCov">        404 : {</span>
+<span class="lineNum">     163 </span><span class="lineCov">        404 :   mrb_int capa = a-&gt;aux.capa;</span>
+<span class="lineNum">     164 </span>            : 
+<span class="lineNum">     165 </span>            :   if (len &gt; ARY_MAX_SIZE) {
+<span class="lineNum">     166 </span>            :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;array size too big&quot;);
+<span class="lineNum">     167 </span>            :   }
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span><span class="lineCov">       1218 :   while (capa &lt; len) {</span>
+<span class="lineNum">     170 </span><span class="lineCov">        410 :     if (capa == 0) {</span>
+<span class="lineNum">     171 </span><span class="lineCov">        313 :       capa = ARY_DEFAULT_LEN;</span>
+<span class="lineNum">     172 </span>            :     }
+<span class="lineNum">     173 </span>            :     else {
+<span class="lineNum">     174 </span><span class="lineCov">         97 :       capa *= 2;</span>
+<span class="lineNum">     175 </span>            :     }
+<span class="lineNum">     176 </span>            :   }
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            :   if (capa &gt; ARY_MAX_SIZE) capa = ARY_MAX_SIZE; /* len &lt;= capa &lt;= ARY_MAX_SIZE */
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">        404 :   if (capa &gt; a-&gt;aux.capa) {</span>
+<span class="lineNum">     181 </span><span class="lineCov">        404 :     mrb_value *expanded_ptr = (mrb_value *)mrb_realloc(mrb, a-&gt;ptr, sizeof(mrb_value)*capa);</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">        404 :     if (!expanded_ptr) {</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_RUNTIME_ERROR, &quot;out of memory&quot;);</span>
+<span class="lineNum">     185 </span>            :     }
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span><span class="lineCov">        404 :     a-&gt;aux.capa = capa;</span>
+<span class="lineNum">     188 </span><span class="lineCov">        404 :     a-&gt;ptr = expanded_ptr;</span>
+<span class="lineNum">     189 </span>            :   }
+<span class="lineNum">     190 </span><span class="lineCov">        404 : }</span>
+<span class="lineNum">     191 </span>            : 
+<a name="192"><span class="lineNum">     192 </span>            : static void</a>
+<span class="lineNum">     193 </span>            : ary_shrink_capa(mrb_state *mrb, struct RArray *a)
+<span class="lineNum">     194 </span><span class="lineCov">          5 : {</span>
+<span class="lineNum">     195 </span><span class="lineCov">          5 :   mrb_int capa = a-&gt;aux.capa;</span>
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span><span class="lineCov">          5 :   if (capa &lt; ARY_DEFAULT_LEN * 2) return;</span>
+<span class="lineNum">     198 </span><span class="lineCov">          2 :   if (capa &lt;= a-&gt;len * ARY_SHRINK_RATIO) return;</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :   do {
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :     capa /= 2;</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :     if (capa &lt; ARY_DEFAULT_LEN) {</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :       capa = ARY_DEFAULT_LEN;</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     205 </span>            :     }
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :   } while (capa &gt; a-&gt;len * ARY_SHRINK_RATIO);</span>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :   if (capa &gt; a-&gt;len &amp;&amp; capa &lt; a-&gt;aux.capa) {</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :     a-&gt;aux.capa = capa;</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :     a-&gt;ptr = (mrb_value *)mrb_realloc(mrb, a-&gt;ptr, sizeof(mrb_value)*capa);</span>
+<span class="lineNum">     211 </span>            :   }
+<span class="lineNum">     212 </span>            : }
+<span class="lineNum">     213 </span>            : 
+<a name="214"><span class="lineNum">     214 </span>            : mrb_value</a>
+<span class="lineNum">     215 </span>            : mrb_ary_s_create(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     216 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     217 </span>            :   mrb_value *vals;
+<span class="lineNum">     218 </span>            :   int len;
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;*&quot;, &amp;vals, &amp;len);</span>
+<span class="lineNum">     221 </span><span class="lineCov">          1 :   return mrb_ary_new_from_values(mrb, len, vals);</span>
+<span class="lineNum">     222 </span>            : }
+<span class="lineNum">     223 </span>            : 
+<a name="224"><span class="lineNum">     224 </span>            : static void</a>
+<span class="lineNum">     225 </span>            : ary_concat(mrb_state *mrb, struct RArray *a, mrb_value *ptr, mrb_int blen)
+<span class="lineNum">     226 </span><span class="lineCov">        111 : {</span>
+<span class="lineNum">     227 </span><span class="lineCov">        111 :   mrb_int len = a-&gt;len + blen;</span>
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineCov">        111 :   ary_modify(mrb, a);</span>
+<span class="lineNum">     230 </span><span class="lineCov">        111 :   if (a-&gt;aux.capa &lt; len) ary_expand_capa(mrb, a, len);</span>
+<span class="lineNum">     231 </span><span class="lineCov">        111 :   array_copy(a-&gt;ptr+a-&gt;len, ptr, blen);</span>
+<span class="lineNum">     232 </span><span class="lineCov">        111 :   mrb_write_barrier(mrb, (struct RBasic*)a);</span>
+<span class="lineNum">     233 </span><span class="lineCov">        111 :   a-&gt;len = len;</span>
+<span class="lineNum">     234 </span><span class="lineCov">        111 : }</span>
+<span class="lineNum">     235 </span>            : 
+<a name="236"><span class="lineNum">     236 </span>            : void</a>
+<span class="lineNum">     237 </span>            : mrb_ary_concat(mrb_state *mrb, mrb_value self, mrb_value other)
+<span class="lineNum">     238 </span><span class="lineCov">        110 : {</span>
+<span class="lineNum">     239 </span><span class="lineCov">        110 :   struct RArray *a2 = mrb_ary_ptr(other);</span>
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span><span class="lineCov">        110 :   ary_concat(mrb, mrb_ary_ptr(self), a2-&gt;ptr, a2-&gt;len);</span>
+<span class="lineNum">     242 </span><span class="lineCov">        110 : }</span>
+<span class="lineNum">     243 </span>            : 
+<a name="244"><span class="lineNum">     244 </span>            : mrb_value</a>
+<span class="lineNum">     245 </span>            : mrb_ary_concat_m(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     246 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     247 </span>            :   mrb_value *ptr;
+<span class="lineNum">     248 </span>            :   mrb_int blen;
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;a&quot;, &amp;ptr, &amp;blen);</span>
+<span class="lineNum">     251 </span><span class="lineCov">          1 :   ary_concat(mrb, mrb_ary_ptr(self), ptr, blen);</span>
+<span class="lineNum">     252 </span><span class="lineCov">          1 :   return self;</span>
+<span class="lineNum">     253 </span>            : }
+<span class="lineNum">     254 </span>            : 
+<a name="255"><span class="lineNum">     255 </span>            : mrb_value</a>
+<span class="lineNum">     256 </span>            : mrb_ary_plus(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     257 </span><span class="lineCov">         43 : {</span>
+<span class="lineNum">     258 </span><span class="lineCov">         43 :   struct RArray *a1 = mrb_ary_ptr(self);</span>
+<span class="lineNum">     259 </span>            :   struct RArray *a2;
+<span class="lineNum">     260 </span>            :   mrb_value ary;
+<span class="lineNum">     261 </span>            :   mrb_value *ptr;
+<span class="lineNum">     262 </span>            :   mrb_int blen;
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">         43 :   mrb_get_args(mrb, &quot;a&quot;, &amp;ptr, &amp;blen);</span>
+<span class="lineNum">     265 </span><span class="lineCov">         43 :   ary = mrb_ary_new_capa(mrb, a1-&gt;len + blen);</span>
+<span class="lineNum">     266 </span><span class="lineCov">         43 :   a2 = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     267 </span><span class="lineCov">         43 :   array_copy(a2-&gt;ptr, a1-&gt;ptr, a1-&gt;len);</span>
+<span class="lineNum">     268 </span><span class="lineCov">         43 :   array_copy(a2-&gt;ptr + a1-&gt;len, ptr, blen);</span>
+<span class="lineNum">     269 </span><span class="lineCov">         43 :   a2-&gt;len = a1-&gt;len + blen;</span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineCov">         43 :   return ary;</span>
+<span class="lineNum">     272 </span>            : }
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span>            : /*
+<span class="lineNum">     275 </span>            :  *  call-seq:
+<span class="lineNum">     276 </span>            :  *     ary &lt;=&gt; other_ary   -&gt;  -1, 0, +1 or nil
+<span class="lineNum">     277 </span>            :  *
+<span class="lineNum">     278 </span>            :  *  Comparison---Returns an integer (-1, 0, or +1)
+<span class="lineNum">     279 </span>            :  *  if this array is less than, equal to, or greater than &lt;i&gt;other_ary&lt;/i&gt;.
+<span class="lineNum">     280 </span>            :  *  Each object in each array is compared (using &lt;=&gt;). If any value isn't
+<span class="lineNum">     281 </span>            :  *  equal, then that inequality is the return value. If all the
+<span class="lineNum">     282 </span>            :  *  values found are equal, then the return is based on a
+<span class="lineNum">     283 </span>            :  *  comparison of the array lengths.  Thus, two arrays are
+<span class="lineNum">     284 </span>            :  *  ``equal'' according to &lt;code&gt;Array#&lt;=&gt;&lt;/code&gt; if and only if they have
+<span class="lineNum">     285 </span>            :  *  the same length and the value of each element is equal to the
+<span class="lineNum">     286 </span>            :  *  value of the corresponding element in the other array.
+<span class="lineNum">     287 </span>            :  *
+<span class="lineNum">     288 </span>            :  *     [ &quot;a&quot;, &quot;a&quot;, &quot;c&quot; ]    &lt;=&gt; [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ]   #=&gt; -1
+<span class="lineNum">     289 </span>            :  *     [ 1, 2, 3, 4, 5, 6 ] &lt;=&gt; [ 1, 2 ]            #=&gt; +1
+<span class="lineNum">     290 </span>            :  *
+<span class="lineNum">     291 </span>            :  */
+<a name="292"><span class="lineNum">     292 </span>            : mrb_value</a>
+<span class="lineNum">     293 </span>            : mrb_ary_cmp(mrb_state *mrb, mrb_value ary1)
+<span class="lineNum">     294 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     295 </span>            :   mrb_value ary2;
+<span class="lineNum">     296 </span>            :   struct RArray *a1, *a2;
+<span class="lineNum">     297 </span><span class="lineCov">          3 :   mrb_value r = mrb_nil_value();</span>
+<span class="lineNum">     298 </span>            :   mrb_int i, len;
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineCov">          3 :   mrb_get_args(mrb, &quot;o&quot;, &amp;ary2);</span>
+<span class="lineNum">     301 </span><span class="lineCov">          3 :   if (!mrb_array_p(ary2)) return mrb_nil_value();</span>
+<span class="lineNum">     302 </span><span class="lineCov">          3 :   a1 = RARRAY(ary1); a2 = RARRAY(ary2);</span>
+<span class="lineNum">     303 </span><span class="lineCov">          3 :   if (a1-&gt;len == a2-&gt;len &amp;&amp; a1-&gt;ptr == a2-&gt;ptr) return mrb_fixnum_value(0);</span>
+<span class="lineNum">     304 </span>            :   else {
+<span class="lineNum">     305 </span><span class="lineCov">          3 :     mrb_sym cmp = mrb_intern2(mrb, &quot;&lt;=&gt;&quot;, 3);</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span><span class="lineCov">          3 :     len = RARRAY_LEN(ary1);</span>
+<span class="lineNum">     308 </span><span class="lineCov">          3 :     if (len &gt; RARRAY_LEN(ary2)) {</span>
+<span class="lineNum">     309 </span><span class="lineCov">          1 :       len = RARRAY_LEN(ary2);</span>
+<span class="lineNum">     310 </span>            :     }
+<span class="lineNum">     311 </span><span class="lineCov">          9 :     for (i=0; i&lt;len; i++) {</span>
+<span class="lineNum">     312 </span><span class="lineCov">          7 :       mrb_value v = ary_elt(ary2, i);</span>
+<span class="lineNum">     313 </span><span class="lineCov">          7 :       r = mrb_funcall_argv(mrb, ary_elt(ary1, i), cmp, 1, &amp;v);</span>
+<span class="lineNum">     314 </span><span class="lineCov">          7 :       if (mrb_type(r) != MRB_TT_FIXNUM || mrb_fixnum(r) != 0) return r;</span>
+<span class="lineNum">     315 </span>            :     }
+<span class="lineNum">     316 </span>            :   }
+<span class="lineNum">     317 </span><span class="lineCov">          2 :   len = a1-&gt;len - a2-&gt;len;</span>
+<span class="lineNum">     318 </span><span class="lineCov">          2 :   return mrb_fixnum_value((len == 0)? 0: (len &gt; 0)? 1: -1);</span>
+<span class="lineNum">     319 </span>            : }
+<span class="lineNum">     320 </span>            : 
+<a name="321"><span class="lineNum">     321 </span>            : static void</a>
+<span class="lineNum">     322 </span>            : ary_replace(mrb_state *mrb, struct RArray *a, mrb_value *argv, mrb_int len)
+<span class="lineNum">     323 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">     324 </span><span class="lineCov">         16 :   ary_modify(mrb, a);</span>
+<span class="lineNum">     325 </span><span class="lineCov">         16 :   if (a-&gt;aux.capa &lt; len)</span>
+<span class="lineNum">     326 </span><span class="lineCov">         11 :     ary_expand_capa(mrb, a, len);</span>
+<span class="lineNum">     327 </span><span class="lineCov">         16 :   array_copy(a-&gt;ptr, argv, len);</span>
+<span class="lineNum">     328 </span><span class="lineCov">         16 :   mrb_write_barrier(mrb, (struct RBasic*)a);</span>
+<span class="lineNum">     329 </span><span class="lineCov">         16 :   a-&gt;len = len;</span>
+<span class="lineNum">     330 </span><span class="lineCov">         16 : }</span>
+<span class="lineNum">     331 </span>            : 
+<a name="332"><span class="lineNum">     332 </span>            : void</a>
+<span class="lineNum">     333 </span>            : mrb_ary_replace(mrb_state *mrb, mrb_value self, mrb_value other)
+<span class="lineNum">     334 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">     335 </span><span class="lineCov">         16 :   struct RArray *a2 = mrb_ary_ptr(other);</span>
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span><span class="lineCov">         16 :   ary_replace(mrb, mrb_ary_ptr(self), a2-&gt;ptr, a2-&gt;len);</span>
+<span class="lineNum">     338 </span><span class="lineCov">         16 : }</span>
+<span class="lineNum">     339 </span>            : 
+<a name="340"><span class="lineNum">     340 </span>            : mrb_value</a>
+<span class="lineNum">     341 </span>            : mrb_ary_replace_m(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     342 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">     343 </span>            :   mrb_value other;
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineCov">         16 :   mrb_get_args(mrb, &quot;A&quot;, &amp;other);</span>
+<span class="lineNum">     346 </span><span class="lineCov">         16 :   mrb_ary_replace(mrb, self, other);</span>
+<span class="lineNum">     347 </span>            : 
+<span class="lineNum">     348 </span><span class="lineCov">         16 :   return self;</span>
+<span class="lineNum">     349 </span>            : }
+<span class="lineNum">     350 </span>            : 
+<a name="351"><span class="lineNum">     351 </span>            : mrb_value</a>
+<span class="lineNum">     352 </span>            : mrb_ary_times(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     353 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     354 </span><span class="lineCov">          3 :   struct RArray *a1 = mrb_ary_ptr(self);</span>
+<span class="lineNum">     355 </span>            :   struct RArray *a2;
+<span class="lineNum">     356 </span>            :   mrb_value ary;
+<span class="lineNum">     357 </span>            :   mrb_value *ptr;
+<span class="lineNum">     358 </span>            :   mrb_int times;
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span><span class="lineCov">          3 :   mrb_get_args(mrb, &quot;i&quot;, &amp;times);</span>
+<span class="lineNum">     361 </span><span class="lineCov">          3 :   if (times &lt; 0) {</span>
+<span class="lineNum">     362 </span><span class="lineCov">          1 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;negative argument&quot;);</span>
+<span class="lineNum">     363 </span>            :   }
+<span class="lineNum">     364 </span><span class="lineCov">          2 :   if (times == 0) return mrb_ary_new(mrb);</span>
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span><span class="lineCov">          1 :   ary = mrb_ary_new_capa(mrb, a1-&gt;len * times);</span>
+<span class="lineNum">     367 </span><span class="lineCov">          1 :   a2 = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     368 </span><span class="lineCov">          1 :   ptr = a2-&gt;ptr;</span>
+<span class="lineNum">     369 </span><span class="lineCov">          5 :   while (times--) {</span>
+<span class="lineNum">     370 </span><span class="lineCov">          3 :     array_copy(ptr, a1-&gt;ptr, a1-&gt;len);</span>
+<span class="lineNum">     371 </span><span class="lineCov">          3 :     ptr += a1-&gt;len;</span>
+<span class="lineNum">     372 </span><span class="lineCov">          3 :     a2-&gt;len += a1-&gt;len;</span>
+<span class="lineNum">     373 </span>            :   }
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineCov">          1 :   return ary;</span>
+<span class="lineNum">     376 </span>            : }
+<span class="lineNum">     377 </span>            : 
+<a name="378"><span class="lineNum">     378 </span>            : mrb_value</a>
+<span class="lineNum">     379 </span>            : mrb_ary_reverse_bang(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     380 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     381 </span><span class="lineCov">          1 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     382 </span>            : 
+<span class="lineNum">     383 </span><span class="lineCov">          1 :   if (a-&gt;len &gt; 1) {</span>
+<span class="lineNum">     384 </span>            :     mrb_value *p1, *p2;
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span><span class="lineCov">          1 :     ary_modify(mrb, a);</span>
+<span class="lineNum">     387 </span><span class="lineCov">          1 :     p1 = a-&gt;ptr;</span>
+<span class="lineNum">     388 </span><span class="lineCov">          1 :     p2 = a-&gt;ptr + a-&gt;len - 1;</span>
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span><span class="lineCov">          3 :     while (p1 &lt; p2) {</span>
+<span class="lineNum">     391 </span><span class="lineCov">          1 :       mrb_value tmp = *p1;</span>
+<span class="lineNum">     392 </span><span class="lineCov">          1 :       *p1++ = *p2;</span>
+<span class="lineNum">     393 </span><span class="lineCov">          1 :       *p2-- = tmp;</span>
+<span class="lineNum">     394 </span>            :     }
+<span class="lineNum">     395 </span>            :   }
+<span class="lineNum">     396 </span><span class="lineCov">          1 :   return self;</span>
+<span class="lineNum">     397 </span>            : }
+<span class="lineNum">     398 </span>            : 
+<a name="399"><span class="lineNum">     399 </span>            : mrb_value</a>
+<span class="lineNum">     400 </span>            : mrb_ary_reverse(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     401 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     402 </span><span class="lineCov">          1 :   struct RArray *a = mrb_ary_ptr(self), *b;</span>
+<span class="lineNum">     403 </span>            :   mrb_value ary;
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span><span class="lineCov">          1 :   ary = mrb_ary_new_capa(mrb, a-&gt;len);</span>
+<span class="lineNum">     406 </span><span class="lineCov">          1 :   b = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     407 </span><span class="lineCov">          1 :   if (a-&gt;len &gt; 0) {</span>
+<span class="lineNum">     408 </span>            :     mrb_value *p1, *p2, *e;
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span><span class="lineCov">          1 :     p1 = a-&gt;ptr;</span>
+<span class="lineNum">     411 </span><span class="lineCov">          1 :     e  = p1 + a-&gt;len;</span>
+<span class="lineNum">     412 </span><span class="lineCov">          1 :     p2 = b-&gt;ptr + a-&gt;len - 1;</span>
+<span class="lineNum">     413 </span><span class="lineCov">          5 :     while (p1 &lt; e) {</span>
+<span class="lineNum">     414 </span><span class="lineCov">          3 :       *p2-- = *p1++;</span>
+<span class="lineNum">     415 </span>            :     }
+<span class="lineNum">     416 </span><span class="lineCov">          1 :     b-&gt;len = a-&gt;len;</span>
+<span class="lineNum">     417 </span>            :   }
+<span class="lineNum">     418 </span><span class="lineCov">          1 :   return ary;</span>
+<span class="lineNum">     419 </span>            : }
+<span class="lineNum">     420 </span>            : 
+<a name="421"><span class="lineNum">     421 </span>            : mrb_value</a>
+<span class="lineNum">     422 </span>            : mrb_ary_new_from_values(mrb_state *mrb, mrb_int size, const mrb_value *vals)
+<span class="lineNum">     423 </span><span class="lineCov">       2027 : {</span>
+<span class="lineNum">     424 </span>            :   mrb_value ary;
+<span class="lineNum">     425 </span>            :   struct RArray *a;
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span><span class="lineCov">       2027 :   ary = mrb_ary_new_capa(mrb, size);</span>
+<span class="lineNum">     428 </span><span class="lineCov">       2027 :   a = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     429 </span><span class="lineCov">       2027 :   array_copy(a-&gt;ptr, vals, size);</span>
+<span class="lineNum">     430 </span><span class="lineCov">       2027 :   a-&gt;len = size;</span>
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span><span class="lineCov">       2027 :   return ary;</span>
+<span class="lineNum">     433 </span>            : }
+<span class="lineNum">     434 </span>            : 
+<a name="435"><span class="lineNum">     435 </span>            : void</a>
+<span class="lineNum">     436 </span>            : mrb_ary_push(mrb_state *mrb, mrb_value ary, mrb_value elem) /* mrb_ary_push */
+<span class="lineNum">     437 </span><span class="lineCov">       1709 : {</span>
+<span class="lineNum">     438 </span><span class="lineCov">       1709 :   struct RArray *a = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span><span class="lineCov">       1709 :   ary_modify(mrb, a);</span>
+<span class="lineNum">     441 </span><span class="lineCov">       1709 :   if (a-&gt;len == a-&gt;aux.capa)</span>
+<span class="lineNum">     442 </span><span class="lineCov">        287 :     ary_expand_capa(mrb, a, a-&gt;len + 1);</span>
+<span class="lineNum">     443 </span><span class="lineCov">       1709 :   a-&gt;ptr[a-&gt;len++] = elem;</span>
+<span class="lineNum">     444 </span><span class="lineCov">       1709 :   mrb_write_barrier(mrb, (struct RBasic*)a);</span>
+<span class="lineNum">     445 </span><span class="lineCov">       1709 : }</span>
+<span class="lineNum">     446 </span>            : 
+<a name="447"><span class="lineNum">     447 </span>            : mrb_value</a>
+<span class="lineNum">     448 </span>            : mrb_ary_push_m(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     449 </span><span class="lineCov">        244 : {</span>
+<span class="lineNum">     450 </span>            :   mrb_value *argv;
+<span class="lineNum">     451 </span>            :   int len;
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span><span class="lineCov">        244 :   mrb_get_args(mrb, &quot;*&quot;, &amp;argv, &amp;len);</span>
+<span class="lineNum">     454 </span><span class="lineCov">        732 :   while (len--) {</span>
+<span class="lineNum">     455 </span><span class="lineCov">        244 :     mrb_ary_push(mrb, self, *argv++);</span>
+<span class="lineNum">     456 </span>            :   }
+<span class="lineNum">     457 </span>            : 
+<span class="lineNum">     458 </span><span class="lineCov">        244 :   return self;</span>
+<span class="lineNum">     459 </span>            : }
+<span class="lineNum">     460 </span>            : 
+<a name="461"><span class="lineNum">     461 </span>            : mrb_value</a>
+<span class="lineNum">     462 </span>            : mrb_ary_pop(mrb_state *mrb, mrb_value ary)
+<span class="lineNum">     463 </span><span class="lineCov">         93 : {</span>
+<span class="lineNum">     464 </span><span class="lineCov">         93 :   struct RArray *a = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span><span class="lineCov">         93 :   if (a-&gt;len == 0) return mrb_nil_value();</span>
+<span class="lineNum">     467 </span><span class="lineCov">         92 :   return a-&gt;ptr[--a-&gt;len];</span>
+<span class="lineNum">     468 </span>            : }
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span>            : #define ARY_SHIFT_SHARED_MIN 10
+<span class="lineNum">     471 </span>            : 
+<a name="472"><span class="lineNum">     472 </span>            : mrb_value</a>
+<span class="lineNum">     473 </span>            : mrb_ary_shift(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     474 </span><span class="lineCov">         27 : {</span>
+<span class="lineNum">     475 </span><span class="lineCov">         27 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     476 </span>            :   mrb_value val;
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span><span class="lineCov">         27 :   if (a-&gt;len == 0) return mrb_nil_value();</span>
+<span class="lineNum">     479 </span><span class="lineCov">         13 :   if (a-&gt;flags &amp; MRB_ARY_SHARED) {</span>
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :   L_SHIFT:</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :     val = a-&gt;ptr[0];</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :     a-&gt;ptr++;</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :     a-&gt;len--;</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :     return val;</span>
+<span class="lineNum">     485 </span>            :   }
+<span class="lineNum">     486 </span><span class="lineCov">         13 :   if (a-&gt;len &gt; ARY_SHIFT_SHARED_MIN) {</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :     ary_make_shared(mrb, a);</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :     goto L_SHIFT;</span>
+<span class="lineNum">     489 </span>            :   }
+<span class="lineNum">     490 </span>            :   else {
+<span class="lineNum">     491 </span><span class="lineCov">         13 :     mrb_value *ptr = a-&gt;ptr;</span>
+<span class="lineNum">     492 </span><span class="lineCov">         13 :     mrb_int size = a-&gt;len;</span>
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span><span class="lineCov">         13 :     val = *ptr;</span>
+<span class="lineNum">     495 </span><span class="lineCov">         48 :     while ((int)(--size)) {</span>
+<span class="lineNum">     496 </span><span class="lineCov">         22 :       *ptr = *(ptr+1);</span>
+<span class="lineNum">     497 </span><span class="lineCov">         22 :       ++ptr;</span>
+<span class="lineNum">     498 </span>            :     }
+<span class="lineNum">     499 </span><span class="lineCov">         13 :     --a-&gt;len;</span>
+<span class="lineNum">     500 </span>            :   }
+<span class="lineNum">     501 </span><span class="lineCov">         13 :   return val;</span>
+<span class="lineNum">     502 </span>            : }
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span>            : /* self = [1,2,3]
+<span class="lineNum">     505 </span>            :    item = 0
+<span class="lineNum">     506 </span>            :    self.unshift item
+<span class="lineNum">     507 </span>            :    p self #=&gt; [0, 1, 2, 3] */
+<a name="508"><span class="lineNum">     508 </span>            : mrb_value</a>
+<span class="lineNum">     509 </span>            : mrb_ary_unshift(mrb_state *mrb, mrb_value self, mrb_value item)
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :   if ((a-&gt;flags &amp; MRB_ARY_SHARED)</span>
+<span class="lineNum">     514 </span>            :       &amp;&amp; a-&gt;aux.shared-&gt;refcnt == 1 /* shared only referenced from this array */
+<span class="lineNum">     515 </span>            :       &amp;&amp; a-&gt;ptr - a-&gt;aux.shared-&gt;ptr &gt;= 1) /* there's room for unshifted item */ {
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :     a-&gt;ptr--;</span>
+<span class="lineNum">     517 </span><span class="lineNoCov">          0 :     a-&gt;ptr[0] = item;</span>
+<span class="lineNum">     518 </span>            :   }
+<span class="lineNum">     519 </span>            :   else {
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :     ary_modify(mrb, a);</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :     if (a-&gt;aux.capa &lt; a-&gt;len + 1)</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :       ary_expand_capa(mrb, a, a-&gt;len + 1);</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :     value_move(a-&gt;ptr + 1, a-&gt;ptr, a-&gt;len);</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :     a-&gt;ptr[0] = item;</span>
+<span class="lineNum">     525 </span>            :   }
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :   a-&gt;len++;</span>
+<span class="lineNum">     527 </span><span class="lineNoCov">          0 :   mrb_write_barrier(mrb, (struct RBasic*)a);</span>
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :   return self;</span>
+<span class="lineNum">     530 </span>            : }
+<span class="lineNum">     531 </span>            : 
+<a name="532"><span class="lineNum">     532 </span>            : mrb_value</a>
+<span class="lineNum">     533 </span>            : mrb_ary_unshift_m(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     534 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     535 </span><span class="lineCov">          2 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     536 </span>            :   mrb_value *vals;
+<span class="lineNum">     537 </span>            :   int len;
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;*&quot;, &amp;vals, &amp;len);</span>
+<span class="lineNum">     540 </span><span class="lineCov">          2 :   if ((a-&gt;flags &amp; MRB_ARY_SHARED)</span>
+<span class="lineNum">     541 </span>            :       &amp;&amp; a-&gt;aux.shared-&gt;refcnt == 1 /* shared only referenced from this array */
+<span class="lineNum">     542 </span>            :       &amp;&amp; a-&gt;ptr - a-&gt;aux.shared-&gt;ptr &gt;= len) /* there's room for unshifted item */ {
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :     a-&gt;ptr -= len;</span>
+<span class="lineNum">     544 </span>            :   }
+<span class="lineNum">     545 </span>            :   else {
+<span class="lineNum">     546 </span><span class="lineCov">          2 :     ary_modify(mrb, a);</span>
+<span class="lineNum">     547 </span><span class="lineCov">          2 :     if (len == 0) return self;</span>
+<span class="lineNum">     548 </span><span class="lineCov">          2 :     if (a-&gt;aux.capa &lt; a-&gt;len + len)</span>
+<span class="lineNum">     549 </span><span class="lineCov">          2 :       ary_expand_capa(mrb, a, a-&gt;len + len);</span>
+<span class="lineNum">     550 </span><span class="lineCov">          2 :     value_move(a-&gt;ptr + len, a-&gt;ptr, a-&gt;len);</span>
+<span class="lineNum">     551 </span>            :   }
+<span class="lineNum">     552 </span><span class="lineCov">          2 :   array_copy(a-&gt;ptr, vals, len);</span>
+<span class="lineNum">     553 </span><span class="lineCov">          2 :   a-&gt;len += len;</span>
+<span class="lineNum">     554 </span><span class="lineCov">          2 :   mrb_write_barrier(mrb, (struct RBasic*)a);</span>
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span><span class="lineCov">          2 :   return self;</span>
+<span class="lineNum">     557 </span>            : }
+<span class="lineNum">     558 </span>            : 
+<a name="559"><span class="lineNum">     559 </span>            : mrb_value</a>
+<span class="lineNum">     560 </span>            : mrb_ary_ref(mrb_state *mrb, mrb_value ary, mrb_int n)
+<span class="lineNum">     561 </span><span class="lineCov">       1583 : {</span>
+<span class="lineNum">     562 </span><span class="lineCov">       1583 :   struct RArray *a = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span>            :   /* range check */
+<span class="lineNum">     565 </span><span class="lineCov">       1583 :   if (n &lt; 0) n += a-&gt;len;</span>
+<span class="lineNum">     566 </span><span class="lineCov">       1583 :   if (n &lt; 0 || a-&gt;len &lt;= (int)n) return mrb_nil_value();</span>
+<span class="lineNum">     567 </span>            : 
+<span class="lineNum">     568 </span><span class="lineCov">       1581 :   return a-&gt;ptr[n];</span>
+<span class="lineNum">     569 </span>            : }
+<span class="lineNum">     570 </span>            : 
+<a name="571"><span class="lineNum">     571 </span>            : void</a>
+<span class="lineNum">     572 </span>            : mrb_ary_set(mrb_state *mrb, mrb_value ary, mrb_int n, mrb_value val) /* rb_ary_store */
+<span class="lineNum">     573 </span><span class="lineCov">        105 : {</span>
+<span class="lineNum">     574 </span><span class="lineCov">        105 :   struct RArray *a = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span><span class="lineCov">        105 :   ary_modify(mrb, a);</span>
+<span class="lineNum">     577 </span>            :   /* range check */
+<span class="lineNum">     578 </span><span class="lineCov">        105 :   if (n &lt; 0) {</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :     n += a-&gt;len;</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :     if (n &lt; 0) {</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :       mrb_raisef(mrb, E_INDEX_ERROR, &quot;index %S out of array&quot;, mrb_fixnum_value(n - a-&gt;len));</span>
+<span class="lineNum">     582 </span>            :     }
+<span class="lineNum">     583 </span>            :   }
+<span class="lineNum">     584 </span><span class="lineCov">        105 :   if (a-&gt;len &lt;= (int)n) {</span>
+<span class="lineNum">     585 </span><span class="lineCov">         25 :     if (a-&gt;aux.capa &lt;= (int)n)</span>
+<span class="lineNum">     586 </span><span class="lineCov">         17 :       ary_expand_capa(mrb, a, n + 1);</span>
+<span class="lineNum">     587 </span><span class="lineCov">         25 :     ary_fill_with_nil(a-&gt;ptr + a-&gt;len, n + 1 - a-&gt;len);</span>
+<span class="lineNum">     588 </span><span class="lineCov">         25 :     a-&gt;len = n + 1;</span>
+<span class="lineNum">     589 </span>            :   }
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span><span class="lineCov">        105 :   a-&gt;ptr[n] = val;</span>
+<span class="lineNum">     592 </span><span class="lineCov">        105 :   mrb_write_barrier(mrb, (struct RBasic*)a);</span>
+<span class="lineNum">     593 </span><span class="lineCov">        105 : }</span>
+<span class="lineNum">     594 </span>            : 
+<a name="595"><span class="lineNum">     595 </span>            : mrb_value</a>
+<span class="lineNum">     596 </span>            : mrb_ary_splice(mrb_state *mrb, mrb_value ary, mrb_int head, mrb_int len, mrb_value rpl)
+<span class="lineNum">     597 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     598 </span><span class="lineCov">          1 :   struct RArray *a = mrb_ary_ptr(ary);</span>
+<span class="lineNum">     599 </span>            :   mrb_int tail, size;
+<span class="lineNum">     600 </span>            :   mrb_value *argv;
+<span class="lineNum">     601 </span>            :   mrb_int i, argc;
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span><span class="lineCov">          1 :   ary_modify(mrb, a);</span>
+<span class="lineNum">     604 </span>            :   /* range check */
+<span class="lineNum">     605 </span><span class="lineCov">          1 :   if (head &lt; 0) {</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :     head += a-&gt;len;</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :     if (head &lt; 0) {</span>
+<span class="lineNum">     608 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_INDEX_ERROR, &quot;index is out of array&quot;);</span>
+<span class="lineNum">     609 </span>            :     }
+<span class="lineNum">     610 </span>            :   }
+<span class="lineNum">     611 </span><span class="lineCov">          1 :   if (a-&gt;len &lt; len || a-&gt;len &lt; head + len) {</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :     len = a-&gt;len - head;</span>
+<span class="lineNum">     613 </span>            :   }
+<span class="lineNum">     614 </span><span class="lineCov">          1 :   tail = head + len;</span>
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span>            :   /* size check */
+<span class="lineNum">     617 </span><span class="lineCov">          1 :   if (mrb_array_p(rpl)) {</span>
+<span class="lineNum">     618 </span><span class="lineNoCov">          0 :     argc = RARRAY_LEN(rpl);</span>
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :     argv = RARRAY_PTR(rpl);</span>
+<span class="lineNum">     620 </span>            :   }
+<span class="lineNum">     621 </span>            :   else {
+<span class="lineNum">     622 </span><span class="lineCov">          1 :     argc = 1;</span>
+<span class="lineNum">     623 </span><span class="lineCov">          1 :     argv = &amp;rpl;</span>
+<span class="lineNum">     624 </span>            :   }
+<span class="lineNum">     625 </span><span class="lineCov">          1 :   size = head + argc;</span>
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span><span class="lineCov">          1 :   if (tail &lt; a-&gt;len) size += a-&gt;len - tail;</span>
+<span class="lineNum">     628 </span><span class="lineCov">          1 :   if (size &gt; a-&gt;aux.capa)</span>
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :     ary_expand_capa(mrb, a, size);</span>
+<span class="lineNum">     630 </span>            : 
+<span class="lineNum">     631 </span><span class="lineCov">          1 :   if (head &gt; a-&gt;len) {</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :     ary_fill_with_nil(a-&gt;ptr + a-&gt;len, (int)(head - a-&gt;len));</span>
+<span class="lineNum">     633 </span>            :   }
+<span class="lineNum">     634 </span><span class="lineCov">          1 :   else if (head &lt; a-&gt;len) {</span>
+<span class="lineNum">     635 </span><span class="lineCov">          1 :     value_move(a-&gt;ptr + head + argc, a-&gt;ptr + tail, a-&gt;len - tail);</span>
+<span class="lineNum">     636 </span>            :   }
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span><span class="lineCov">          2 :   for(i = 0; i &lt; argc; i++) {</span>
+<span class="lineNum">     639 </span><span class="lineCov">          1 :     *(a-&gt;ptr + head + i) = *(argv + i);</span>
+<span class="lineNum">     640 </span>            :   }
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span><span class="lineCov">          1 :   a-&gt;len = size;</span>
+<span class="lineNum">     643 </span>            : 
+<span class="lineNum">     644 </span><span class="lineCov">          1 :   return ary;</span>
+<span class="lineNum">     645 </span>            : }
+<span class="lineNum">     646 </span>            : 
+<a name="647"><span class="lineNum">     647 </span>            : mrb_int</a>
+<span class="lineNum">     648 </span>            : mrb_ary_len(mrb_state *mrb, mrb_value ary)
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :   return RARRAY_LEN(ary);</span>
+<span class="lineNum">     651 </span>            : }
+<span class="lineNum">     652 </span>            : 
+<a name="653"><span class="lineNum">     653 </span>            : void</a>
+<span class="lineNum">     654 </span>            : mrb_ary_decref(mrb_state *mrb, mrb_shared_array *shared)
+<span class="lineNum">     655 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     656 </span><span class="lineCov">          2 :   shared-&gt;refcnt--;</span>
+<span class="lineNum">     657 </span><span class="lineCov">          2 :   if (shared-&gt;refcnt == 0) {</span>
+<span class="lineNum">     658 </span><span class="lineCov">          1 :     mrb_free(mrb, shared-&gt;ptr);</span>
+<span class="lineNum">     659 </span><span class="lineCov">          1 :     mrb_free(mrb, shared);</span>
+<span class="lineNum">     660 </span>            :   }
+<span class="lineNum">     661 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     662 </span>            : 
+<a name="663"><span class="lineNum">     663 </span>            : static mrb_value</a>
+<span class="lineNum">     664 </span>            : ary_subseq(mrb_state *mrb, struct RArray *a, mrb_int beg, mrb_int len)
+<span class="lineNum">     665 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     666 </span>            :   struct RArray *b;
+<span class="lineNum">     667 </span>            : 
+<span class="lineNum">     668 </span><span class="lineCov">          1 :   ary_make_shared(mrb, a);</span>
+<span class="lineNum">     669 </span><span class="lineCov">          1 :   b  = (struct RArray*)mrb_obj_alloc(mrb, MRB_TT_ARRAY, mrb-&gt;array_class);</span>
+<span class="lineNum">     670 </span><span class="lineCov">          1 :   b-&gt;ptr = a-&gt;ptr + beg;</span>
+<span class="lineNum">     671 </span><span class="lineCov">          1 :   b-&gt;len = len;</span>
+<span class="lineNum">     672 </span><span class="lineCov">          1 :   b-&gt;aux.shared = a-&gt;aux.shared;</span>
+<span class="lineNum">     673 </span><span class="lineCov">          1 :   b-&gt;aux.shared-&gt;refcnt++;</span>
+<span class="lineNum">     674 </span><span class="lineCov">          1 :   b-&gt;flags |= MRB_ARY_SHARED;</span>
+<span class="lineNum">     675 </span>            : 
+<span class="lineNum">     676 </span><span class="lineCov">          1 :   return mrb_obj_value(b);</span>
+<span class="lineNum">     677 </span>            : }
+<span class="lineNum">     678 </span>            : 
+<a name="679"><span class="lineNum">     679 </span>            : mrb_value</a>
+<span class="lineNum">     680 </span>            : mrb_ary_aget(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     681 </span><span class="lineCov">       1585 : {</span>
+<span class="lineNum">     682 </span><span class="lineCov">       1585 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     683 </span>            :   mrb_int index, len;
+<span class="lineNum">     684 </span>            :   mrb_value *argv;
+<span class="lineNum">     685 </span>            :   int size;
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span><span class="lineCov">       1585 :   mrb_get_args(mrb, &quot;i*&quot;, &amp;index, &amp;argv, &amp;size);</span>
+<span class="lineNum">     688 </span><span class="lineCov">       1583 :   switch(size) {</span>
+<span class="lineNum">     689 </span>            :   case 0:
+<span class="lineNum">     690 </span><span class="lineCov">       1581 :     return mrb_ary_ref(mrb, self, index);</span>
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span>            :   case 1:
+<span class="lineNum">     693 </span><span class="lineCov">          1 :     if (mrb_type(argv[0]) != MRB_TT_FIXNUM) {</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_TYPE_ERROR, &quot;expected Fixnum&quot;);</span>
+<span class="lineNum">     695 </span>            :     }
+<span class="lineNum">     696 </span><span class="lineCov">          1 :     if (index &lt; 0) index += a-&gt;len;</span>
+<span class="lineNum">     697 </span><span class="lineCov">          1 :     if (index &lt; 0 || a-&gt;len &lt; (int)index) return mrb_nil_value();</span>
+<span class="lineNum">     698 </span><span class="lineCov">          1 :     len = mrb_fixnum(argv[0]);</span>
+<span class="lineNum">     699 </span><span class="lineCov">          1 :     if (len &lt; 0) return mrb_nil_value();</span>
+<span class="lineNum">     700 </span><span class="lineCov">          1 :     if (a-&gt;len == (int)index) return mrb_ary_new(mrb);</span>
+<span class="lineNum">     701 </span><span class="lineCov">          1 :     if (len &gt; a-&gt;len - index) len = a-&gt;len - index;</span>
+<span class="lineNum">     702 </span><span class="lineCov">          1 :     return ary_subseq(mrb, a, index, len);</span>
+<span class="lineNum">     703 </span>            : 
+<span class="lineNum">     704 </span>            :   default:
+<span class="lineNum">     705 </span><span class="lineCov">          1 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;wrong number of arguments&quot;);</span>
+<span class="lineNum">     706 </span>            :     break;
+<span class="lineNum">     707 </span>            :   }
+<span class="lineNum">     708 </span>            : 
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :   return mrb_nil_value(); /* dummy to avoid warning : not reach here */</span>
+<span class="lineNum">     710 </span>            : }
+<span class="lineNum">     711 </span>            : 
+<a name="712"><span class="lineNum">     712 </span>            : mrb_value</a>
+<span class="lineNum">     713 </span>            : mrb_ary_aset(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     714 </span><span class="lineCov">         92 : {</span>
+<span class="lineNum">     715 </span>            :   mrb_value *argv;
+<span class="lineNum">     716 </span>            :   int argc;
+<span class="lineNum">     717 </span>            : 
+<span class="lineNum">     718 </span><span class="lineCov">         92 :   mrb_get_args(mrb, &quot;*&quot;, &amp;argv, &amp;argc);</span>
+<span class="lineNum">     719 </span><span class="lineCov">         92 :   switch(argc) {</span>
+<span class="lineNum">     720 </span>            :   case 2:
+<span class="lineNum">     721 </span><span class="lineCov">         89 :     if (!mrb_fixnum_p(argv[0])) {</span>
+<span class="lineNum">     722 </span>            :       /* Should we support Range object for 1st arg ? */
+<span class="lineNum">     723 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_TYPE_ERROR, &quot;expected Fixnum for 1st argument&quot;);</span>
+<span class="lineNum">     724 </span>            :     }
+<span class="lineNum">     725 </span><span class="lineCov">         89 :     mrb_ary_set(mrb, self, mrb_fixnum(argv[0]), argv[1]);</span>
+<span class="lineNum">     726 </span><span class="lineCov">         89 :     return argv[1];</span>
+<span class="lineNum">     727 </span>            : 
+<span class="lineNum">     728 </span>            :   case 3:
+<span class="lineNum">     729 </span><span class="lineCov">          1 :     mrb_ary_splice(mrb, self, mrb_fixnum(argv[0]), mrb_fixnum(argv[1]), argv[2]);</span>
+<span class="lineNum">     730 </span><span class="lineCov">          1 :     return argv[2];</span>
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span>            :   default:
+<span class="lineNum">     733 </span><span class="lineCov">          2 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;wrong number of arguments&quot;);</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :     return mrb_nil_value();</span>
+<span class="lineNum">     735 </span>            :   }
+<span class="lineNum">     736 </span>            : }
+<span class="lineNum">     737 </span>            : 
+<a name="738"><span class="lineNum">     738 </span>            : mrb_value</a>
+<span class="lineNum">     739 </span>            : mrb_ary_delete_at(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     740 </span><span class="lineCov">          5 : {</span>
+<span class="lineNum">     741 </span><span class="lineCov">          5 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     742 </span>            :   mrb_int   index;
+<span class="lineNum">     743 </span>            :   mrb_value val;
+<span class="lineNum">     744 </span>            :   mrb_value *ptr;
+<span class="lineNum">     745 </span>            :   mrb_int len;
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span><span class="lineCov">          5 :   mrb_get_args(mrb, &quot;i&quot;, &amp;index);</span>
+<span class="lineNum">     748 </span><span class="lineCov">          5 :   if (index &lt; 0) index += a-&gt;len;</span>
+<span class="lineNum">     749 </span><span class="lineCov">          5 :   if (index &lt; 0 || a-&gt;len &lt;= (int)index) return mrb_nil_value();</span>
+<span class="lineNum">     750 </span>            : 
+<span class="lineNum">     751 </span><span class="lineCov">          5 :   ary_modify(mrb, a);</span>
+<span class="lineNum">     752 </span><span class="lineCov">          5 :   val = a-&gt;ptr[index];</span>
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span><span class="lineCov">          5 :   ptr = a-&gt;ptr + index;</span>
+<span class="lineNum">     755 </span><span class="lineCov">          5 :   len = a-&gt;len - index;</span>
+<span class="lineNum">     756 </span><span class="lineCov">         14 :   while ((int)(--len)) {</span>
+<span class="lineNum">     757 </span><span class="lineCov">          4 :     *ptr = *(ptr+1);</span>
+<span class="lineNum">     758 </span><span class="lineCov">          4 :     ++ptr;</span>
+<span class="lineNum">     759 </span>            :   }
+<span class="lineNum">     760 </span><span class="lineCov">          5 :   --a-&gt;len;</span>
+<span class="lineNum">     761 </span>            : 
+<span class="lineNum">     762 </span><span class="lineCov">          5 :   ary_shrink_capa(mrb, a);</span>
+<span class="lineNum">     763 </span>            : 
+<span class="lineNum">     764 </span><span class="lineCov">          5 :   return val;</span>
+<span class="lineNum">     765 </span>            : }
+<span class="lineNum">     766 </span>            : 
+<a name="767"><span class="lineNum">     767 </span>            : mrb_value</a>
+<span class="lineNum">     768 </span>            : mrb_ary_first(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     769 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">     770 </span><span class="lineCov">         16 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     771 </span>            :   mrb_int size;
+<span class="lineNum">     772 </span>            : 
+<span class="lineNum">     773 </span><span class="lineCov">         16 :   if (mrb_get_args(mrb, &quot;|i&quot;, &amp;size) == 0) {</span>
+<span class="lineNum">     774 </span><span class="lineCov">         10 :     return (a-&gt;len &gt; 0)? a-&gt;ptr[0]: mrb_nil_value();</span>
+<span class="lineNum">     775 </span>            :   }
+<span class="lineNum">     776 </span><span class="lineCov">          5 :   if (size &lt; 0) {</span>
+<span class="lineNum">     777 </span><span class="lineCov">          1 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;negative array size&quot;);</span>
+<span class="lineNum">     778 </span>            :   }
+<span class="lineNum">     779 </span>            : 
+<span class="lineNum">     780 </span><span class="lineCov">          4 :   if (size &gt; a-&gt;len) size = a-&gt;len;</span>
+<span class="lineNum">     781 </span><span class="lineCov">          4 :   if (a-&gt;flags &amp; MRB_ARY_SHARED) {</span>
+<span class="lineNum">     782 </span><span class="lineNoCov">          0 :     return ary_subseq(mrb, a, 0, size);</span>
+<span class="lineNum">     783 </span>            :   }
+<span class="lineNum">     784 </span><span class="lineCov">          4 :   return mrb_ary_new_from_values(mrb, size, a-&gt;ptr);</span>
+<span class="lineNum">     785 </span>            : }
+<span class="lineNum">     786 </span>            : 
+<a name="787"><span class="lineNum">     787 </span>            : mrb_value</a>
+<span class="lineNum">     788 </span>            : mrb_ary_last(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     789 </span><span class="lineCov">         19 : {</span>
+<span class="lineNum">     790 </span><span class="lineCov">         19 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     791 </span>            :   mrb_int size;
+<span class="lineNum">     792 </span>            :   mrb_value *vals;
+<span class="lineNum">     793 </span>            :   int len;
+<span class="lineNum">     794 </span>            : 
+<span class="lineNum">     795 </span><span class="lineCov">         19 :   mrb_get_args(mrb, &quot;*&quot;, &amp;vals, &amp;len);</span>
+<span class="lineNum">     796 </span><span class="lineCov">         19 :   if (len &gt; 1) {</span>
+<span class="lineNum">     797 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;wrong number of arguments&quot;);</span>
+<span class="lineNum">     798 </span>            :   }
+<span class="lineNum">     799 </span>            : 
+<span class="lineNum">     800 </span><span class="lineCov">         19 :   if (len == 0) return (a-&gt;len &gt; 0)? a-&gt;ptr[a-&gt;len - 1]: mrb_nil_value();</span>
+<span class="lineNum">     801 </span>            : 
+<span class="lineNum">     802 </span>            :   /* len == 1 */
+<span class="lineNum">     803 </span><span class="lineCov">          3 :   size = mrb_fixnum(*vals);</span>
+<span class="lineNum">     804 </span><span class="lineCov">          3 :   if (size &lt; 0) {</span>
+<span class="lineNum">     805 </span><span class="lineCov">          1 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;negative array size&quot;);</span>
+<span class="lineNum">     806 </span>            :   }
+<span class="lineNum">     807 </span><span class="lineCov">          2 :   if (size &gt; a-&gt;len) size = a-&gt;len;</span>
+<span class="lineNum">     808 </span><span class="lineCov">          2 :   if ((a-&gt;flags &amp; MRB_ARY_SHARED) || size &gt; ARY_DEFAULT_LEN) {</span>
+<span class="lineNum">     809 </span><span class="lineNoCov">          0 :     return ary_subseq(mrb, a, a-&gt;len - size, size);</span>
+<span class="lineNum">     810 </span>            :   }
+<span class="lineNum">     811 </span><span class="lineCov">          2 :   return mrb_ary_new_from_values(mrb, size, a-&gt;ptr + a-&gt;len - size);</span>
+<span class="lineNum">     812 </span>            : }
+<span class="lineNum">     813 </span>            : 
+<a name="814"><span class="lineNum">     814 </span>            : mrb_value</a>
+<span class="lineNum">     815 </span>            : mrb_ary_index_m(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     816 </span><span class="lineCov">         15 : {</span>
+<span class="lineNum">     817 </span>            :   mrb_value obj;
+<span class="lineNum">     818 </span>            :   mrb_int i;
+<span class="lineNum">     819 </span>            : 
+<span class="lineNum">     820 </span><span class="lineCov">         15 :   mrb_get_args(mrb, &quot;o&quot;, &amp;obj);</span>
+<span class="lineNum">     821 </span><span class="lineCov">         36 :   for (i = 0; i &lt; RARRAY_LEN(self); i++) {</span>
+<span class="lineNum">     822 </span><span class="lineCov">         26 :     if (mrb_equal(mrb, RARRAY_PTR(self)[i], obj)) {</span>
+<span class="lineNum">     823 </span><span class="lineCov">          5 :       return mrb_fixnum_value(i);</span>
+<span class="lineNum">     824 </span>            :     }
+<span class="lineNum">     825 </span>            :   }
+<span class="lineNum">     826 </span><span class="lineCov">         10 :   return mrb_nil_value();</span>
+<span class="lineNum">     827 </span>            : }
+<span class="lineNum">     828 </span>            : 
+<a name="829"><span class="lineNum">     829 </span>            : mrb_value</a>
+<span class="lineNum">     830 </span>            : mrb_ary_rindex_m(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     831 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     832 </span>            :   mrb_value obj;
+<span class="lineNum">     833 </span>            :   mrb_int i;
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;o&quot;, &amp;obj);</span>
+<span class="lineNum">     836 </span><span class="lineCov">          2 :   for (i = RARRAY_LEN(self) - 1; i &gt;= 0; i--) {</span>
+<span class="lineNum">     837 </span><span class="lineCov">          2 :     if (mrb_equal(mrb, RARRAY_PTR(self)[i], obj)) {</span>
+<span class="lineNum">     838 </span><span class="lineCov">          1 :       return mrb_fixnum_value(i);</span>
+<span class="lineNum">     839 </span>            :     }
+<span class="lineNum">     840 </span>            :   }
+<span class="lineNum">     841 </span><span class="lineNoCov">          0 :   return mrb_nil_value();</span>
+<span class="lineNum">     842 </span>            : }
+<span class="lineNum">     843 </span>            : 
+<a name="844"><span class="lineNum">     844 </span>            : mrb_value</a>
+<span class="lineNum">     845 </span>            : mrb_ary_splat(mrb_state *mrb, mrb_value v)
+<span class="lineNum">     846 </span><span class="lineCov">        110 : {</span>
+<span class="lineNum">     847 </span><span class="lineCov">        110 :   if (mrb_array_p(v)) {</span>
+<span class="lineNum">     848 </span><span class="lineCov">        110 :     return v;</span>
+<span class="lineNum">     849 </span>            :   }
+<span class="lineNum">     850 </span>            :   else {
+<span class="lineNum">     851 </span><span class="lineNoCov">          0 :     return mrb_ary_new_from_values(mrb, 1, &amp;v);</span>
+<span class="lineNum">     852 </span>            :   }
+<span class="lineNum">     853 </span>            : }
+<span class="lineNum">     854 </span>            : 
+<a name="855"><span class="lineNum">     855 </span>            : static mrb_value</a>
+<span class="lineNum">     856 </span>            : mrb_ary_size(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     857 </span><span class="lineCov">       3167 : {</span>
+<span class="lineNum">     858 </span><span class="lineCov">       3167 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     859 </span>            : 
+<span class="lineNum">     860 </span><span class="lineCov">       3167 :   return mrb_fixnum_value(a-&gt;len);</span>
+<span class="lineNum">     861 </span>            : }
+<span class="lineNum">     862 </span>            : 
+<a name="863"><span class="lineNum">     863 </span>            : mrb_value</a>
+<span class="lineNum">     864 </span>            : mrb_ary_clear(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     865 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     866 </span><span class="lineCov">         14 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     867 </span>            : 
+<span class="lineNum">     868 </span><span class="lineCov">         14 :   ary_modify(mrb, a);</span>
+<span class="lineNum">     869 </span><span class="lineCov">         14 :   a-&gt;len = 0;</span>
+<span class="lineNum">     870 </span><span class="lineCov">         14 :   a-&gt;aux.capa = 0;</span>
+<span class="lineNum">     871 </span><span class="lineCov">         14 :   mrb_free(mrb, a-&gt;ptr);</span>
+<span class="lineNum">     872 </span><span class="lineCov">         14 :   a-&gt;ptr = 0;</span>
+<span class="lineNum">     873 </span>            : 
+<span class="lineNum">     874 </span><span class="lineCov">         14 :   return self;</span>
+<span class="lineNum">     875 </span>            : }
+<span class="lineNum">     876 </span>            : 
+<a name="877"><span class="lineNum">     877 </span>            : mrb_value</a>
+<span class="lineNum">     878 </span>            : mrb_ary_empty_p(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     879 </span><span class="lineCov">         10 : {</span>
+<span class="lineNum">     880 </span><span class="lineCov">         10 :   struct RArray *a = mrb_ary_ptr(self);</span>
+<span class="lineNum">     881 </span>            : 
+<span class="lineNum">     882 </span><span class="lineCov">         10 :   return mrb_bool_value(a-&gt;len == 0);</span>
+<span class="lineNum">     883 </span>            : }
+<span class="lineNum">     884 </span>            : 
+<a name="885"><span class="lineNum">     885 </span>            : mrb_value</a>
+<span class="lineNum">     886 </span>            : mrb_check_array_type(mrb_state *mrb, mrb_value ary)
+<span class="lineNum">     887 </span><span class="lineCov">          7 : {</span>
+<span class="lineNum">     888 </span><span class="lineCov">          7 :     return mrb_check_convert_type(mrb, ary, MRB_TT_ARRAY, &quot;Array&quot;, &quot;to_ary&quot;);</span>
+<span class="lineNum">     889 </span>            : }
+<span class="lineNum">     890 </span>            : 
+<a name="891"><span class="lineNum">     891 </span>            : mrb_value</a>
+<span class="lineNum">     892 </span>            : mrb_ary_entry(mrb_value ary, mrb_int offset)
+<span class="lineNum">     893 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     894 </span><span class="lineCov">          2 :   if (offset &lt; 0) {</span>
+<span class="lineNum">     895 </span><span class="lineCov">          1 :     offset += RARRAY_LEN(ary);</span>
+<span class="lineNum">     896 </span>            :   }
+<span class="lineNum">     897 </span><span class="lineCov">          2 :   return ary_elt(ary, offset);</span>
+<span class="lineNum">     898 </span>            : }
+<span class="lineNum">     899 </span>            : 
+<a name="900"><span class="lineNum">     900 </span>            : static mrb_value</a>
+<span class="lineNum">     901 </span>            : inspect_ary(mrb_state *mrb, mrb_value ary, mrb_value list)
+<span class="lineNum">     902 </span><span class="lineCov">         46 : {</span>
+<span class="lineNum">     903 </span>            :   mrb_int i;
+<span class="lineNum">     904 </span>            :   mrb_value s, arystr;
+<span class="lineNum">     905 </span><span class="lineCov">         46 :   char head[] = { '[' };</span>
+<span class="lineNum">     906 </span><span class="lineCov">         46 :   char sep[] = { ',', ' ' };</span>
+<span class="lineNum">     907 </span><span class="lineCov">         46 :   char tail[] = { ']' };</span>
+<span class="lineNum">     908 </span>            : 
+<span class="lineNum">     909 </span>            :   /* check recursive */
+<span class="lineNum">     910 </span><span class="lineCov">         60 :   for(i=0; i&lt;RARRAY_LEN(list); i++) {</span>
+<span class="lineNum">     911 </span><span class="lineCov">         14 :     if (mrb_obj_equal(mrb, ary, RARRAY_PTR(list)[i])) {</span>
+<span class="lineNum">     912 </span><span class="lineNoCov">          0 :       return mrb_str_new(mrb, &quot;[...]&quot;, 5);</span>
+<span class="lineNum">     913 </span>            :     }
+<span class="lineNum">     914 </span>            :   }
+<span class="lineNum">     915 </span>            : 
+<span class="lineNum">     916 </span><span class="lineCov">         46 :   mrb_ary_push(mrb, list, ary);</span>
+<span class="lineNum">     917 </span>            : 
+<span class="lineNum">     918 </span><span class="lineCov">         46 :   arystr = mrb_str_buf_new(mrb, 64);</span>
+<span class="lineNum">     919 </span><span class="lineCov">         46 :   mrb_str_buf_cat(mrb, arystr, head, sizeof(head));</span>
+<span class="lineNum">     920 </span>            : 
+<span class="lineNum">     921 </span><span class="lineCov">        170 :   for(i=0; i&lt;RARRAY_LEN(ary); i++) {</span>
+<span class="lineNum">     922 </span><span class="lineCov">        124 :     int ai = mrb_gc_arena_save(mrb);</span>
+<span class="lineNum">     923 </span>            : 
+<span class="lineNum">     924 </span><span class="lineCov">        124 :     if (i &gt; 0) {</span>
+<span class="lineNum">     925 </span><span class="lineCov">         78 :       mrb_str_buf_cat(mrb, arystr, sep, sizeof(sep));</span>
+<span class="lineNum">     926 </span>            :     }
+<span class="lineNum">     927 </span><span class="lineCov">        124 :     if (mrb_array_p(RARRAY_PTR(ary)[i])) {</span>
+<span class="lineNum">     928 </span><span class="lineCov">         14 :       s = inspect_ary(mrb, RARRAY_PTR(ary)[i], list);</span>
+<span class="lineNum">     929 </span>            :     } else {
+<span class="lineNum">     930 </span><span class="lineCov">        110 :       s = mrb_inspect(mrb, RARRAY_PTR(ary)[i]);</span>
+<span class="lineNum">     931 </span>            :     }
+<span class="lineNum">     932 </span><span class="lineCov">        124 :     mrb_str_buf_cat(mrb, arystr, RSTRING_PTR(s), RSTRING_LEN(s));</span>
+<span class="lineNum">     933 </span><span class="lineCov">        124 :     mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">     934 </span>            :   }
+<span class="lineNum">     935 </span>            : 
+<span class="lineNum">     936 </span><span class="lineCov">         46 :   mrb_str_buf_cat(mrb, arystr, tail, sizeof(tail));</span>
+<span class="lineNum">     937 </span><span class="lineCov">         46 :   mrb_ary_pop(mrb, list);</span>
+<span class="lineNum">     938 </span>            : 
+<span class="lineNum">     939 </span><span class="lineCov">         46 :   return arystr;</span>
+<span class="lineNum">     940 </span>            : }
+<span class="lineNum">     941 </span>            : 
+<span class="lineNum">     942 </span>            : /* 15.2.12.5.31 (x) */
+<span class="lineNum">     943 </span>            : /*
+<span class="lineNum">     944 </span>            :  *  call-seq:
+<span class="lineNum">     945 </span>            :  *     ary.to_s -&gt; string
+<span class="lineNum">     946 </span>            :  *     ary.inspect  -&gt; string
+<span class="lineNum">     947 </span>            :  *
+<span class="lineNum">     948 </span>            :  *  Creates a string representation of +self+.
+<span class="lineNum">     949 </span>            :  */
+<span class="lineNum">     950 </span>            : 
+<a name="951"><span class="lineNum">     951 </span>            : static mrb_value</a>
+<span class="lineNum">     952 </span>            : mrb_ary_inspect(mrb_state *mrb, mrb_value ary)
+<span class="lineNum">     953 </span><span class="lineCov">         34 : {</span>
+<span class="lineNum">     954 </span><span class="lineCov">         34 :   if (RARRAY_LEN(ary) == 0) return mrb_str_new(mrb, &quot;[]&quot;, 2);</span>
+<span class="lineNum">     955 </span><span class="lineCov">         32 :     return inspect_ary(mrb, ary, mrb_ary_new(mrb));</span>
+<span class="lineNum">     956 </span>            : }
+<span class="lineNum">     957 </span>            : 
+<a name="958"><span class="lineNum">     958 </span>            : static mrb_value</a>
+<span class="lineNum">     959 </span>            : join_ary(mrb_state *mrb, mrb_value ary, mrb_value sep, mrb_value list)
+<span class="lineNum">     960 </span><span class="lineCov">         45 : {</span>
+<span class="lineNum">     961 </span>            :   mrb_int i;
+<span class="lineNum">     962 </span>            :   mrb_value result, val, tmp;
+<span class="lineNum">     963 </span>            : 
+<span class="lineNum">     964 </span>            :   /* check recursive */
+<span class="lineNum">     965 </span><span class="lineCov">         45 :   for(i=0; i&lt;RARRAY_LEN(list); i++) {</span>
+<span class="lineNum">     966 </span><span class="lineNoCov">          0 :     if (mrb_obj_equal(mrb, ary, RARRAY_PTR(list)[i])) {</span>
+<span class="lineNum">     967 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;recursive array join&quot;);</span>
+<span class="lineNum">     968 </span>            :     }
+<span class="lineNum">     969 </span>            :   }
+<span class="lineNum">     970 </span>            : 
+<span class="lineNum">     971 </span><span class="lineCov">         45 :   mrb_ary_push(mrb, list, ary);</span>
+<span class="lineNum">     972 </span>            : 
+<span class="lineNum">     973 </span><span class="lineCov">         45 :   result = mrb_str_buf_new(mrb, 64);</span>
+<span class="lineNum">     974 </span>            : 
+<span class="lineNum">     975 </span><span class="lineCov">        390 :   for(i=0; i&lt;RARRAY_LEN(ary); i++) {</span>
+<span class="lineNum">     976 </span><span class="lineCov">        150 :     if (i &gt; 0 &amp;&amp; !mrb_nil_p(sep)) {</span>
+<span class="lineNum">     977 </span><span class="lineCov">        105 :       mrb_str_buf_cat(mrb, result, RSTRING_PTR(sep), RSTRING_LEN(sep));</span>
+<span class="lineNum">     978 </span>            :     }
+<span class="lineNum">     979 </span>            : 
+<span class="lineNum">     980 </span><span class="lineCov">        150 :     val = RARRAY_PTR(ary)[i];</span>
+<span class="lineNum">     981 </span><span class="lineCov">        150 :     switch(mrb_type(val)) {</span>
+<span class="lineNum">     982 </span>            :     case MRB_TT_ARRAY:
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :     ary_join:</span>
+<span class="lineNum">     984 </span><span class="lineNoCov">          0 :       val = join_ary(mrb, val, sep, list);</span>
+<span class="lineNum">     985 </span>            :       /* fall through */
+<span class="lineNum">     986 </span>            : 
+<span class="lineNum">     987 </span>            :     case MRB_TT_STRING:
+<span class="lineNum">     988 </span><span class="lineCov">        150 :     str_join:</span>
+<span class="lineNum">     989 </span><span class="lineCov">        150 :       mrb_str_buf_cat(mrb, result, RSTRING_PTR(val), RSTRING_LEN(val));</span>
+<span class="lineNum">     990 </span>            :       break;
+<span class="lineNum">     991 </span>            : 
+<span class="lineNum">     992 </span>            :     default:
+<span class="lineNum">     993 </span><span class="lineCov">         20 :       tmp = mrb_check_string_type(mrb, val);</span>
+<span class="lineNum">     994 </span><span class="lineCov">         20 :       if (!mrb_nil_p(tmp)) {</span>
+<span class="lineNum">     995 </span><span class="lineNoCov">          0 :         val = tmp;</span>
+<span class="lineNum">     996 </span><span class="lineNoCov">          0 :         goto str_join;</span>
+<span class="lineNum">     997 </span>            :       }
+<span class="lineNum">     998 </span><span class="lineCov">         20 :       tmp = mrb_check_convert_type(mrb, val, MRB_TT_ARRAY, &quot;Array&quot;, &quot;to_ary&quot;);</span>
+<span class="lineNum">     999 </span><span class="lineCov">         20 :       if (!mrb_nil_p(tmp)) {</span>
+<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :         val = tmp;</span>
+<span class="lineNum">    1001 </span><span class="lineNoCov">          0 :         goto ary_join;</span>
+<span class="lineNum">    1002 </span>            :       }
+<span class="lineNum">    1003 </span><span class="lineCov">         20 :       val = mrb_obj_as_string(mrb, val);</span>
+<span class="lineNum">    1004 </span><span class="lineCov">         20 :       goto str_join;</span>
+<span class="lineNum">    1005 </span>            :     }
+<span class="lineNum">    1006 </span>            :   }
+<span class="lineNum">    1007 </span>            : 
+<span class="lineNum">    1008 </span><span class="lineCov">         45 :   mrb_ary_pop(mrb, list);</span>
+<span class="lineNum">    1009 </span>            : 
+<span class="lineNum">    1010 </span><span class="lineCov">         45 :   return result;</span>
+<span class="lineNum">    1011 </span>            : }
+<span class="lineNum">    1012 </span>            : 
+<a name="1013"><span class="lineNum">    1013 </span>            : mrb_value</a>
+<span class="lineNum">    1014 </span>            : mrb_ary_join(mrb_state *mrb, mrb_value ary, mrb_value sep)
+<span class="lineNum">    1015 </span><span class="lineCov">         45 : {</span>
+<span class="lineNum">    1016 </span><span class="lineCov">         45 :   sep = mrb_obj_as_string(mrb, sep);</span>
+<span class="lineNum">    1017 </span><span class="lineCov">         45 :   return join_ary(mrb, ary, sep, mrb_ary_new(mrb));</span>
+<span class="lineNum">    1018 </span>            : }
+<span class="lineNum">    1019 </span>            : 
+<span class="lineNum">    1020 </span>            : /*
+<span class="lineNum">    1021 </span>            :  *  call-seq:
+<span class="lineNum">    1022 </span>            :  *     ary.join(sep=&quot;&quot;)    -&gt; str
+<span class="lineNum">    1023 </span>            :  *
+<span class="lineNum">    1024 </span>            :  *  Returns a string created by converting each element of the array to
+<span class="lineNum">    1025 </span>            :  *  a string, separated by &lt;i&gt;sep&lt;/i&gt;.
+<span class="lineNum">    1026 </span>            :  *
+<span class="lineNum">    1027 </span>            :  *     [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ].join        #=&gt; &quot;abc&quot;
+<span class="lineNum">    1028 </span>            :  *     [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ].join(&quot;-&quot;)   #=&gt; &quot;a-b-c&quot;
+<span class="lineNum">    1029 </span>            :  */
+<span class="lineNum">    1030 </span>            : 
+<a name="1031"><span class="lineNum">    1031 </span>            : static mrb_value</a>
+<span class="lineNum">    1032 </span>            : mrb_ary_join_m(mrb_state *mrb, mrb_value ary)
+<span class="lineNum">    1033 </span><span class="lineCov">         17 : {</span>
+<span class="lineNum">    1034 </span><span class="lineCov">         17 :   mrb_value sep = mrb_nil_value();</span>
+<span class="lineNum">    1035 </span>            : 
+<span class="lineNum">    1036 </span><span class="lineCov">         17 :   mrb_get_args(mrb, &quot;|S&quot;, &amp;sep);</span>
+<span class="lineNum">    1037 </span><span class="lineCov">         17 :   return mrb_ary_join(mrb, ary, sep);</span>
+<span class="lineNum">    1038 </span>            : }
+<span class="lineNum">    1039 </span>            : 
+<span class="lineNum">    1040 </span>            : /* 15.2.12.5.33 (x) */
+<span class="lineNum">    1041 </span>            : /*
+<span class="lineNum">    1042 </span>            :  *  call-seq:
+<span class="lineNum">    1043 </span>            :  *     ary == other_ary   -&gt;   bool
+<span class="lineNum">    1044 </span>            :  *
+<span class="lineNum">    1045 </span>            :  *  Equality---Two arrays are equal if they contain the same number
+<span class="lineNum">    1046 </span>            :  *  of elements and if each element is equal to (according to
+<span class="lineNum">    1047 </span>            :  *  Object.==) the corresponding element in the other array.
+<span class="lineNum">    1048 </span>            :  *
+<span class="lineNum">    1049 </span>            :  *     [ &quot;a&quot;, &quot;c&quot; ]    == [ &quot;a&quot;, &quot;c&quot;, 7 ]     #=&gt; false
+<span class="lineNum">    1050 </span>            :  *     [ &quot;a&quot;, &quot;c&quot;, 7 ] == [ &quot;a&quot;, &quot;c&quot;, 7 ]     #=&gt; true
+<span class="lineNum">    1051 </span>            :  *     [ &quot;a&quot;, &quot;c&quot;, 7 ] == [ &quot;a&quot;, &quot;d&quot;, &quot;f&quot; ]   #=&gt; false
+<span class="lineNum">    1052 </span>            :  *
+<span class="lineNum">    1053 </span>            :  */
+<span class="lineNum">    1054 </span>            : 
+<a name="1055"><span class="lineNum">    1055 </span>            : static mrb_value</a>
+<span class="lineNum">    1056 </span>            : mrb_ary_equal(mrb_state *mrb, mrb_value ary1)
+<span class="lineNum">    1057 </span><span class="lineCov">        182 : {</span>
+<span class="lineNum">    1058 </span>            :   mrb_value ary2;
+<span class="lineNum">    1059 </span>            :   mrb_bool equal_p;
+<span class="lineNum">    1060 </span>            : 
+<span class="lineNum">    1061 </span><span class="lineCov">        182 :   mrb_get_args(mrb, &quot;o&quot;, &amp;ary2);</span>
+<span class="lineNum">    1062 </span><span class="lineCov">        182 :   if (mrb_obj_equal(mrb, ary1, ary2)) {</span>
+<span class="lineNum">    1063 </span><span class="lineNoCov">          0 :     equal_p = 1;</span>
+<span class="lineNum">    1064 </span>            :   }
+<span class="lineNum">    1065 </span><span class="lineCov">        182 :   else if (mrb_special_const_p(ary2)) {</span>
+<span class="lineNum">    1066 </span><span class="lineNoCov">          0 :     equal_p = 0;</span>
+<span class="lineNum">    1067 </span>            :   }
+<span class="lineNum">    1068 </span><span class="lineCov">        182 :   else if (!mrb_array_p(ary2)) {</span>
+<span class="lineNum">    1069 </span><span class="lineNoCov">          0 :     if (!mrb_respond_to(mrb, ary2, mrb_intern2(mrb, &quot;to_ary&quot;, 6))) {</span>
+<span class="lineNum">    1070 </span><span class="lineNoCov">          0 :         equal_p = 0;</span>
+<span class="lineNum">    1071 </span>            :     }
+<span class="lineNum">    1072 </span>            :     else {
+<span class="lineNum">    1073 </span><span class="lineNoCov">          0 :       equal_p = mrb_equal(mrb, ary2, ary1);</span>
+<span class="lineNum">    1074 </span>            :     }
+<span class="lineNum">    1075 </span>            :   }
+<span class="lineNum">    1076 </span><span class="lineCov">        182 :   else if (RARRAY_LEN(ary1) != RARRAY_LEN(ary2)) {</span>
+<span class="lineNum">    1077 </span><span class="lineCov">          1 :     equal_p = 0;</span>
+<span class="lineNum">    1078 </span>            :   }
+<span class="lineNum">    1079 </span>            :   else {
+<span class="lineNum">    1080 </span>            :     mrb_int i;
+<span class="lineNum">    1081 </span>            : 
+<span class="lineNum">    1082 </span><span class="lineCov">        181 :     equal_p = 1;</span>
+<span class="lineNum">    1083 </span><span class="lineCov">        655 :     for (i=0; i&lt;RARRAY_LEN(ary1); i++) {</span>
+<span class="lineNum">    1084 </span><span class="lineCov">        475 :       if (!mrb_equal(mrb, ary_elt(ary1, i), ary_elt(ary2, i))) {</span>
+<span class="lineNum">    1085 </span><span class="lineCov">          1 :         equal_p = 0;</span>
+<span class="lineNum">    1086 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    1087 </span>            :       }
+<span class="lineNum">    1088 </span>            :     }
+<span class="lineNum">    1089 </span>            :   }
+<span class="lineNum">    1090 </span>            : 
+<span class="lineNum">    1091 </span><span class="lineCov">        182 :   return mrb_bool_value(equal_p);</span>
+<span class="lineNum">    1092 </span>            : }
+<span class="lineNum">    1093 </span>            : 
+<span class="lineNum">    1094 </span>            : /* 15.2.12.5.34 (x) */
+<span class="lineNum">    1095 </span>            : /*
+<span class="lineNum">    1096 </span>            :  *  call-seq:
+<span class="lineNum">    1097 </span>            :  *     ary.eql?(other)  -&gt; true or false
+<span class="lineNum">    1098 </span>            :  *
+<span class="lineNum">    1099 </span>            :  *  Returns &lt;code&gt;true&lt;/code&gt; if +self+ and _other_ are the same object,
+<span class="lineNum">    1100 </span>            :  *  or are both arrays with the same content.
+<span class="lineNum">    1101 </span>            :  */
+<span class="lineNum">    1102 </span>            : 
+<a name="1103"><span class="lineNum">    1103 </span>            : static mrb_value</a>
+<span class="lineNum">    1104 </span>            : mrb_ary_eql(mrb_state *mrb, mrb_value ary1)
+<span class="lineNum">    1105 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">    1106 </span>            :   mrb_value ary2;
+<span class="lineNum">    1107 </span>            :   mrb_bool eql_p;
+<span class="lineNum">    1108 </span>            : 
+<span class="lineNum">    1109 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;o&quot;, &amp;ary2);</span>
+<span class="lineNum">    1110 </span><span class="lineCov">          2 :   if (mrb_obj_equal(mrb, ary1, ary2)) {</span>
+<span class="lineNum">    1111 </span><span class="lineNoCov">          0 :     eql_p = 1;</span>
+<span class="lineNum">    1112 </span>            :   }
+<span class="lineNum">    1113 </span><span class="lineCov">          2 :   else if (!mrb_array_p(ary2)) {</span>
+<span class="lineNum">    1114 </span><span class="lineNoCov">          0 :     eql_p = 0;</span>
+<span class="lineNum">    1115 </span>            :   }
+<span class="lineNum">    1116 </span><span class="lineCov">          2 :   else if (RARRAY_LEN(ary1) != RARRAY_LEN(ary2)) {</span>
+<span class="lineNum">    1117 </span><span class="lineNoCov">          0 :     eql_p = 0;</span>
+<span class="lineNum">    1118 </span>            :   }
+<span class="lineNum">    1119 </span>            :   else {
+<span class="lineNum">    1120 </span>            :     mrb_int i;
+<span class="lineNum">    1121 </span><span class="lineCov">          2 :     eql_p = 1;</span>
+<span class="lineNum">    1122 </span><span class="lineCov">          5 :     for (i=0; i&lt;RARRAY_LEN(ary1); i++) {</span>
+<span class="lineNum">    1123 </span><span class="lineCov">          4 :       if (!mrb_eql(mrb, ary_elt(ary1, i), ary_elt(ary2, i))) {</span>
+<span class="lineNum">    1124 </span><span class="lineCov">          1 :         eql_p = 0;</span>
+<span class="lineNum">    1125 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    1126 </span>            :       }
+<span class="lineNum">    1127 </span>            :     }
+<span class="lineNum">    1128 </span>            :   }
+<span class="lineNum">    1129 </span>            : 
+<span class="lineNum">    1130 </span><span class="lineCov">          2 :   return mrb_bool_value(eql_p);</span>
+<span class="lineNum">    1131 </span>            : }
+<span class="lineNum">    1132 </span>            : 
+<a name="1133"><span class="lineNum">    1133 </span>            : void</a>
+<span class="lineNum">    1134 </span>            : mrb_init_array(mrb_state *mrb)
+<span class="lineNum">    1135 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">    1136 </span>            :   struct RClass *a;
+<span class="lineNum">    1137 </span>            : 
+<span class="lineNum">    1138 </span><span class="lineCov">         53 :   a = mrb-&gt;array_class = mrb_define_class(mrb, &quot;Array&quot;, mrb-&gt;object_class);</span>
+<span class="lineNum">    1139 </span><span class="lineCov">         53 :   MRB_SET_INSTANCE_TT(a, MRB_TT_ARRAY);</span>
+<span class="lineNum">    1140 </span><span class="lineCov">         53 :   mrb_include_module(mrb, a, mrb_class_get(mrb, &quot;Enumerable&quot;));</span>
+<span class="lineNum">    1141 </span>            : 
+<span class="lineNum">    1142 </span><span class="lineCov">         53 :   mrb_define_class_method(mrb, a, &quot;[]&quot;,        mrb_ary_s_create,     MRB_ARGS_ANY());  /* 15.2.12.4.1 */</span>
+<span class="lineNum">    1143 </span>            : 
+<span class="lineNum">    1144 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;*&quot;,               mrb_ary_times,        MRB_ARGS_REQ(1)); /* 15.2.12.5.1  */</span>
+<span class="lineNum">    1145 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;+&quot;,               mrb_ary_plus,         MRB_ARGS_REQ(1)); /* 15.2.12.5.2  */</span>
+<span class="lineNum">    1146 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;&lt;&lt;&quot;,              mrb_ary_push_m,       MRB_ARGS_REQ(1)); /* 15.2.12.5.3  */</span>
+<span class="lineNum">    1147 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;[]&quot;,              mrb_ary_aget,         MRB_ARGS_ANY());  /* 15.2.12.5.4  */</span>
+<span class="lineNum">    1148 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;[]=&quot;,             mrb_ary_aset,         MRB_ARGS_ANY());  /* 15.2.12.5.5  */</span>
+<span class="lineNum">    1149 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;clear&quot;,           mrb_ary_clear,        MRB_ARGS_NONE()); /* 15.2.12.5.6  */</span>
+<span class="lineNum">    1150 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;concat&quot;,          mrb_ary_concat_m,     MRB_ARGS_REQ(1)); /* 15.2.12.5.8  */</span>
+<span class="lineNum">    1151 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;delete_at&quot;,       mrb_ary_delete_at,    MRB_ARGS_REQ(1)); /* 15.2.12.5.9  */</span>
+<span class="lineNum">    1152 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;empty?&quot;,          mrb_ary_empty_p,      MRB_ARGS_NONE()); /* 15.2.12.5.12 */</span>
+<span class="lineNum">    1153 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;first&quot;,           mrb_ary_first,        MRB_ARGS_OPT(1)); /* 15.2.12.5.13 */</span>
+<span class="lineNum">    1154 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;index&quot;,           mrb_ary_index_m,      MRB_ARGS_REQ(1)); /* 15.2.12.5.14 */</span>
+<span class="lineNum">    1155 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;initialize_copy&quot;, mrb_ary_replace_m,    MRB_ARGS_REQ(1)); /* 15.2.12.5.16 */</span>
+<span class="lineNum">    1156 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;join&quot;,            mrb_ary_join_m,       MRB_ARGS_ANY());  /* 15.2.12.5.17 */</span>
+<span class="lineNum">    1157 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;last&quot;,            mrb_ary_last,         MRB_ARGS_ANY());  /* 15.2.12.5.18 */</span>
+<span class="lineNum">    1158 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;length&quot;,          mrb_ary_size,         MRB_ARGS_NONE()); /* 15.2.12.5.19 */</span>
+<span class="lineNum">    1159 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;pop&quot;,             mrb_ary_pop,          MRB_ARGS_NONE()); /* 15.2.12.5.21 */</span>
+<span class="lineNum">    1160 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;push&quot;,            mrb_ary_push_m,       MRB_ARGS_ANY());  /* 15.2.12.5.22 */</span>
+<span class="lineNum">    1161 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;replace&quot;,         mrb_ary_replace_m,    MRB_ARGS_REQ(1)); /* 15.2.12.5.23 */</span>
+<span class="lineNum">    1162 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;reverse&quot;,         mrb_ary_reverse,      MRB_ARGS_NONE()); /* 15.2.12.5.24 */</span>
+<span class="lineNum">    1163 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;reverse!&quot;,        mrb_ary_reverse_bang, MRB_ARGS_NONE()); /* 15.2.12.5.25 */</span>
+<span class="lineNum">    1164 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;rindex&quot;,          mrb_ary_rindex_m,     MRB_ARGS_REQ(1)); /* 15.2.12.5.26 */</span>
+<span class="lineNum">    1165 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;shift&quot;,           mrb_ary_shift,        MRB_ARGS_NONE()); /* 15.2.12.5.27 */</span>
+<span class="lineNum">    1166 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;size&quot;,            mrb_ary_size,         MRB_ARGS_NONE()); /* 15.2.12.5.28 */</span>
+<span class="lineNum">    1167 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;slice&quot;,           mrb_ary_aget,         MRB_ARGS_ANY());  /* 15.2.12.5.29 */</span>
+<span class="lineNum">    1168 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;unshift&quot;,         mrb_ary_unshift_m,    MRB_ARGS_ANY());  /* 15.2.12.5.30 */</span>
+<span class="lineNum">    1169 </span>            : 
+<span class="lineNum">    1170 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;inspect&quot;,         mrb_ary_inspect,      MRB_ARGS_NONE()); /* 15.2.12.5.31 (x) */</span>
+<span class="lineNum">    1171 </span><span class="lineCov">         53 :   mrb_define_alias(mrb,   a, &quot;to_s&quot;, &quot;inspect&quot;);                                   /* 15.2.12.5.32 (x) */</span>
+<span class="lineNum">    1172 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;==&quot;,              mrb_ary_equal,        MRB_ARGS_REQ(1)); /* 15.2.12.5.33 (x) */</span>
+<span class="lineNum">    1173 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;eql?&quot;,            mrb_ary_eql,          MRB_ARGS_REQ(1)); /* 15.2.12.5.34 (x) */</span>
+<span class="lineNum">    1174 </span><span class="lineCov">         53 :   mrb_define_method(mrb, a, &quot;&lt;=&gt;&quot;,             mrb_ary_cmp,          MRB_ARGS_REQ(1)); /* 15.2.12.5.36 (x) */</span>
+<span class="lineNum">    1175 </span><span class="lineCov">         53 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

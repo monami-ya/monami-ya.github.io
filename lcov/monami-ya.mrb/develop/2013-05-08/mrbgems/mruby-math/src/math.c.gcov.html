@@ -1,0 +1,767 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - mrbgems/mruby-math/src/math.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">mrbgems/mruby-math/src</a> - math.c<span style="font-size: 80%;"> (source / <a href="math.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">91</td>
+            <td class="headerCovTableEntry">132</td>
+            <td class="headerCovTableEntryLo">68.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntryLo">63.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** math.c - Math module
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;mruby/array.h&quot;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &lt;math.h&gt;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #define domain_error(msg) \
+<span class="lineNum">      13 </span>            :     mrb_raise(mrb, E_RANGE_ERROR, &quot;Numerical argument is out of domain - &quot; #msg)
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : /* math functions not provided under Microsoft Visual C++ */
+<span class="lineNum">      16 </span>            : #ifdef _MSC_VER
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #define MATH_TOLERANCE 1E-12
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #define asinh(x) log(x + sqrt(pow(x,2.0) + 1))
+<span class="lineNum">      21 </span>            : #define acosh(x) log(x + sqrt(pow(x,2.0) - 1))
+<span class="lineNum">      22 </span>            : #define atanh(x) (log(1+x) - log(1-x))/2.0
+<span class="lineNum">      23 </span>            : #define cbrt(x)  pow(x,1.0/3.0)
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : /* Declaration of complementary Error function */
+<span class="lineNum">      26 </span>            : double
+<span class="lineNum">      27 </span>            : erfc(double x);
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : /*
+<span class="lineNum">      30 </span>            : ** Implementations of error functions
+<span class="lineNum">      31 </span>            : ** credits to http://www.digitalmars.com/archives/cplusplus/3634.html
+<span class="lineNum">      32 </span>            : */
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : /* Implementation of Error function */
+<span class="lineNum">      35 </span>            : double
+<span class="lineNum">      36 </span>            : erf(double x)
+<span class="lineNum">      37 </span>            : {
+<span class="lineNum">      38 </span>            :   static const double two_sqrtpi =  1.128379167095512574;
+<span class="lineNum">      39 </span>            :   double sum  = x;
+<span class="lineNum">      40 </span>            :   double term = x;
+<span class="lineNum">      41 </span>            :   double xsqr = x*x;
+<span class="lineNum">      42 </span>            :   int j= 1;
+<span class="lineNum">      43 </span>            :   if (fabs(x) &gt; 2.2) {
+<span class="lineNum">      44 </span>            :     return 1.0 - erfc(x);
+<span class="lineNum">      45 </span>            :   }
+<span class="lineNum">      46 </span>            :   do {
+<span class="lineNum">      47 </span>            :     term *= xsqr/j;
+<span class="lineNum">      48 </span>            :     sum  -= term/(2*j+1);
+<span class="lineNum">      49 </span>            :     ++j;
+<span class="lineNum">      50 </span>            :     term *= xsqr/j;
+<span class="lineNum">      51 </span>            :     sum  += term/(2*j+1);
+<span class="lineNum">      52 </span>            :     ++j;
+<span class="lineNum">      53 </span>            :   } while (fabs(term/sum) &gt; MATH_TOLERANCE);
+<span class="lineNum">      54 </span>            :   return two_sqrtpi*sum;
+<span class="lineNum">      55 </span>            : }
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : /* Implementation of complementary Error function */
+<span class="lineNum">      58 </span>            : double
+<span class="lineNum">      59 </span>            : erfc(double x)
+<span class="lineNum">      60 </span>            : {
+<span class="lineNum">      61 </span>            :   static const double one_sqrtpi=  0.564189583547756287;
+<span class="lineNum">      62 </span>            :   double a = 1;
+<span class="lineNum">      63 </span>            :   double b = x;
+<span class="lineNum">      64 </span>            :   double c = x;
+<span class="lineNum">      65 </span>            :   double d = x*x+0.5;
+<span class="lineNum">      66 </span>            :   double q1;
+<span class="lineNum">      67 </span>            :   double q2 = b/d;
+<span class="lineNum">      68 </span>            :   double n = 1.0;
+<span class="lineNum">      69 </span>            :   double t;
+<span class="lineNum">      70 </span>            :   if (fabs(x) &lt; 2.2) {
+<span class="lineNum">      71 </span>            :     return 1.0 - erf(x);
+<span class="lineNum">      72 </span>            :   }
+<span class="lineNum">      73 </span>            :   if (x &lt; 0.0) { /*signbit(x)*/
+<span class="lineNum">      74 </span>            :     return 2.0 - erfc(-x);
+<span class="lineNum">      75 </span>            :   }
+<span class="lineNum">      76 </span>            :   do {
+<span class="lineNum">      77 </span>            :     t  = a*n+b*x;
+<span class="lineNum">      78 </span>            :     a  = b;
+<span class="lineNum">      79 </span>            :     b  = t;
+<span class="lineNum">      80 </span>            :     t  = c*n+d*x;
+<span class="lineNum">      81 </span>            :     c  = d;
+<span class="lineNum">      82 </span>            :     d  = t;
+<span class="lineNum">      83 </span>            :     n += 0.5;
+<span class="lineNum">      84 </span>            :     q1 = q2;
+<span class="lineNum">      85 </span>            :     q2 = b/d;
+<span class="lineNum">      86 </span>            :   } while (fabs(q1-q2)/q2 &gt; MATH_TOLERANCE);
+<span class="lineNum">      87 </span>            :   return one_sqrtpi*exp(-x*x)*q2;
+<span class="lineNum">      88 </span>            : }
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : #endif
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : /*
+<span class="lineNum">      93 </span>            :   TRIGONOMETRIC FUNCTIONS
+<span class="lineNum">      94 </span>            : */
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : /*
+<span class="lineNum">      97 </span>            :  *  call-seq:
+<span class="lineNum">      98 </span>            :  *     Math.sin(x)    -&gt; float
+<span class="lineNum">      99 </span>            :  *
+<span class="lineNum">     100 </span>            :  *  Computes the sine of &lt;i&gt;x&lt;/i&gt; (expressed in radians). Returns
+<span class="lineNum">     101 </span>            :  *  -1..1.
+<span class="lineNum">     102 </span>            :  */
+<a name="103"><span class="lineNum">     103 </span>            : static mrb_value</a>
+<span class="lineNum">     104 </span>            : math_sin(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     105 </span><span class="lineCov">         15 : {</span>
+<span class="lineNum">     106 </span>            :   mrb_float x;
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">         15 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     109 </span><span class="lineCov">         15 :   x = sin(x);</span>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span><span class="lineCov">         15 :   return mrb_float_value(x);</span>
+<span class="lineNum">     112 </span>            : }
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            : /*
+<span class="lineNum">     115 </span>            :  *  call-seq:
+<span class="lineNum">     116 </span>            :  *     Math.cos(x)    -&gt; float
+<span class="lineNum">     117 </span>            :  *
+<span class="lineNum">     118 </span>            :  *  Computes the cosine of &lt;i&gt;x&lt;/i&gt; (expressed in radians). Returns
+<span class="lineNum">     119 </span>            :  *  -1..1.
+<span class="lineNum">     120 </span>            :  */
+<a name="121"><span class="lineNum">     121 </span>            : static mrb_value</a>
+<span class="lineNum">     122 </span>            : math_cos(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     123 </span><span class="lineCov">         26 : {</span>
+<span class="lineNum">     124 </span>            :   mrb_float x;
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span><span class="lineCov">         26 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     127 </span><span class="lineCov">         26 :   x = cos(x);</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">         26 :   return mrb_float_value(x);</span>
+<span class="lineNum">     130 </span>            : }
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : /*
+<span class="lineNum">     133 </span>            :  *  call-seq:
+<span class="lineNum">     134 </span>            :  *     Math.tan(x)    -&gt; float
+<span class="lineNum">     135 </span>            :  *
+<span class="lineNum">     136 </span>            :  *  Returns the tangent of &lt;i&gt;x&lt;/i&gt; (expressed in radians).
+<span class="lineNum">     137 </span>            :  */
+<a name="138"><span class="lineNum">     138 </span>            : static mrb_value</a>
+<span class="lineNum">     139 </span>            : math_tan(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     140 </span><span class="lineCov">         26 : {</span>
+<span class="lineNum">     141 </span>            :   mrb_float x;
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">         26 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     144 </span><span class="lineCov">         26 :   x = tan(x);</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">         26 :   return mrb_float_value(x);</span>
+<span class="lineNum">     147 </span>            : }
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : /*
+<span class="lineNum">     150 </span>            :   INVERSE TRIGONOMETRIC FUNCTIONS
+<span class="lineNum">     151 </span>            : */
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : /*
+<span class="lineNum">     154 </span>            :  *  call-seq:
+<span class="lineNum">     155 </span>            :  *     Math.asin(x)    -&gt; float
+<span class="lineNum">     156 </span>            :  *
+<span class="lineNum">     157 </span>            :  *  Computes the arc sine of &lt;i&gt;x&lt;/i&gt;. Returns -{PI/2} .. {PI/2}.
+<span class="lineNum">     158 </span>            :  */
+<a name="159"><span class="lineNum">     159 </span>            : static mrb_value</a>
+<span class="lineNum">     160 </span>            : math_asin(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     162 </span>            :   mrb_float x;
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :   x = asin(x);</span>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     168 </span>            : }
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            : /*
+<span class="lineNum">     171 </span>            :  *  call-seq:
+<span class="lineNum">     172 </span>            :  *     Math.acos(x)    -&gt; float
+<span class="lineNum">     173 </span>            :  *
+<span class="lineNum">     174 </span>            :  *  Computes the arc cosine of &lt;i&gt;x&lt;/i&gt;. Returns 0..PI.
+<span class="lineNum">     175 </span>            :  */
+<a name="176"><span class="lineNum">     176 </span>            : static mrb_value</a>
+<span class="lineNum">     177 </span>            : math_acos(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     179 </span>            :   mrb_float x;
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :   x = acos(x);</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     185 </span>            : }
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            : /*
+<span class="lineNum">     188 </span>            :  *  call-seq:
+<span class="lineNum">     189 </span>            :  *     Math.atan(x)    -&gt; float
+<span class="lineNum">     190 </span>            :  *
+<span class="lineNum">     191 </span>            :  *  Computes the arc tangent of &lt;i&gt;x&lt;/i&gt;. Returns -{PI/2} .. {PI/2}.
+<span class="lineNum">     192 </span>            :  */
+<a name="193"><span class="lineNum">     193 </span>            : static mrb_value</a>
+<span class="lineNum">     194 </span>            : math_atan(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     196 </span>            :   mrb_float x;
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :   x = atan(x);</span>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     202 </span>            : }
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span>            : /*
+<span class="lineNum">     205 </span>            :  *  call-seq:
+<span class="lineNum">     206 </span>            :  *     Math.atan2(y, x)  -&gt; float
+<span class="lineNum">     207 </span>            :  *
+<span class="lineNum">     208 </span>            :  *  Computes the arc tangent given &lt;i&gt;y&lt;/i&gt; and &lt;i&gt;x&lt;/i&gt;. Returns
+<span class="lineNum">     209 </span>            :  *  -PI..PI.
+<span class="lineNum">     210 </span>            :  *
+<span class="lineNum">     211 </span>            :  *    Math.atan2(-0.0, -1.0) #=&gt; -3.141592653589793
+<span class="lineNum">     212 </span>            :  *    Math.atan2(-1.0, -1.0) #=&gt; -2.356194490192345
+<span class="lineNum">     213 </span>            :  *    Math.atan2(-1.0, 0.0)  #=&gt; -1.5707963267948966
+<span class="lineNum">     214 </span>            :  *    Math.atan2(-1.0, 1.0)  #=&gt; -0.7853981633974483
+<span class="lineNum">     215 </span>            :  *    Math.atan2(-0.0, 1.0)  #=&gt; -0.0
+<span class="lineNum">     216 </span>            :  *    Math.atan2(0.0, 1.0)   #=&gt; 0.0
+<span class="lineNum">     217 </span>            :  *    Math.atan2(1.0, 1.0)   #=&gt; 0.7853981633974483
+<span class="lineNum">     218 </span>            :  *    Math.atan2(1.0, 0.0)   #=&gt; 1.5707963267948966
+<span class="lineNum">     219 </span>            :  *    Math.atan2(1.0, -1.0)  #=&gt; 2.356194490192345
+<span class="lineNum">     220 </span>            :  *    Math.atan2(0.0, -1.0)  #=&gt; 3.141592653589793
+<span class="lineNum">     221 </span>            :  *
+<span class="lineNum">     222 </span>            :  */
+<a name="223"><span class="lineNum">     223 </span>            : static mrb_value</a>
+<span class="lineNum">     224 </span>            : math_atan2(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     226 </span>            :   mrb_float x, y;
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;ff&quot;, &amp;x, &amp;y);</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :   x = atan2(x, y);</span>
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     232 </span>            : }
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            : /*
+<span class="lineNum">     237 </span>            :   HYPERBOLIC TRIG FUNCTIONS
+<span class="lineNum">     238 </span>            : */
+<span class="lineNum">     239 </span>            : /*
+<span class="lineNum">     240 </span>            :  *  call-seq:
+<span class="lineNum">     241 </span>            :  *     Math.sinh(x)    -&gt; float
+<span class="lineNum">     242 </span>            :  *
+<span class="lineNum">     243 </span>            :  *  Computes the hyperbolic sine of &lt;i&gt;x&lt;/i&gt; (expressed in
+<span class="lineNum">     244 </span>            :  *  radians).
+<span class="lineNum">     245 </span>            :  */
+<a name="246"><span class="lineNum">     246 </span>            : static mrb_value</a>
+<span class="lineNum">     247 </span>            : math_sinh(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     249 </span>            :   mrb_float x;
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :   x = sinh(x);</span>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     255 </span>            : }
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            : /*
+<span class="lineNum">     258 </span>            :  *  call-seq:
+<span class="lineNum">     259 </span>            :  *     Math.cosh(x)    -&gt; float
+<span class="lineNum">     260 </span>            :  *
+<span class="lineNum">     261 </span>            :  *  Computes the hyperbolic cosine of &lt;i&gt;x&lt;/i&gt; (expressed in radians).
+<span class="lineNum">     262 </span>            :  */
+<a name="263"><span class="lineNum">     263 </span>            : static mrb_value</a>
+<span class="lineNum">     264 </span>            : math_cosh(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     266 </span>            :   mrb_float x;
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :   x = cosh(x);</span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     272 </span>            : }
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span>            : /*
+<span class="lineNum">     275 </span>            :  *  call-seq:
+<span class="lineNum">     276 </span>            :  *     Math.tanh()    -&gt; float
+<span class="lineNum">     277 </span>            :  *
+<span class="lineNum">     278 </span>            :  *  Computes the hyperbolic tangent of &lt;i&gt;x&lt;/i&gt; (expressed in
+<span class="lineNum">     279 </span>            :  *  radians).
+<span class="lineNum">     280 </span>            :  */
+<a name="281"><span class="lineNum">     281 </span>            : static mrb_value</a>
+<span class="lineNum">     282 </span>            : math_tanh(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     284 </span>            :   mrb_float x;
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :   x = tanh(x);</span>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     290 </span>            : }
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span>            : /*
+<span class="lineNum">     294 </span>            :   INVERSE HYPERBOLIC TRIG FUNCTIONS
+<span class="lineNum">     295 </span>            : */
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            : /*
+<span class="lineNum">     298 </span>            :  *  call-seq:
+<span class="lineNum">     299 </span>            :  *     Math.asinh(x)    -&gt; float
+<span class="lineNum">     300 </span>            :  *
+<span class="lineNum">     301 </span>            :  *  Computes the inverse hyperbolic sine of &lt;i&gt;x&lt;/i&gt;.
+<span class="lineNum">     302 </span>            :  */
+<a name="303"><span class="lineNum">     303 </span>            : static mrb_value</a>
+<span class="lineNum">     304 </span>            : math_asinh(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     306 </span>            :   mrb_float x;
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :   x = asinh(x);</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     313 </span>            : }
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span>            : /*
+<span class="lineNum">     316 </span>            :  *  call-seq:
+<span class="lineNum">     317 </span>            :  *     Math.acosh(x)    -&gt; float
+<span class="lineNum">     318 </span>            :  *
+<span class="lineNum">     319 </span>            :  *  Computes the inverse hyperbolic cosine of &lt;i&gt;x&lt;/i&gt;.
+<span class="lineNum">     320 </span>            :  */
+<a name="321"><span class="lineNum">     321 </span>            : static mrb_value</a>
+<span class="lineNum">     322 </span>            : math_acosh(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     324 </span>            :   mrb_float x;
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :   x = acosh(x);</span>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     330 </span>            : }
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span>            : /*
+<span class="lineNum">     333 </span>            :  *  call-seq:
+<span class="lineNum">     334 </span>            :  *     Math.atanh(x)    -&gt; float
+<span class="lineNum">     335 </span>            :  *
+<span class="lineNum">     336 </span>            :  *  Computes the inverse hyperbolic tangent of &lt;i&gt;x&lt;/i&gt;.
+<span class="lineNum">     337 </span>            :  */
+<a name="338"><span class="lineNum">     338 </span>            : static mrb_value</a>
+<span class="lineNum">     339 </span>            : math_atanh(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     341 </span>            :   mrb_float x;
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :   x = atanh(x);</span>
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :   return mrb_float_value(x);</span>
+<span class="lineNum">     347 </span>            : }
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span>            : /*
+<span class="lineNum">     350 </span>            :   EXPONENTIALS AND LOGARITHMS
+<span class="lineNum">     351 </span>            : */
+<span class="lineNum">     352 </span>            : #if defined __CYGWIN__
+<span class="lineNum">     353 </span>            : # include &lt;cygwin/version.h&gt;
+<span class="lineNum">     354 </span>            : # if CYGWIN_VERSION_DLL_MAJOR &lt; 1005
+<span class="lineNum">     355 </span>            : #  define nan(x) nan()
+<span class="lineNum">     356 </span>            : # endif
+<span class="lineNum">     357 </span>            : # define log(x) ((x) &lt; 0.0 ? nan(&quot;&quot;) : log(x))
+<span class="lineNum">     358 </span>            : # define log10(x) ((x) &lt; 0.0 ? nan(&quot;&quot;) : log10(x))
+<span class="lineNum">     359 </span>            : #endif
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span>            : #ifndef log2
+<span class="lineNum">     362 </span>            : #ifndef HAVE_LOG2
+<a name="363"><span class="lineNum">     363 </span>            : double</a>
+<span class="lineNum">     364 </span>            : log2(double x)
+<span class="lineNum">     365 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     366 </span><span class="lineCov">          2 :     return log10(x)/log10(2.0);</span>
+<span class="lineNum">     367 </span>            : }
+<span class="lineNum">     368 </span>            : #else
+<span class="lineNum">     369 </span>            : extern double log2(double);
+<span class="lineNum">     370 </span>            : #endif
+<span class="lineNum">     371 </span>            : #endif
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span>            : /*
+<span class="lineNum">     374 </span>            :  *  call-seq:
+<span class="lineNum">     375 </span>            :  *     Math.exp(x)    -&gt; float
+<span class="lineNum">     376 </span>            :  *
+<span class="lineNum">     377 </span>            :  *  Returns e**x.
+<span class="lineNum">     378 </span>            :  *
+<span class="lineNum">     379 </span>            :  *    Math.exp(0)       #=&gt; 1.0
+<span class="lineNum">     380 </span>            :  *    Math.exp(1)       #=&gt; 2.718281828459045
+<span class="lineNum">     381 </span>            :  *    Math.exp(1.5)     #=&gt; 4.4816890703380645
+<span class="lineNum">     382 </span>            :  *
+<span class="lineNum">     383 </span>            :  */
+<a name="384"><span class="lineNum">     384 </span>            : static mrb_value</a>
+<span class="lineNum">     385 </span>            : math_exp(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     386 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     387 </span>            :   mrb_float x;
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineCov">          3 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     390 </span><span class="lineCov">          3 :   x = exp(x);</span>
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span><span class="lineCov">          3 :   return mrb_float_value(x);</span>
+<span class="lineNum">     393 </span>            : }
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span>            : /*
+<span class="lineNum">     396 </span>            :  *  call-seq:
+<span class="lineNum">     397 </span>            :  *     Math.log(numeric)    -&gt; float
+<span class="lineNum">     398 </span>            :  *     Math.log(num,base)   -&gt; float
+<span class="lineNum">     399 </span>            :  *
+<span class="lineNum">     400 </span>            :  *  Returns the natural logarithm of &lt;i&gt;numeric&lt;/i&gt;.
+<span class="lineNum">     401 </span>            :  *  If additional second argument is given, it will be the base
+<span class="lineNum">     402 </span>            :  *  of logarithm.
+<span class="lineNum">     403 </span>            :  *
+<span class="lineNum">     404 </span>            :  *    Math.log(1)          #=&gt; 0.0
+<span class="lineNum">     405 </span>            :  *    Math.log(Math::E)    #=&gt; 1.0
+<span class="lineNum">     406 </span>            :  *    Math.log(Math::E**3) #=&gt; 3.0
+<span class="lineNum">     407 </span>            :  *    Math.log(12,3)       #=&gt; 2.2618595071429146
+<span class="lineNum">     408 </span>            :  *
+<span class="lineNum">     409 </span>            :  */
+<a name="410"><span class="lineNum">     410 </span>            : static mrb_value</a>
+<span class="lineNum">     411 </span>            : math_log(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     412 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     413 </span>            :   mrb_float x, base;
+<span class="lineNum">     414 </span>            :   int argc;
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineCov">          3 :   argc = mrb_get_args(mrb, &quot;f|f&quot;, &amp;x, &amp;base);</span>
+<span class="lineNum">     417 </span><span class="lineCov">          3 :   x = log(x);</span>
+<span class="lineNum">     418 </span><span class="lineCov">          3 :   if (argc == 2) {</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :     x /= log(base);</span>
+<span class="lineNum">     420 </span>            :   }
+<span class="lineNum">     421 </span><span class="lineCov">          3 :   return mrb_float_value(x);</span>
+<span class="lineNum">     422 </span>            : }
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span>            : /*
+<span class="lineNum">     425 </span>            :  *  call-seq:
+<span class="lineNum">     426 </span>            :  *     Math.log2(numeric)    -&gt; float
+<span class="lineNum">     427 </span>            :  *
+<span class="lineNum">     428 </span>            :  *  Returns the base 2 logarithm of &lt;i&gt;numeric&lt;/i&gt;.
+<span class="lineNum">     429 </span>            :  *
+<span class="lineNum">     430 </span>            :  *    Math.log2(1)      #=&gt; 0.0
+<span class="lineNum">     431 </span>            :  *    Math.log2(2)      #=&gt; 1.0
+<span class="lineNum">     432 </span>            :  *    Math.log2(32768)  #=&gt; 15.0
+<span class="lineNum">     433 </span>            :  *    Math.log2(65536)  #=&gt; 16.0
+<span class="lineNum">     434 </span>            :  *
+<span class="lineNum">     435 </span>            :  */
+<a name="436"><span class="lineNum">     436 </span>            : static mrb_value</a>
+<span class="lineNum">     437 </span>            : math_log2(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     438 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     439 </span>            :   mrb_float x;
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     442 </span><span class="lineCov">          2 :   x = log2(x);</span>
+<span class="lineNum">     443 </span>            : 
+<span class="lineNum">     444 </span><span class="lineCov">          2 :   return mrb_float_value(x);</span>
+<span class="lineNum">     445 </span>            : }
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span>            : /*
+<span class="lineNum">     448 </span>            :  *  call-seq:
+<span class="lineNum">     449 </span>            :  *     Math.log10(numeric)    -&gt; float
+<span class="lineNum">     450 </span>            :  *
+<span class="lineNum">     451 </span>            :  *  Returns the base 10 logarithm of &lt;i&gt;numeric&lt;/i&gt;.
+<span class="lineNum">     452 </span>            :  *
+<span class="lineNum">     453 </span>            :  *    Math.log10(1)       #=&gt; 0.0
+<span class="lineNum">     454 </span>            :  *    Math.log10(10)      #=&gt; 1.0
+<span class="lineNum">     455 </span>            :  *    Math.log10(10**100) #=&gt; 100.0
+<span class="lineNum">     456 </span>            :  *
+<span class="lineNum">     457 </span>            :  */
+<a name="458"><span class="lineNum">     458 </span>            : static mrb_value</a>
+<span class="lineNum">     459 </span>            : math_log10(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     460 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     461 </span>            :   mrb_float x;
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span><span class="lineCov">          3 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     464 </span><span class="lineCov">          3 :   x = log10(x);</span>
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span><span class="lineCov">          3 :   return mrb_float_value(x);</span>
+<span class="lineNum">     467 </span>            : }
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span>            : /*
+<span class="lineNum">     470 </span>            :  *  call-seq:
+<span class="lineNum">     471 </span>            :  *     Math.sqrt(numeric)    -&gt; float
+<span class="lineNum">     472 </span>            :  *
+<span class="lineNum">     473 </span>            :  *  Returns the square root of &lt;i&gt;numeric&lt;/i&gt;.
+<span class="lineNum">     474 </span>            :  *
+<span class="lineNum">     475 </span>            :  */
+<a name="476"><span class="lineNum">     476 </span>            : static mrb_value</a>
+<span class="lineNum">     477 </span>            : math_sqrt(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     478 </span><span class="lineCov">          5 : {</span>
+<span class="lineNum">     479 </span>            :   mrb_float x;
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span><span class="lineCov">          5 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     482 </span><span class="lineCov">          5 :   x = sqrt(x);</span>
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span><span class="lineCov">          5 :   return mrb_float_value(x);</span>
+<span class="lineNum">     485 </span>            : }
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            : /*
+<span class="lineNum">     489 </span>            :  *  call-seq:
+<span class="lineNum">     490 </span>            :  *     Math.cbrt(numeric)    -&gt; float
+<span class="lineNum">     491 </span>            :  *
+<span class="lineNum">     492 </span>            :  *  Returns the cube root of &lt;i&gt;numeric&lt;/i&gt;.
+<span class="lineNum">     493 </span>            :  *
+<span class="lineNum">     494 </span>            :  *    -9.upto(9) {|x|
+<span class="lineNum">     495 </span>            :  *      p [x, Math.cbrt(x), Math.cbrt(x)**3]
+<span class="lineNum">     496 </span>            :  *    }
+<span class="lineNum">     497 </span>            :  *    #=&gt;
+<span class="lineNum">     498 </span>            :  *    [-9, -2.0800838230519, -9.0]
+<span class="lineNum">     499 </span>            :  *    [-8, -2.0, -8.0]
+<span class="lineNum">     500 </span>            :  *    [-7, -1.91293118277239, -7.0]
+<span class="lineNum">     501 </span>            :  *    [-6, -1.81712059283214, -6.0]
+<span class="lineNum">     502 </span>            :  *    [-5, -1.7099759466767, -5.0]
+<span class="lineNum">     503 </span>            :  *    [-4, -1.5874010519682, -4.0]
+<span class="lineNum">     504 </span>            :  *    [-3, -1.44224957030741, -3.0]
+<span class="lineNum">     505 </span>            :  *    [-2, -1.25992104989487, -2.0]
+<span class="lineNum">     506 </span>            :  *    [-1, -1.0, -1.0]
+<span class="lineNum">     507 </span>            :  *    [0, 0.0, 0.0]
+<span class="lineNum">     508 </span>            :  *    [1, 1.0, 1.0]
+<span class="lineNum">     509 </span>            :  *    [2, 1.25992104989487, 2.0]
+<span class="lineNum">     510 </span>            :  *    [3, 1.44224957030741, 3.0]
+<span class="lineNum">     511 </span>            :  *    [4, 1.5874010519682, 4.0]
+<span class="lineNum">     512 </span>            :  *    [5, 1.7099759466767, 5.0]
+<span class="lineNum">     513 </span>            :  *    [6, 1.81712059283214, 6.0]
+<span class="lineNum">     514 </span>            :  *    [7, 1.91293118277239, 7.0]
+<span class="lineNum">     515 </span>            :  *    [8, 2.0, 8.0]
+<span class="lineNum">     516 </span>            :  *    [9, 2.0800838230519, 9.0]
+<span class="lineNum">     517 </span>            :  *
+<span class="lineNum">     518 </span>            :  */
+<a name="519"><span class="lineNum">     519 </span>            : static mrb_value</a>
+<span class="lineNum">     520 </span>            : math_cbrt(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     521 </span><span class="lineCov">          5 : {</span>
+<span class="lineNum">     522 </span>            :   mrb_float x;
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span><span class="lineCov">          5 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     525 </span><span class="lineCov">          5 :   x = cbrt(x);</span>
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span><span class="lineCov">          5 :   return mrb_float_value(x);</span>
+<span class="lineNum">     528 </span>            : }
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            : 
+<span class="lineNum">     531 </span>            : /*
+<span class="lineNum">     532 </span>            :  *  call-seq:
+<span class="lineNum">     533 </span>            :  *     Math.frexp(numeric)    -&gt; [ fraction, exponent ]
+<span class="lineNum">     534 </span>            :  *
+<span class="lineNum">     535 </span>            :  *  Returns a two-element array containing the normalized fraction (a
+<span class="lineNum">     536 </span>            :  *  &lt;code&gt;Float&lt;/code&gt;) and exponent (a &lt;code&gt;Fixnum&lt;/code&gt;) of
+<span class="lineNum">     537 </span>            :  *  &lt;i&gt;numeric&lt;/i&gt;.
+<span class="lineNum">     538 </span>            :  *
+<span class="lineNum">     539 </span>            :  *     fraction, exponent = Math.frexp(1234)   #=&gt; [0.6025390625, 11]
+<span class="lineNum">     540 </span>            :  *     fraction * 2**exponent                  #=&gt; 1234.0
+<span class="lineNum">     541 </span>            :  */
+<a name="542"><span class="lineNum">     542 </span>            : static mrb_value</a>
+<span class="lineNum">     543 </span>            : math_frexp(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     544 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     545 </span>            :   mrb_float x;
+<span class="lineNum">     546 </span>            :   int exp;
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     549 </span><span class="lineCov">          1 :   x = frexp(x, &amp;exp);</span>
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span><span class="lineCov">          1 :   return mrb_assoc_new(mrb, mrb_float_value(x), mrb_fixnum_value(exp));</span>
+<span class="lineNum">     552 </span>            : }
+<span class="lineNum">     553 </span>            : 
+<span class="lineNum">     554 </span>            : /*
+<span class="lineNum">     555 </span>            :  *  call-seq:
+<span class="lineNum">     556 </span>            :  *     Math.ldexp(flt, int) -&gt; float
+<span class="lineNum">     557 </span>            :  *
+<span class="lineNum">     558 </span>            :  *  Returns the value of &lt;i&gt;flt&lt;/i&gt;*(2**&lt;i&gt;int&lt;/i&gt;).
+<span class="lineNum">     559 </span>            :  *
+<span class="lineNum">     560 </span>            :  *     fraction, exponent = Math.frexp(1234)
+<span class="lineNum">     561 </span>            :  *     Math.ldexp(fraction, exponent)   #=&gt; 1234.0
+<span class="lineNum">     562 </span>            :  */
+<a name="563"><span class="lineNum">     563 </span>            : static mrb_value</a>
+<span class="lineNum">     564 </span>            : math_ldexp(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     565 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     566 </span>            :   mrb_float x;
+<span class="lineNum">     567 </span>            :   mrb_int   i;
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;fi&quot;, &amp;x, &amp;i);</span>
+<span class="lineNum">     570 </span><span class="lineCov">          1 :   x = ldexp(x, i);</span>
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span><span class="lineCov">          1 :   return mrb_float_value(x);</span>
+<span class="lineNum">     573 </span>            : }
+<span class="lineNum">     574 </span>            : 
+<span class="lineNum">     575 </span>            : /*
+<span class="lineNum">     576 </span>            :  *  call-seq:
+<span class="lineNum">     577 </span>            :  *     Math.hypot(x, y)    -&gt; float
+<span class="lineNum">     578 </span>            :  *
+<span class="lineNum">     579 </span>            :  *  Returns sqrt(x**2 + y**2), the hypotenuse of a right-angled triangle
+<span class="lineNum">     580 </span>            :  *  with sides &lt;i&gt;x&lt;/i&gt; and &lt;i&gt;y&lt;/i&gt;.
+<span class="lineNum">     581 </span>            :  *
+<span class="lineNum">     582 </span>            :  *     Math.hypot(3, 4)   #=&gt; 5.0
+<span class="lineNum">     583 </span>            :  */
+<a name="584"><span class="lineNum">     584 </span>            : static mrb_value</a>
+<span class="lineNum">     585 </span>            : math_hypot(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     586 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     587 </span>            :   mrb_float x, y;
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;ff&quot;, &amp;x, &amp;y);</span>
+<span class="lineNum">     590 </span><span class="lineCov">          1 :   x = hypot(x, y);</span>
+<span class="lineNum">     591 </span>            : 
+<span class="lineNum">     592 </span><span class="lineCov">          1 :   return mrb_float_value(x);</span>
+<span class="lineNum">     593 </span>            : }
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            : /*
+<span class="lineNum">     596 </span>            :  * call-seq:
+<span class="lineNum">     597 </span>            :  *    Math.erf(x)  -&gt; float
+<span class="lineNum">     598 </span>            :  *
+<span class="lineNum">     599 </span>            :  *  Calculates the error function of x.
+<span class="lineNum">     600 </span>            :  */
+<a name="601"><span class="lineNum">     601 </span>            : static mrb_value</a>
+<span class="lineNum">     602 </span>            : math_erf(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     603 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     604 </span>            :   mrb_float x;
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span><span class="lineCov">          3 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     607 </span><span class="lineCov">          3 :   x = erf(x);</span>
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span><span class="lineCov">          3 :   return mrb_float_value(x);</span>
+<span class="lineNum">     610 </span>            : }
+<span class="lineNum">     611 </span>            : 
+<span class="lineNum">     612 </span>            : 
+<span class="lineNum">     613 </span>            : /*
+<span class="lineNum">     614 </span>            :  * call-seq:
+<span class="lineNum">     615 </span>            :  *    Math.erfc(x)  -&gt; float
+<span class="lineNum">     616 </span>            :  *
+<span class="lineNum">     617 </span>            :  *  Calculates the complementary error function of x.
+<span class="lineNum">     618 </span>            :  */
+<a name="619"><span class="lineNum">     619 </span>            : static mrb_value</a>
+<span class="lineNum">     620 </span>            : math_erfc(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     621 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     622 </span>            :   mrb_float x;
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;f&quot;, &amp;x);</span>
+<span class="lineNum">     625 </span><span class="lineCov">          2 :   x = erfc(x);</span>
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span><span class="lineCov">          2 :   return mrb_float_value(x);</span>
+<span class="lineNum">     628 </span>            : }
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span>            : /* ------------------------------------------------------------------------*/
+<a name="631"><span class="lineNum">     631 </span>            : void</a>
+<span class="lineNum">     632 </span>            : mrb_mruby_math_gem_init(mrb_state* mrb)
+<span class="lineNum">     633 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     634 </span>            :   struct RClass *mrb_math;
+<span class="lineNum">     635 </span><span class="lineCov">         14 :   mrb_math = mrb_define_module(mrb, &quot;Math&quot;);</span>
+<span class="lineNum">     636 </span>            : 
+<span class="lineNum">     637 </span>            : #ifdef M_PI
+<span class="lineNum">     638 </span><span class="lineCov">         14 :   mrb_define_const(mrb, mrb_math, &quot;PI&quot;, mrb_float_value(M_PI));</span>
+<span class="lineNum">     639 </span>            : #else
+<span class="lineNum">     640 </span>            :   mrb_define_const(mrb, mrb_math, &quot;PI&quot;, mrb_float_value(atan(1.0)*4.0));
+<span class="lineNum">     641 </span>            : #endif
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span>            : #ifdef M_E
+<span class="lineNum">     644 </span><span class="lineCov">         14 :   mrb_define_const(mrb, mrb_math, &quot;E&quot;, mrb_float_value(M_E));</span>
+<span class="lineNum">     645 </span>            : #else
+<span class="lineNum">     646 </span>            :   mrb_define_const(mrb, mrb_math, &quot;E&quot;, mrb_float_value(exp(1.0)));
+<span class="lineNum">     647 </span>            : #endif
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span>            : #ifdef MRB_USE_FLOAT
+<span class="lineNum">     650 </span>            :   mrb_define_const(mrb, mrb_math, &quot;TOLERANCE&quot;, mrb_float_value(1e-5));
+<span class="lineNum">     651 </span>            : #else
+<span class="lineNum">     652 </span><span class="lineCov">         14 :   mrb_define_const(mrb, mrb_math, &quot;TOLERANCE&quot;, mrb_float_value(1e-12));</span>
+<span class="lineNum">     653 </span>            : #endif
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;sin&quot;, math_sin, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     656 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;cos&quot;, math_cos, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     657 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;tan&quot;, math_tan, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;asin&quot;, math_asin, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     660 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;acos&quot;, math_acos, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     661 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;atan&quot;, math_atan, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     662 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;atan2&quot;, math_atan2, MRB_ARGS_REQ(2));</span>
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;sinh&quot;, math_sinh, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     665 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;cosh&quot;, math_cosh, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     666 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;tanh&quot;, math_tanh, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     667 </span>            : 
+<span class="lineNum">     668 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;asinh&quot;, math_asinh, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     669 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;acosh&quot;, math_acosh, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     670 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;atanh&quot;, math_atanh, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     671 </span>            : 
+<span class="lineNum">     672 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;exp&quot;, math_exp, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     673 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;log&quot;, math_log, MRB_ARGS_REQ(1)|MRB_ARGS_OPT(1));</span>
+<span class="lineNum">     674 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;log2&quot;, math_log2, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     675 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;log10&quot;, math_log10, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     676 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;sqrt&quot;, math_sqrt, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     677 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;cbrt&quot;, math_cbrt, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;frexp&quot;, math_frexp, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     680 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;ldexp&quot;, math_ldexp, MRB_ARGS_REQ(2));</span>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;hypot&quot;, math_hypot, MRB_ARGS_REQ(2));</span>
+<span class="lineNum">     683 </span>            : 
+<span class="lineNum">     684 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;erf&quot;,  math_erf,  MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     685 </span><span class="lineCov">         14 :   mrb_define_module_function(mrb, mrb_math, &quot;erfc&quot;, math_erfc, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     686 </span><span class="lineCov">         14 : }</span>
+<span class="lineNum">     687 </span>            : 
+<a name="688"><span class="lineNum">     688 </span>            : void</a>
+<span class="lineNum">     689 </span>            : mrb_mruby_math_gem_final(mrb_state* mrb)
+<span class="lineNum">     690 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     691 </span><span class="lineCov">         14 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

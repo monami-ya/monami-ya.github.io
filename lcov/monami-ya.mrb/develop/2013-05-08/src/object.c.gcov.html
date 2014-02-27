@@ -1,0 +1,674 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/object.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - object.c<span style="font-size: 80%;"> (source / <a href="object.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">124</td>
+            <td class="headerCovTableEntry">177</td>
+            <td class="headerCovTableEntryLo">70.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntryMed">86.2 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** object.c - Object, NilClass, TrueClass, FalseClass class
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;mruby/class.h&quot;
+<span class="lineNum">       9 </span>            : #include &quot;mruby/numeric.h&quot;
+<span class="lineNum">      10 </span>            : #include &quot;mruby/string.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;error.h&quot;
+<span class="lineNum">      12 </span>            : 
+<a name="13"><span class="lineNum">      13 </span>            : int</a>
+<span class="lineNum">      14 </span>            : mrb_obj_eq(mrb_state *mrb, mrb_value v1, mrb_value v2)
+<span class="lineNum">      15 </span><span class="lineCov">       8275 : {</span>
+<span class="lineNum">      16 </span><span class="lineCov">       8275 :   if (mrb_type(v1) != mrb_type(v2)) return FALSE;</span>
+<span class="lineNum">      17 </span><span class="lineCov">       6474 :   switch (mrb_type(v1)) {</span>
+<span class="lineNum">      18 </span>            :   case MRB_TT_TRUE:
+<span class="lineNum">      19 </span><span class="lineCov">         26 :     return 1;</span>
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            :   case MRB_TT_FALSE:
+<span class="lineNum">      22 </span>            :   case MRB_TT_FIXNUM:
+<span class="lineNum">      23 </span><span class="lineCov">       4741 :     return (v1.value.i == v2.value.i);</span>
+<span class="lineNum">      24 </span>            :   case MRB_TT_SYMBOL:
+<span class="lineNum">      25 </span><span class="lineCov">        128 :     return (v1.value.sym == v2.value.sym);</span>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            :   case MRB_TT_FLOAT:
+<span class="lineNum">      28 </span><span class="lineCov">        221 :     return (mrb_float(v1) == mrb_float(v2));</span>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            :   default:
+<span class="lineNum">      31 </span><span class="lineCov">       1358 :     return (v1.value.p == v2.value.p);</span>
+<span class="lineNum">      32 </span>            :   }
+<span class="lineNum">      33 </span>            : }
+<span class="lineNum">      34 </span>            : 
+<a name="35"><span class="lineNum">      35 </span>            : int</a>
+<span class="lineNum">      36 </span>            : mrb_obj_equal(mrb_state *mrb, mrb_value v1, mrb_value v2)
+<span class="lineNum">      37 </span><span class="lineCov">       6159 : {</span>
+<span class="lineNum">      38 </span>            :   /* temporary definition */
+<span class="lineNum">      39 </span><span class="lineCov">       6159 :   return mrb_obj_eq(mrb, v1, v2);</span>
+<span class="lineNum">      40 </span>            : }
+<span class="lineNum">      41 </span>            : 
+<a name="42"><span class="lineNum">      42 </span>            : int</a>
+<span class="lineNum">      43 </span>            : mrb_equal(mrb_state *mrb, mrb_value obj1, mrb_value obj2)
+<span class="lineNum">      44 </span><span class="lineCov">        594 : {</span>
+<span class="lineNum">      45 </span>            :   mrb_value result;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">        594 :   if (mrb_obj_eq(mrb, obj1, obj2)) return TRUE;</span>
+<span class="lineNum">      48 </span><span class="lineCov">        186 :   result = mrb_funcall(mrb, obj1, &quot;==&quot;, 1, obj2);</span>
+<span class="lineNum">      49 </span><span class="lineCov">        186 :   if (mrb_test(result)) return TRUE;</span>
+<span class="lineNum">      50 </span><span class="lineCov">         60 :   return FALSE;</span>
+<span class="lineNum">      51 </span>            : }
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : /*
+<span class="lineNum">      54 </span>            :  * Document-class: NilClass
+<span class="lineNum">      55 </span>            :  *
+<span class="lineNum">      56 </span>            :  *  The class of the singleton object &lt;code&gt;nil&lt;/code&gt;.
+<span class="lineNum">      57 </span>            :  */
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : /* 15.2.4.3.4  */
+<span class="lineNum">      60 </span>            : /*
+<span class="lineNum">      61 </span>            :  * call_seq:
+<span class="lineNum">      62 </span>            :  *   nil.nil?               -&gt; true
+<span class="lineNum">      63 </span>            :  *
+<span class="lineNum">      64 </span>            :  * Only the object &lt;i&gt;nil&lt;/i&gt; responds &lt;code&gt;true&lt;/code&gt; to &lt;code&gt;nil?&lt;/code&gt;.
+<span class="lineNum">      65 </span>            :  */
+<span class="lineNum">      66 </span>            : 
+<a name="67"><span class="lineNum">      67 </span>            : static mrb_value</a>
+<span class="lineNum">      68 </span>            : mrb_true(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">      69 </span><span class="lineCov">         15 : {</span>
+<span class="lineNum">      70 </span><span class="lineCov">         15 :     return mrb_true_value();</span>
+<span class="lineNum">      71 </span>            : }
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : /* 15.2.4.3.5  */
+<span class="lineNum">      74 </span>            : /*
+<span class="lineNum">      75 </span>            :  *  call-seq:
+<span class="lineNum">      76 </span>            :  *     nil.to_s    -&gt; &quot;&quot;
+<span class="lineNum">      77 </span>            :  *
+<span class="lineNum">      78 </span>            :  *  Always returns the empty string.
+<span class="lineNum">      79 </span>            :  */
+<span class="lineNum">      80 </span>            : 
+<a name="81"><span class="lineNum">      81 </span>            : static mrb_value</a>
+<span class="lineNum">      82 </span>            : nil_to_s(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">      83 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">      84 </span><span class="lineCov">         14 :   return mrb_str_new(mrb, 0, 0);</span>
+<span class="lineNum">      85 </span>            : }
+<span class="lineNum">      86 </span>            : 
+<a name="87"><span class="lineNum">      87 </span>            : static mrb_value</a>
+<span class="lineNum">      88 </span>            : nil_inspect(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">      89 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">      90 </span><span class="lineCov">          3 :   return mrb_str_new(mrb, &quot;nil&quot;, 3);</span>
+<span class="lineNum">      91 </span>            : }
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            : /***********************************************************************
+<span class="lineNum">      94 </span>            :  *  Document-class: TrueClass
+<span class="lineNum">      95 </span>            :  *
+<span class="lineNum">      96 </span>            :  *  The global value &lt;code&gt;true&lt;/code&gt; is the only instance of class
+<span class="lineNum">      97 </span>            :  *  &lt;code&gt;TrueClass&lt;/code&gt; and represents a logically true value in
+<span class="lineNum">      98 </span>            :  *  boolean expressions. The class provides operators allowing
+<span class="lineNum">      99 </span>            :  *  &lt;code&gt;true&lt;/code&gt; to be used in logical expressions.
+<span class="lineNum">     100 </span>            :  */
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            : /* 15.2.5.3.1  */
+<span class="lineNum">     103 </span>            : /*
+<span class="lineNum">     104 </span>            :  *  call-seq:
+<span class="lineNum">     105 </span>            :  *     true &amp; obj    -&gt; true or false
+<span class="lineNum">     106 </span>            :  *
+<span class="lineNum">     107 </span>            :  *  And---Returns &lt;code&gt;false&lt;/code&gt; if &lt;i&gt;obj&lt;/i&gt; is
+<span class="lineNum">     108 </span>            :  *  &lt;code&gt;nil&lt;/code&gt; or &lt;code&gt;false&lt;/code&gt;, &lt;code&gt;true&lt;/code&gt; otherwise.
+<span class="lineNum">     109 </span>            :  */
+<span class="lineNum">     110 </span>            : 
+<a name="111"><span class="lineNum">     111 </span>            : static mrb_value</a>
+<span class="lineNum">     112 </span>            : true_and(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     113 </span><span class="lineCov">         77 : {</span>
+<span class="lineNum">     114 </span>            :   mrb_bool obj2;
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span><span class="lineCov">         77 :   mrb_get_args(mrb, &quot;b&quot;, &amp;obj2);</span>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">         77 :   return mrb_bool_value(obj2);</span>
+<span class="lineNum">     119 </span>            : }
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            : /* 15.2.5.3.2  */
+<span class="lineNum">     122 </span>            : /*
+<span class="lineNum">     123 </span>            :  *  call-seq:
+<span class="lineNum">     124 </span>            :  *     true ^ obj   -&gt; !obj
+<span class="lineNum">     125 </span>            :  *
+<span class="lineNum">     126 </span>            :  *  Exclusive Or---Returns &lt;code&gt;true&lt;/code&gt; if &lt;i&gt;obj&lt;/i&gt; is
+<span class="lineNum">     127 </span>            :  *  &lt;code&gt;nil&lt;/code&gt; or &lt;code&gt;false&lt;/code&gt;, &lt;code&gt;false&lt;/code&gt;
+<span class="lineNum">     128 </span>            :  *  otherwise.
+<span class="lineNum">     129 </span>            :  */
+<span class="lineNum">     130 </span>            : 
+<a name="131"><span class="lineNum">     131 </span>            : static mrb_value</a>
+<span class="lineNum">     132 </span>            : true_xor(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     133 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     134 </span>            :   mrb_bool obj2;
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;b&quot;, &amp;obj2);</span>
+<span class="lineNum">     137 </span><span class="lineCov">          2 :   return mrb_bool_value(!obj2);</span>
+<span class="lineNum">     138 </span>            : }
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span>            : /* 15.2.5.3.3  */
+<span class="lineNum">     141 </span>            : /*
+<span class="lineNum">     142 </span>            :  * call-seq:
+<span class="lineNum">     143 </span>            :  *   true.to_s   -&gt;  &quot;true&quot;
+<span class="lineNum">     144 </span>            :  *
+<span class="lineNum">     145 </span>            :  * The string representation of &lt;code&gt;true&lt;/code&gt; is &quot;true&quot;.
+<span class="lineNum">     146 </span>            :  */
+<span class="lineNum">     147 </span>            : 
+<a name="148"><span class="lineNum">     148 </span>            : static mrb_value</a>
+<span class="lineNum">     149 </span>            : true_to_s(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     150 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     151 </span><span class="lineCov">          3 :   return mrb_str_new(mrb, &quot;true&quot;, 4);</span>
+<span class="lineNum">     152 </span>            : }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            : /* 15.2.5.3.4  */
+<span class="lineNum">     155 </span>            : /*
+<span class="lineNum">     156 </span>            :  *  call-seq:
+<span class="lineNum">     157 </span>            :  *     true | obj   -&gt; true
+<span class="lineNum">     158 </span>            :  *
+<span class="lineNum">     159 </span>            :  *  Or---Returns &lt;code&gt;true&lt;/code&gt;. As &lt;i&gt;anObject&lt;/i&gt; is an argument to
+<span class="lineNum">     160 </span>            :  *  a method call, it is always evaluated; there is no short-circuit
+<span class="lineNum">     161 </span>            :  *  evaluation in this case.
+<span class="lineNum">     162 </span>            :  *
+<span class="lineNum">     163 </span>            :  *     true |  puts(&quot;or&quot;)
+<span class="lineNum">     164 </span>            :  *     true || puts(&quot;logical or&quot;)
+<span class="lineNum">     165 </span>            :  *
+<span class="lineNum">     166 </span>            :  *  &lt;em&gt;produces:&lt;/em&gt;
+<span class="lineNum">     167 </span>            :  *
+<span class="lineNum">     168 </span>            :  *     or
+<span class="lineNum">     169 </span>            :  */
+<span class="lineNum">     170 </span>            : 
+<a name="171"><span class="lineNum">     171 </span>            : static mrb_value</a>
+<span class="lineNum">     172 </span>            : true_or(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     173 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     174 </span>            :   mrb_bool obj2;
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;b&quot;, &amp;obj2);</span>
+<span class="lineNum">     177 </span><span class="lineCov">          2 :   return mrb_true_value();</span>
+<span class="lineNum">     178 </span>            : }
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            : /*
+<span class="lineNum">     181 </span>            :  *  Document-class: FalseClass
+<span class="lineNum">     182 </span>            :  *
+<span class="lineNum">     183 </span>            :  *  The global value &lt;code&gt;false&lt;/code&gt; is the only instance of class
+<span class="lineNum">     184 </span>            :  *  &lt;code&gt;FalseClass&lt;/code&gt; and represents a logically false value in
+<span class="lineNum">     185 </span>            :  *  boolean expressions. The class provides operators allowing
+<span class="lineNum">     186 </span>            :  *  &lt;code&gt;false&lt;/code&gt; to participate correctly in logical expressions.
+<span class="lineNum">     187 </span>            :  *
+<span class="lineNum">     188 </span>            :  */
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            : /* 15.2.4.3.1  */
+<span class="lineNum">     191 </span>            : /* 15.2.6.3.1  */
+<span class="lineNum">     192 </span>            : /*
+<span class="lineNum">     193 </span>            :  *  call-seq:
+<span class="lineNum">     194 </span>            :  *     false &amp; obj   -&gt; false
+<span class="lineNum">     195 </span>            :  *     nil &amp; obj     -&gt; false
+<span class="lineNum">     196 </span>            :  *
+<span class="lineNum">     197 </span>            :  *  And---Returns &lt;code&gt;false&lt;/code&gt;. &lt;i&gt;obj&lt;/i&gt; is always
+<span class="lineNum">     198 </span>            :  *  evaluated as it is the argument to a method call---there is no
+<span class="lineNum">     199 </span>            :  *  short-circuit evaluation in this case.
+<span class="lineNum">     200 </span>            :  */
+<span class="lineNum">     201 </span>            : 
+<a name="202"><span class="lineNum">     202 </span>            : static mrb_value</a>
+<span class="lineNum">     203 </span>            : false_and(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     204 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     205 </span>            :   mrb_bool obj2;
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">          4 :   mrb_get_args(mrb, &quot;b&quot;, &amp;obj2);</span>
+<span class="lineNum">     208 </span><span class="lineCov">          4 :   return mrb_false_value();</span>
+<span class="lineNum">     209 </span>            : }
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            : /* 15.2.4.3.2  */
+<span class="lineNum">     212 </span>            : /* 15.2.6.3.2  */
+<span class="lineNum">     213 </span>            : /*
+<span class="lineNum">     214 </span>            :  *  call-seq:
+<span class="lineNum">     215 </span>            :  *     false ^ obj    -&gt; true or false
+<span class="lineNum">     216 </span>            :  *     nil   ^ obj    -&gt; true or false
+<span class="lineNum">     217 </span>            :  *
+<span class="lineNum">     218 </span>            :  *  Exclusive Or---If &lt;i&gt;obj&lt;/i&gt; is &lt;code&gt;nil&lt;/code&gt; or
+<span class="lineNum">     219 </span>            :  *  &lt;code&gt;false&lt;/code&gt;, returns &lt;code&gt;false&lt;/code&gt;; otherwise, returns
+<span class="lineNum">     220 </span>            :  *  &lt;code&gt;true&lt;/code&gt;.
+<span class="lineNum">     221 </span>            :  *
+<span class="lineNum">     222 </span>            :  */
+<span class="lineNum">     223 </span>            : 
+<a name="224"><span class="lineNum">     224 </span>            : static mrb_value</a>
+<span class="lineNum">     225 </span>            : false_xor(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     226 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     227 </span>            :   mrb_bool obj2;
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineCov">          4 :   mrb_get_args(mrb, &quot;b&quot;, &amp;obj2);</span>
+<span class="lineNum">     230 </span><span class="lineCov">          4 :   return mrb_bool_value(obj2);</span>
+<span class="lineNum">     231 </span>            : }
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            : /* 15.2.4.3.3  */
+<span class="lineNum">     234 </span>            : /* 15.2.6.3.4  */
+<span class="lineNum">     235 </span>            : /*
+<span class="lineNum">     236 </span>            :  *  call-seq:
+<span class="lineNum">     237 </span>            :  *     false | obj   -&gt;   true or false
+<span class="lineNum">     238 </span>            :  *     nil   | obj   -&gt;   true or false
+<span class="lineNum">     239 </span>            :  *
+<span class="lineNum">     240 </span>            :  *  Or---Returns &lt;code&gt;false&lt;/code&gt; if &lt;i&gt;obj&lt;/i&gt; is
+<span class="lineNum">     241 </span>            :  *  &lt;code&gt;nil&lt;/code&gt; or &lt;code&gt;false&lt;/code&gt;; &lt;code&gt;true&lt;/code&gt; otherwise.
+<span class="lineNum">     242 </span>            :  */
+<span class="lineNum">     243 </span>            : 
+<a name="244"><span class="lineNum">     244 </span>            : static mrb_value</a>
+<span class="lineNum">     245 </span>            : false_or(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     246 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     247 </span>            :   mrb_bool obj2;
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span><span class="lineCov">          4 :   mrb_get_args(mrb, &quot;b&quot;, &amp;obj2);</span>
+<span class="lineNum">     250 </span><span class="lineCov">          4 :   return mrb_bool_value(obj2);</span>
+<span class="lineNum">     251 </span>            : }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            : /* 15.2.6.3.3  */
+<span class="lineNum">     254 </span>            : /*
+<span class="lineNum">     255 </span>            :  * call-seq:
+<span class="lineNum">     256 </span>            :  *   false.to_s   -&gt;  &quot;false&quot;
+<span class="lineNum">     257 </span>            :  *
+<span class="lineNum">     258 </span>            :  * 'nuf said...
+<span class="lineNum">     259 </span>            :  */
+<span class="lineNum">     260 </span>            : 
+<a name="261"><span class="lineNum">     261 </span>            : static mrb_value</a>
+<span class="lineNum">     262 </span>            : false_to_s(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     263 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     264 </span><span class="lineCov">          3 :   return mrb_str_new(mrb, &quot;false&quot;, 5);</span>
+<span class="lineNum">     265 </span>            : }
+<span class="lineNum">     266 </span>            : 
+<a name="267"><span class="lineNum">     267 </span>            : void</a>
+<span class="lineNum">     268 </span>            : mrb_init_object(mrb_state *mrb)
+<span class="lineNum">     269 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">     270 </span>            :   struct RClass *n;
+<span class="lineNum">     271 </span>            :   struct RClass *t;
+<span class="lineNum">     272 </span>            :   struct RClass *f;
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineCov">         53 :   n = mrb-&gt;nil_class   = mrb_define_class(mrb, &quot;NilClass&quot;,   mrb-&gt;object_class);</span>
+<span class="lineNum">     275 </span><span class="lineCov">         53 :   mrb_undef_class_method(mrb, n, &quot;new&quot;);</span>
+<span class="lineNum">     276 </span><span class="lineCov">         53 :   mrb_define_method(mrb, n, &quot;&amp;&quot;,    false_and,      MRB_ARGS_REQ(1));  /* 15.2.4.3.1  */</span>
+<span class="lineNum">     277 </span><span class="lineCov">         53 :   mrb_define_method(mrb, n, &quot;^&quot;,    false_xor,      MRB_ARGS_REQ(1));  /* 15.2.4.3.2  */</span>
+<span class="lineNum">     278 </span><span class="lineCov">         53 :   mrb_define_method(mrb, n, &quot;|&quot;,    false_or,       MRB_ARGS_REQ(1));  /* 15.2.4.3.3  */</span>
+<span class="lineNum">     279 </span><span class="lineCov">         53 :   mrb_define_method(mrb, n, &quot;nil?&quot;, mrb_true,       MRB_ARGS_NONE());  /* 15.2.4.3.4  */</span>
+<span class="lineNum">     280 </span><span class="lineCov">         53 :   mrb_define_method(mrb, n, &quot;to_s&quot;, nil_to_s,       MRB_ARGS_NONE());  /* 15.2.4.3.5  */</span>
+<span class="lineNum">     281 </span><span class="lineCov">         53 :   mrb_define_method(mrb, n, &quot;inspect&quot;, nil_inspect, MRB_ARGS_NONE());</span>
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span><span class="lineCov">         53 :   t = mrb-&gt;true_class  = mrb_define_class(mrb, &quot;TrueClass&quot;,  mrb-&gt;object_class);</span>
+<span class="lineNum">     284 </span><span class="lineCov">         53 :   mrb_undef_class_method(mrb, t, &quot;new&quot;);</span>
+<span class="lineNum">     285 </span><span class="lineCov">         53 :   mrb_define_method(mrb, t, &quot;&amp;&quot;,    true_and,       MRB_ARGS_REQ(1));  /* 15.2.5.3.1  */</span>
+<span class="lineNum">     286 </span><span class="lineCov">         53 :   mrb_define_method(mrb, t, &quot;^&quot;,    true_xor,       MRB_ARGS_REQ(1));  /* 15.2.5.3.2  */</span>
+<span class="lineNum">     287 </span><span class="lineCov">         53 :   mrb_define_method(mrb, t, &quot;to_s&quot;, true_to_s,      MRB_ARGS_NONE());  /* 15.2.5.3.3  */</span>
+<span class="lineNum">     288 </span><span class="lineCov">         53 :   mrb_define_method(mrb, t, &quot;|&quot;,    true_or,        MRB_ARGS_REQ(1));  /* 15.2.5.3.4  */</span>
+<span class="lineNum">     289 </span><span class="lineCov">         53 :   mrb_define_method(mrb, t, &quot;inspect&quot;, true_to_s,   MRB_ARGS_NONE());</span>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineCov">         53 :   f = mrb-&gt;false_class = mrb_define_class(mrb, &quot;FalseClass&quot;, mrb-&gt;object_class);</span>
+<span class="lineNum">     292 </span><span class="lineCov">         53 :   mrb_undef_class_method(mrb, f, &quot;new&quot;);</span>
+<span class="lineNum">     293 </span><span class="lineCov">         53 :   mrb_define_method(mrb, f, &quot;&amp;&quot;,    false_and,      MRB_ARGS_REQ(1));  /* 15.2.6.3.1  */</span>
+<span class="lineNum">     294 </span><span class="lineCov">         53 :   mrb_define_method(mrb, f, &quot;^&quot;,    false_xor,      MRB_ARGS_REQ(1));  /* 15.2.6.3.2  */</span>
+<span class="lineNum">     295 </span><span class="lineCov">         53 :   mrb_define_method(mrb, f, &quot;to_s&quot;, false_to_s,     MRB_ARGS_NONE());  /* 15.2.6.3.3  */</span>
+<span class="lineNum">     296 </span><span class="lineCov">         53 :   mrb_define_method(mrb, f, &quot;|&quot;,    false_or,       MRB_ARGS_REQ(1));  /* 15.2.6.3.4  */</span>
+<span class="lineNum">     297 </span><span class="lineCov">         53 :   mrb_define_method(mrb, f, &quot;inspect&quot;, false_to_s,  MRB_ARGS_NONE());</span>
+<span class="lineNum">     298 </span><span class="lineCov">         53 : }</span>
+<span class="lineNum">     299 </span>            : 
+<a name="300"><span class="lineNum">     300 </span>            : static mrb_value</a>
+<span class="lineNum">     301 </span>            : convert_type(mrb_state *mrb, mrb_value val, const char *tname, const char *method, int raise)
+<span class="lineNum">     302 </span><span class="lineCov">        130 : {</span>
+<span class="lineNum">     303 </span><span class="lineCov">        130 :   mrb_sym m = 0;</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">        130 :   m = mrb_intern(mrb, method);</span>
+<span class="lineNum">     306 </span><span class="lineCov">        130 :   if (!mrb_respond_to(mrb, val, m)) {</span>
+<span class="lineNum">     307 </span><span class="lineCov">         93 :     if (raise) {</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :       mrb_raisef(mrb, E_TYPE_ERROR, &quot;can't convert %S into %S&quot;, val, mrb_str_new_cstr(mrb, tname));</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :       return mrb_nil_value();</span>
+<span class="lineNum">     310 </span>            :     }
+<span class="lineNum">     311 </span>            :     else {
+<span class="lineNum">     312 </span><span class="lineCov">         93 :       return mrb_nil_value();</span>
+<span class="lineNum">     313 </span>            :     }
+<span class="lineNum">     314 </span>            :   }
+<span class="lineNum">     315 </span><span class="lineCov">         37 :   return mrb_funcall_argv(mrb, val, m, 0, 0);</span>
+<span class="lineNum">     316 </span>            : }
+<span class="lineNum">     317 </span>            : 
+<a name="318"><span class="lineNum">     318 </span>            : mrb_value</a>
+<span class="lineNum">     319 </span>            : mrb_check_to_integer(mrb_state *mrb, mrb_value val, const char *method)
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     321 </span>            :     mrb_value v;
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :     if (mrb_type(val) == MRB_TT_FIXNUM) return val;</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :     v = convert_type(mrb, val, &quot;Integer&quot;, method, FALSE);</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :     if (mrb_nil_p(v) || mrb_type(v) != MRB_TT_FIXNUM) {</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :       return mrb_nil_value();</span>
+<span class="lineNum">     327 </span>            :     }
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :     return v;</span>
+<span class="lineNum">     329 </span>            : }
+<span class="lineNum">     330 </span>            : 
+<a name="331"><span class="lineNum">     331 </span>            : mrb_value</a>
+<span class="lineNum">     332 </span>            : mrb_convert_type(mrb_state *mrb, mrb_value val, mrb_int type, const char *tname, const char *method)
+<span class="lineNum">     333 </span><span class="lineCov">         39 : {</span>
+<span class="lineNum">     334 </span>            :   mrb_value v;
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span><span class="lineCov">         39 :   if (mrb_type(val) == type) return val;</span>
+<span class="lineNum">     337 </span><span class="lineCov">         37 :   v = convert_type(mrb, val, tname, method, 1/*Qtrue*/);</span>
+<span class="lineNum">     338 </span><span class="lineCov">         37 :   if (mrb_type(v) != type) {</span>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 :     mrb_raisef(mrb, E_TYPE_ERROR, &quot;%S cannot be converted to %S by #%S&quot;, val,</span>
+<span class="lineNum">     340 </span>            :                mrb_str_new_cstr(mrb, tname), mrb_str_new_cstr(mrb, method));
+<span class="lineNum">     341 </span>            :   }
+<span class="lineNum">     342 </span><span class="lineCov">         37 :   return v;</span>
+<span class="lineNum">     343 </span>            : }
+<span class="lineNum">     344 </span>            : 
+<a name="345"><span class="lineNum">     345 </span>            : mrb_value</a>
+<span class="lineNum">     346 </span>            : mrb_check_convert_type(mrb_state *mrb, mrb_value val, mrb_int type, const char *tname, const char *method)
+<span class="lineNum">     347 </span><span class="lineCov">        205 : {</span>
+<span class="lineNum">     348 </span>            :   mrb_value v;
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineCov">        205 :   if (mrb_type(val) == type &amp;&amp; type != MRB_TT_DATA) return val;</span>
+<span class="lineNum">     351 </span><span class="lineCov">         93 :   v = convert_type(mrb, val, tname, method, 0/*Qfalse*/);</span>
+<span class="lineNum">     352 </span><span class="lineCov">         93 :   if (mrb_nil_p(v) || mrb_type(v) != type) return mrb_nil_value();</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :   return v;</span>
+<span class="lineNum">     354 </span>            : }
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            : static const struct types {
+<span class="lineNum">     357 </span>            :     unsigned char type;
+<span class="lineNum">     358 </span>            :     const char *name;
+<span class="lineNum">     359 </span>            : } builtin_types[] = {
+<span class="lineNum">     360 </span>            : //    {MRB_TT_NIL,  &quot;nil&quot;},
+<span class="lineNum">     361 </span>            :   {MRB_TT_FALSE,  &quot;false&quot;},
+<span class="lineNum">     362 </span>            :   {MRB_TT_TRUE,   &quot;true&quot;},
+<span class="lineNum">     363 </span>            :   {MRB_TT_FIXNUM, &quot;Fixnum&quot;},
+<span class="lineNum">     364 </span>            :   {MRB_TT_SYMBOL, &quot;Symbol&quot;},  /* :symbol */
+<span class="lineNum">     365 </span>            :   {MRB_TT_MODULE, &quot;Module&quot;},
+<span class="lineNum">     366 </span>            :   {MRB_TT_OBJECT, &quot;Object&quot;},
+<span class="lineNum">     367 </span>            :   {MRB_TT_CLASS,  &quot;Class&quot;},
+<span class="lineNum">     368 </span>            :   {MRB_TT_ICLASS, &quot;iClass&quot;},  /* internal use: mixed-in module holder */
+<span class="lineNum">     369 </span>            :   {MRB_TT_SCLASS, &quot;SClass&quot;},
+<span class="lineNum">     370 </span>            :   {MRB_TT_PROC,   &quot;Proc&quot;},
+<span class="lineNum">     371 </span>            :   {MRB_TT_FLOAT,  &quot;Float&quot;},
+<span class="lineNum">     372 </span>            :   {MRB_TT_ARRAY,  &quot;Array&quot;},
+<span class="lineNum">     373 </span>            :   {MRB_TT_HASH,   &quot;Hash&quot;},
+<span class="lineNum">     374 </span>            :   {MRB_TT_STRING, &quot;String&quot;},
+<span class="lineNum">     375 </span>            :   {MRB_TT_RANGE,  &quot;Range&quot;},
+<span class="lineNum">     376 </span>            : //    {MRB_TT_BIGNUM,  &quot;Bignum&quot;},
+<span class="lineNum">     377 </span>            :   {MRB_TT_FILE,   &quot;File&quot;},
+<span class="lineNum">     378 </span>            :   {MRB_TT_DATA,   &quot;Data&quot;},  /* internal use: wrapped C pointers */
+<span class="lineNum">     379 </span>            : //    {MRB_TT_VARMAP,  &quot;Varmap&quot;},  /* internal use: dynamic variables */
+<span class="lineNum">     380 </span>            : //    {MRB_TT_NODE,  &quot;Node&quot;},  /* internal use: syntax tree node */
+<span class="lineNum">     381 </span>            : //    {MRB_TT_UNDEF,  &quot;undef&quot;},  /* internal use: #undef; should not happen */
+<span class="lineNum">     382 </span>            :     {-1,  0}
+<span class="lineNum">     383 </span>            : };
+<span class="lineNum">     384 </span>            : 
+<a name="385"><span class="lineNum">     385 </span>            : void</a>
+<span class="lineNum">     386 </span>            : mrb_check_type(mrb_state *mrb, mrb_value x, enum mrb_vtype t)
+<span class="lineNum">     387 </span><span class="lineCov">        492 : {</span>
+<span class="lineNum">     388 </span><span class="lineCov">        492 :   const struct types *type = builtin_types;</span>
+<span class="lineNum">     389 </span>            :   struct RString *s;
+<span class="lineNum">     390 </span>            :   enum mrb_vtype xt;
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span><span class="lineCov">        492 :   xt = mrb_type(x);</span>
+<span class="lineNum">     393 </span><span class="lineCov">        492 :   if ((xt != t) || (xt == MRB_TT_DATA)) {</span>
+<span class="lineNum">     394 </span><span class="lineCov">          8 :     while (type-&gt;type &lt; MRB_TT_MAXDEFINE) {</span>
+<span class="lineNum">     395 </span><span class="lineCov">          7 :       if (type-&gt;type == t) {</span>
+<span class="lineNum">     396 </span>            :         const char *etype;
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineCov">          1 :         if (mrb_nil_p(x)) {</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :           etype = &quot;nil&quot;;</span>
+<span class="lineNum">     400 </span>            :         }
+<span class="lineNum">     401 </span><span class="lineCov">          1 :         else if (mrb_type(x) == MRB_TT_FIXNUM) {</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :           etype = &quot;Fixnum&quot;;</span>
+<span class="lineNum">     403 </span>            :         }
+<span class="lineNum">     404 </span><span class="lineCov">          1 :         else if (mrb_type(x) == MRB_TT_SYMBOL) {</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :           etype = &quot;Symbol&quot;;</span>
+<span class="lineNum">     406 </span>            :         }
+<span class="lineNum">     407 </span><span class="lineCov">          1 :         else if (mrb_special_const_p(x)) {</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :           s = mrb_str_ptr(mrb_obj_as_string(mrb, x));</span>
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :           etype = s-&gt;ptr;</span>
+<span class="lineNum">     410 </span>            :         }
+<span class="lineNum">     411 </span>            :         else {
+<span class="lineNum">     412 </span><span class="lineCov">          1 :           etype = mrb_obj_classname(mrb, x);</span>
+<span class="lineNum">     413 </span>            :         }
+<span class="lineNum">     414 </span><span class="lineCov">          1 :         mrb_raisef(mrb, E_TYPE_ERROR, &quot;wrong argument type %S (expected %S)&quot;,</span>
+<span class="lineNum">     415 </span>            :                    mrb_str_new_cstr(mrb, etype), mrb_str_new_cstr(mrb, type-&gt;name));
+<span class="lineNum">     416 </span>            :       }
+<span class="lineNum">     417 </span><span class="lineCov">          6 :       type++;</span>
+<span class="lineNum">     418 </span>            :     }
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :     mrb_raisef(mrb, E_TYPE_ERROR, &quot;unknown type %S (%S given)&quot;,</span>
+<span class="lineNum">     420 </span>            :                mrb_fixnum_value(t), mrb_fixnum_value(mrb_type(x)));
+<span class="lineNum">     421 </span>            :   }
+<span class="lineNum">     422 </span><span class="lineCov">        491 : }</span>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span>            : /* 15.3.1.3.46 */
+<span class="lineNum">     425 </span>            : /*
+<span class="lineNum">     426 </span>            :  *  call-seq:
+<span class="lineNum">     427 </span>            :  *     obj.to_s    =&gt; string
+<span class="lineNum">     428 </span>            :  *
+<span class="lineNum">     429 </span>            :  *  Returns a string representing &lt;i&gt;obj&lt;/i&gt;. The default
+<span class="lineNum">     430 </span>            :  *  &lt;code&gt;to_s&lt;/code&gt; prints the object's class and an encoding of the
+<span class="lineNum">     431 </span>            :  *  object id. As a special case, the top-level object that is the
+<span class="lineNum">     432 </span>            :  *  initial execution context of Ruby programs returns ``main.''
+<span class="lineNum">     433 </span>            :  */
+<span class="lineNum">     434 </span>            : 
+<a name="435"><span class="lineNum">     435 </span>            : mrb_value</a>
+<span class="lineNum">     436 </span>            : mrb_any_to_s(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     437 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     438 </span><span class="lineCov">          4 :   mrb_value str = mrb_str_buf_new(mrb, 20);</span>
+<span class="lineNum">     439 </span><span class="lineCov">          4 :   const char *cname = mrb_obj_classname(mrb, obj);</span>
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span><span class="lineCov">          4 :   mrb_str_buf_cat(mrb, str, &quot;#&lt;&quot;, 2);</span>
+<span class="lineNum">     442 </span><span class="lineCov">          4 :   mrb_str_cat2(mrb, str, cname);</span>
+<span class="lineNum">     443 </span><span class="lineCov">          4 :   mrb_str_cat(mrb, str, &quot;:&quot;, 1);</span>
+<span class="lineNum">     444 </span><span class="lineCov">          4 :   mrb_str_concat(mrb, str, mrb_ptr_to_str(mrb, mrb_voidp(obj)));</span>
+<span class="lineNum">     445 </span><span class="lineCov">          4 :   mrb_str_buf_cat(mrb, str, &quot;&gt;&quot;, 1);</span>
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span><span class="lineCov">          4 :   return str;</span>
+<span class="lineNum">     448 </span>            : }
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            : /*
+<span class="lineNum">     451 </span>            :  *  call-seq:
+<span class="lineNum">     452 </span>            :  *     obj.is_a?(class)       =&gt; true or false
+<span class="lineNum">     453 </span>            :  *     obj.kind_of?(class)    =&gt; true or false
+<span class="lineNum">     454 </span>            :  *
+<span class="lineNum">     455 </span>            :  *  Returns &lt;code&gt;true&lt;/code&gt; if &lt;i&gt;class&lt;/i&gt; is the class of
+<span class="lineNum">     456 </span>            :  *  &lt;i&gt;obj&lt;/i&gt;, or if &lt;i&gt;class&lt;/i&gt; is one of the superclasses of
+<span class="lineNum">     457 </span>            :  *  &lt;i&gt;obj&lt;/i&gt; or modules included in &lt;i&gt;obj&lt;/i&gt;.
+<span class="lineNum">     458 </span>            :  *
+<span class="lineNum">     459 </span>            :  *     module M;    end
+<span class="lineNum">     460 </span>            :  *     class A
+<span class="lineNum">     461 </span>            :  *       include M
+<span class="lineNum">     462 </span>            :  *     end
+<span class="lineNum">     463 </span>            :  *     class B &lt; A; end
+<span class="lineNum">     464 </span>            :  *     class C &lt; B; end
+<span class="lineNum">     465 </span>            :  *     b = B.new
+<span class="lineNum">     466 </span>            :  *     b.instance_of? A   #=&gt; false
+<span class="lineNum">     467 </span>            :  *     b.instance_of? B   #=&gt; true
+<span class="lineNum">     468 </span>            :  *     b.instance_of? C   #=&gt; false
+<span class="lineNum">     469 </span>            :  *     b.instance_of? M   #=&gt; false
+<span class="lineNum">     470 </span>            :  *     b.kind_of? A       #=&gt; true
+<span class="lineNum">     471 </span>            :  *     b.kind_of? B       #=&gt; true
+<span class="lineNum">     472 </span>            :  *     b.kind_of? C       #=&gt; false
+<span class="lineNum">     473 </span>            :  *     b.kind_of? M       #=&gt; true
+<span class="lineNum">     474 </span>            :  */
+<span class="lineNum">     475 </span>            : 
+<a name="476"><span class="lineNum">     476 </span>            : int</a>
+<span class="lineNum">     477 </span>            : mrb_obj_is_kind_of(mrb_state *mrb, mrb_value obj, struct RClass *c)
+<span class="lineNum">     478 </span><span class="lineCov">        172 : {</span>
+<span class="lineNum">     479 </span><span class="lineCov">        172 :   struct RClass *cl = mrb_class(mrb, obj);</span>
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span><span class="lineCov">        172 :   switch (c-&gt;tt) {</span>
+<span class="lineNum">     482 </span>            :     case MRB_TT_MODULE:
+<span class="lineNum">     483 </span>            :     case MRB_TT_CLASS:
+<span class="lineNum">     484 </span>            :     case MRB_TT_ICLASS:
+<span class="lineNum">     485 </span><span class="lineCov">        172 :       break;</span>
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            :     default:
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_TYPE_ERROR, &quot;class or module required&quot;);</span>
+<span class="lineNum">     489 </span>            :   }
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span><span class="lineCov">        781 :   while (cl) {</span>
+<span class="lineNum">     492 </span><span class="lineCov">        554 :     if (cl == c || cl-&gt;mt == c-&gt;mt)</span>
+<span class="lineNum">     493 </span><span class="lineCov">        117 :       return TRUE;</span>
+<span class="lineNum">     494 </span><span class="lineCov">        437 :     cl = cl-&gt;super;</span>
+<span class="lineNum">     495 </span>            :   }
+<span class="lineNum">     496 </span><span class="lineCov">         55 :   return FALSE;</span>
+<span class="lineNum">     497 </span>            : }
+<span class="lineNum">     498 </span>            : 
+<a name="499"><span class="lineNum">     499 </span>            : static mrb_value</a>
+<span class="lineNum">     500 </span>            : mrb_to_integer(mrb_state *mrb, mrb_value val, const char *method)
+<span class="lineNum">     501 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     502 </span>            :     mrb_value v;
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span><span class="lineCov">          3 :     if (mrb_fixnum_p(val)) return val;</span>
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :     v = convert_type(mrb, val, &quot;Integer&quot;, method, TRUE);</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :     if (!mrb_obj_is_kind_of(mrb, v, mrb-&gt;fixnum_class)) {</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :       mrb_raisef(mrb, E_TYPE_ERROR, &quot;can't convert %S to Integer (%S#%S gives %S)&quot;,</span>
+<span class="lineNum">     508 </span>            :                  val, val, mrb_str_new_cstr(mrb, method), v);
+<span class="lineNum">     509 </span>            :     }
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :     return v;</span>
+<span class="lineNum">     511 </span>            : }
+<span class="lineNum">     512 </span>            : 
+<a name="513"><span class="lineNum">     513 </span>            : mrb_value</a>
+<span class="lineNum">     514 </span>            : mrb_to_int(mrb_state *mrb, mrb_value val)
+<span class="lineNum">     515 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     516 </span><span class="lineCov">          3 :     return mrb_to_integer(mrb, val, &quot;to_int&quot;);</span>
+<span class="lineNum">     517 </span>            : }
+<span class="lineNum">     518 </span>            : 
+<a name="519"><span class="lineNum">     519 </span>            : static mrb_value</a>
+<span class="lineNum">     520 </span>            : mrb_convert_to_integer(mrb_state *mrb, mrb_value val, int base)
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     522 </span>            :   mrb_value tmp;
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :   if (mrb_nil_p(val)) {</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :     if (base != 0) goto arg_error;</span>
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_TYPE_ERROR, &quot;can't convert nil into Integer&quot;);</span>
+<span class="lineNum">     527 </span>            :   }
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :   switch (mrb_type(val)) {</span>
+<span class="lineNum">     529 </span>            :     case MRB_TT_FLOAT:
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :       if (base != 0) goto arg_error;</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :       if (FIXABLE(mrb_float(val))) {</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :           break;</span>
+<span class="lineNum">     533 </span>            :       }
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :       return mrb_flo_to_fixnum(mrb, val);</span>
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span>            :     case MRB_TT_FIXNUM:
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :       if (base != 0) goto arg_error;</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :       return val;</span>
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span>            :     case MRB_TT_STRING:
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 : string_conv:</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :       return mrb_str_to_inum(mrb, val, base, TRUE);</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span>            :     default:
+<span class="lineNum">     545 </span>            :       break;
+<span class="lineNum">     546 </span>            :   }
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :   if (base != 0) {</span>
+<span class="lineNum">     548 </span><span class="lineNoCov">          0 :       tmp = mrb_check_string_type(mrb, val);</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :       if (!mrb_nil_p(tmp)) goto string_conv;</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :     arg_error:</span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;base specified for non string value&quot;);</span>
+<span class="lineNum">     552 </span>            :   }
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :   tmp = convert_type(mrb, val, &quot;Integer&quot;, &quot;to_int&quot;, FALSE);</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :   if (mrb_nil_p(tmp)) {</span>
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :       return mrb_to_integer(mrb, val, &quot;to_i&quot;);</span>
+<span class="lineNum">     556 </span>            :   }
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :   return tmp;</span>
+<span class="lineNum">     558 </span>            : }
+<span class="lineNum">     559 </span>            : 
+<a name="560"><span class="lineNum">     560 </span>            : mrb_value</a>
+<span class="lineNum">     561 </span>            : mrb_Integer(mrb_state *mrb, mrb_value val)
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :     return mrb_convert_to_integer(mrb, val, 0);</span>
+<span class="lineNum">     564 </span>            : }
+<span class="lineNum">     565 </span>            : 
+<a name="566"><span class="lineNum">     566 </span>            : mrb_value</a>
+<span class="lineNum">     567 </span>            : mrb_Float(mrb_state *mrb, mrb_value val)
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :   if (mrb_nil_p(val)) {</span>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_TYPE_ERROR, &quot;can't convert nil into Float&quot;);</span>
+<span class="lineNum">     571 </span>            :   }
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :   switch (mrb_type(val)) {</span>
+<span class="lineNum">     573 </span>            :     case MRB_TT_FIXNUM:
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :       return mrb_float_value((mrb_float)mrb_fixnum(val));</span>
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span>            :     case MRB_TT_FLOAT:
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :       return val;</span>
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span>            :     case MRB_TT_STRING:
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :       return mrb_float_value(mrb_str_to_dbl(mrb, val, TRUE));</span>
+<span class="lineNum">     581 </span>            : 
+<span class="lineNum">     582 </span>            :     default:
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :       return mrb_convert_type(mrb, val, MRB_TT_FLOAT, &quot;Float&quot;, &quot;to_f&quot;);</span>
+<span class="lineNum">     584 </span>            :   }
+<span class="lineNum">     585 </span>            : }
+<span class="lineNum">     586 </span>            : 
+<a name="587"><span class="lineNum">     587 </span>            : mrb_value</a>
+<span class="lineNum">     588 </span>            : mrb_inspect(mrb_state *mrb, mrb_value obj)
+<span class="lineNum">     589 </span><span class="lineCov">        110 : {</span>
+<span class="lineNum">     590 </span><span class="lineCov">        110 :   return mrb_obj_as_string(mrb, mrb_funcall(mrb, obj, &quot;inspect&quot;, 0, 0));</span>
+<span class="lineNum">     591 </span>            : }
+<span class="lineNum">     592 </span>            : 
+<a name="593"><span class="lineNum">     593 </span>            : int</a>
+<span class="lineNum">     594 </span>            : mrb_eql(mrb_state *mrb, mrb_value obj1, mrb_value obj2)
+<span class="lineNum">     595 </span><span class="lineCov">        151 : {</span>
+<span class="lineNum">     596 </span><span class="lineCov">        151 :   if (mrb_obj_eq(mrb, obj1, obj2)) return TRUE;</span>
+<span class="lineNum">     597 </span><span class="lineCov">         79 :   return mrb_test(mrb_funcall(mrb, obj1, &quot;eql?&quot;, 1, obj2));</span>
+<span class="lineNum">     598 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

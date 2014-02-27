@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - mrbgems/mruby-range-ext/src/range.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">mrbgems/mruby-range-ext/src</a> - range.c<span style="font-size: 80%;"> (source / <a href="range.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntryMed">83.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &quot;mruby.h&quot;</a>
+<span class="lineNum">       2 </span>            : #include &quot;mruby/range.h&quot;
+<span class="lineNum">       3 </span>            : 
+<a name="4"><span class="lineNum">       4 </span>            : static int</a>
+<span class="lineNum">       5 </span>            : r_le(mrb_state *mrb, mrb_value a, mrb_value b)
+<span class="lineNum">       6 </span><span class="lineCov">          5 : {</span>
+<span class="lineNum">       7 </span><span class="lineCov">          5 :   mrb_value r = mrb_funcall(mrb, a, &quot;&lt;=&gt;&quot;, 1, b); /* compare result */</span>
+<span class="lineNum">       8 </span>            :   /* output :a &lt; b =&gt; -1, a = b =&gt;  0, a &gt; b =&gt; +1 */
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span><span class="lineCov">          5 :   if (mrb_type(r) == MRB_TT_FIXNUM) {</span>
+<span class="lineNum">      11 </span><span class="lineCov">          5 :     mrb_int c = mrb_fixnum(r);</span>
+<span class="lineNum">      12 </span><span class="lineCov">          5 :     if (c == 0 || c == -1) return TRUE;</span>
+<span class="lineNum">      13 </span>            :   }
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span><span class="lineCov">          1 :   return FALSE;</span>
+<span class="lineNum">      16 </span>            : }
+<span class="lineNum">      17 </span>            : 
+<a name="18"><span class="lineNum">      18 </span>            : static int</a>
+<span class="lineNum">      19 </span>            : r_lt(mrb_state *mrb, mrb_value a, mrb_value b)
+<span class="lineNum">      20 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      21 </span><span class="lineNoCov">          0 :   mrb_value r = mrb_funcall(mrb, a, &quot;&lt;=&gt;&quot;, 1, b);</span>
+<span class="lineNum">      22 </span>            :   /* output :a &lt; b =&gt; -1, a = b =&gt;  0, a &gt; b =&gt; +1 */
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span><span class="lineNoCov">          0 :   if (mrb_type(r) == MRB_TT_FIXNUM) {</span>
+<span class="lineNum">      25 </span><span class="lineNoCov">          0 :     if (mrb_fixnum(r) == -1) return TRUE;</span>
+<span class="lineNum">      26 </span>            :   }
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 :   return FALSE;</span>
+<span class="lineNum">      29 </span>            : }
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : /*
+<span class="lineNum">      32 </span>            :  *  call-seq:
+<span class="lineNum">      33 </span>            :  *     rng.cover?(obj)  -&gt;  true or false
+<span class="lineNum">      34 </span>            :  *
+<span class="lineNum">      35 </span>            :  *  Returns &lt;code&gt;true&lt;/code&gt; if +obj+ is between the begin and end of
+<span class="lineNum">      36 </span>            :  *  the range.
+<span class="lineNum">      37 </span>            :  *
+<span class="lineNum">      38 </span>            :  *  This tests &lt;code&gt;begin &lt;= obj &lt;= end&lt;/code&gt; when #exclude_end? is +false+
+<span class="lineNum">      39 </span>            :  *  and &lt;code&gt;begin &lt;= obj &lt; end&lt;/code&gt; when #exclude_end? is +true+.
+<span class="lineNum">      40 </span>            :  *
+<span class="lineNum">      41 </span>            :  *     (&quot;a&quot;..&quot;z&quot;).cover?(&quot;c&quot;)    #=&gt; true
+<span class="lineNum">      42 </span>            :  *     (&quot;a&quot;..&quot;z&quot;).cover?(&quot;5&quot;)    #=&gt; false
+<span class="lineNum">      43 </span>            :  *     (&quot;a&quot;..&quot;z&quot;).cover?(&quot;cc&quot;)   #=&gt; true
+<span class="lineNum">      44 </span>            :  */
+<a name="45"><span class="lineNum">      45 </span>            : static mrb_value</a>
+<span class="lineNum">      46 </span>            : mrb_range_cover(mrb_state *mrb, mrb_value range)
+<span class="lineNum">      47 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">      48 </span>            :   mrb_value val;
+<span class="lineNum">      49 </span><span class="lineCov">          3 :   struct RRange *r = mrb_range_ptr(range);</span>
+<span class="lineNum">      50 </span>            :   mrb_value beg, end;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">          3 :   mrb_get_args(mrb, &quot;o&quot;, &amp;val);</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineCov">          3 :   beg = r-&gt;edges-&gt;beg;</span>
+<span class="lineNum">      55 </span><span class="lineCov">          3 :   end = r-&gt;edges-&gt;end;</span>
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineCov">          3 :   if (r_le(mrb, beg, val)) {</span>
+<span class="lineNum">      58 </span><span class="lineCov">          2 :     if (r-&gt;excl) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :       if (r_lt(mrb, val, end))</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :         return mrb_true_value();</span>
+<span class="lineNum">      61 </span>            :     }
+<span class="lineNum">      62 </span>            :     else {
+<span class="lineNum">      63 </span><span class="lineCov">          2 :       if (r_le(mrb, val, end))</span>
+<span class="lineNum">      64 </span><span class="lineCov">          2 :         return mrb_true_value();</span>
+<span class="lineNum">      65 </span>            :     }
+<span class="lineNum">      66 </span>            :   }
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineCov">          1 :   return mrb_false_value();</span>
+<span class="lineNum">      69 </span>            : }
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : /*
+<span class="lineNum">      72 </span>            :  *  call-seq:
+<span class="lineNum">      73 </span>            :  *     rng.first    -&gt; obj
+<span class="lineNum">      74 </span>            :  *     rng.first(n) -&gt; an_array
+<span class="lineNum">      75 </span>            :  *
+<span class="lineNum">      76 </span>            :  *  Returns the first object in the range, or an array of the first +n+
+<span class="lineNum">      77 </span>            :  *  elements.
+<span class="lineNum">      78 </span>            :  *
+<span class="lineNum">      79 </span>            :  *    (10..20).first     #=&gt; 10
+<span class="lineNum">      80 </span>            :  *    (10..20).first(3)  #=&gt; [10, 11, 12]
+<span class="lineNum">      81 </span>            :  */
+<a name="82"><span class="lineNum">      82 </span>            : static mrb_value</a>
+<span class="lineNum">      83 </span>            : mrb_range_first(mrb_state *mrb, mrb_value range)
+<span class="lineNum">      84 </span><span class="lineCov">         18 : {</span>
+<span class="lineNum">      85 </span>            :   mrb_value num;
+<span class="lineNum">      86 </span>            :   mrb_value array;
+<span class="lineNum">      87 </span><span class="lineCov">         18 :   struct RRange *r = mrb_range_ptr(range);</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineCov">         18 :   if (mrb_get_args(mrb, &quot;|o&quot;, &amp;num) == 0) {</span>
+<span class="lineNum">      90 </span><span class="lineCov">         17 :     return r-&gt;edges-&gt;beg;</span>
+<span class="lineNum">      91 </span>            :   }
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">          1 :   array = mrb_funcall(mrb, range, &quot;to_a&quot;, 0);</span>
+<span class="lineNum">      94 </span><span class="lineCov">          1 :   return mrb_funcall(mrb, array, &quot;first&quot;, 1, mrb_to_int(mrb, num));</span>
+<span class="lineNum">      95 </span>            : }
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            : /*
+<span class="lineNum">      98 </span>            :  *  call-seq:
+<span class="lineNum">      99 </span>            :  *     rng.last    -&gt; obj
+<span class="lineNum">     100 </span>            :  *     rng.last(n) -&gt; an_array
+<span class="lineNum">     101 </span>            :  *
+<span class="lineNum">     102 </span>            :  *  Returns the last object in the range,
+<span class="lineNum">     103 </span>            :  *  or an array of the last +n+ elements.
+<span class="lineNum">     104 </span>            :  *
+<span class="lineNum">     105 </span>            :  *  Note that with no arguments +last+ will return the object that defines
+<span class="lineNum">     106 </span>            :  *  the end of the range even if #exclude_end? is +true+.
+<span class="lineNum">     107 </span>            :  *
+<span class="lineNum">     108 </span>            :  *    (10..20).last      #=&gt; 20
+<span class="lineNum">     109 </span>            :  *    (10...20).last     #=&gt; 20
+<span class="lineNum">     110 </span>            :  *    (10..20).last(3)   #=&gt; [18, 19, 20]
+<span class="lineNum">     111 </span>            :  *    (10...20).last(3)  #=&gt; [17, 18, 19]
+<span class="lineNum">     112 </span>            :  */
+<a name="113"><span class="lineNum">     113 </span>            : static mrb_value</a>
+<span class="lineNum">     114 </span>            : mrb_range_last(mrb_state *mrb, mrb_value range)
+<span class="lineNum">     115 </span><span class="lineCov">         20 : {</span>
+<span class="lineNum">     116 </span>            :   mrb_value num;
+<span class="lineNum">     117 </span>            :   mrb_value array;
+<span class="lineNum">     118 </span><span class="lineCov">         20 :   struct RRange *r = mrb_range_ptr(range);</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineCov">         20 :   if (mrb_get_args(mrb, &quot;|o&quot;, &amp;num) == 0) {</span>
+<span class="lineNum">     121 </span><span class="lineCov">         18 :     return r-&gt;edges-&gt;end;</span>
+<span class="lineNum">     122 </span>            :   }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">          2 :   array = mrb_funcall(mrb, range, &quot;to_a&quot;, 0);</span>
+<span class="lineNum">     125 </span><span class="lineCov">          2 :   return mrb_funcall(mrb, array, &quot;last&quot;, 1, mrb_to_int(mrb, num));</span>
+<span class="lineNum">     126 </span>            : }
+<span class="lineNum">     127 </span>            : 
+<a name="128"><span class="lineNum">     128 </span>            : void</a>
+<span class="lineNum">     129 </span>            : mrb_mruby_range_ext_gem_init(mrb_state* mrb)
+<span class="lineNum">     130 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     131 </span><span class="lineCov">         14 :   struct RClass * s = mrb_class_get(mrb, &quot;Range&quot;);</span>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">         14 :   mrb_define_method(mrb, s, &quot;cover?&quot;, mrb_range_cover, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     134 </span><span class="lineCov">         14 :   mrb_define_method(mrb, s, &quot;first&quot;,  mrb_range_first, MRB_ARGS_OPT(1));</span>
+<span class="lineNum">     135 </span><span class="lineCov">         14 :   mrb_define_method(mrb, s, &quot;last&quot;,   mrb_range_last,  MRB_ARGS_OPT(1));</span>
+<span class="lineNum">     136 </span><span class="lineCov">         14 : }</span>
+<span class="lineNum">     137 </span>            : 
+<a name="138"><span class="lineNum">     138 </span>            : void</a>
+<span class="lineNum">     139 </span>            : mrb_mruby_range_ext_gem_final(mrb_state* mrb)
+<span class="lineNum">     140 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     141 </span><span class="lineCov">         14 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

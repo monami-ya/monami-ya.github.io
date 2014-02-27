@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/proc.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - proc.c<span style="font-size: 80%;"> (source / <a href="proc.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">77</td>
+            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntryMed">82.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** proc.c - Proc class
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;mruby/class.h&quot;
+<span class="lineNum">       9 </span>            : #include &quot;mruby/proc.h&quot;
+<span class="lineNum">      10 </span>            : #include &quot;ritevm/opcode.h&quot;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : static mrb_code call_iseq[] = {
+<span class="lineNum">      13 </span>            :   MKOP_A(OP_CALL, 0),
+<span class="lineNum">      14 </span>            : };
+<span class="lineNum">      15 </span>            : 
+<a name="16"><span class="lineNum">      16 </span>            : struct RProc *</a>
+<span class="lineNum">      17 </span>            : mrb_proc_new(mrb_state *mrb, mrb_irep *irep)
+<span class="lineNum">      18 </span><span class="lineCov">       4413 : {</span>
+<span class="lineNum">      19 </span>            :   struct RProc *p;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span><span class="lineCov">       4413 :   p = (struct RProc*)mrb_obj_alloc(mrb, MRB_TT_PROC, mrb-&gt;proc_class);</span>
+<span class="lineNum">      22 </span><span class="lineCov">       4413 :   p-&gt;target_class = (mrb-&gt;ci) ? mrb-&gt;ci-&gt;target_class : 0;</span>
+<span class="lineNum">      23 </span><span class="lineCov">       4413 :   p-&gt;body.irep = irep;</span>
+<span class="lineNum">      24 </span><span class="lineCov">       4413 :   p-&gt;env = 0;</span>
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span><span class="lineCov">       4413 :   return p;</span>
+<span class="lineNum">      27 </span>            : }
+<span class="lineNum">      28 </span>            : 
+<a name="29"><span class="lineNum">      29 </span>            : static inline void</a>
+<span class="lineNum">      30 </span>            : closure_setup(mrb_state *mrb, struct RProc *p, int nlocals)
+<span class="lineNum">      31 </span><span class="lineCov">       1703 : {</span>
+<span class="lineNum">      32 </span>            :   struct REnv *e;
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span><span class="lineCov">       1703 :   if (!mrb-&gt;ci-&gt;env) {</span>
+<span class="lineNum">      35 </span><span class="lineCov">       1071 :     e = (struct REnv*)mrb_obj_alloc(mrb, MRB_TT_ENV, (struct RClass*)mrb-&gt;ci-&gt;proc-&gt;env);</span>
+<span class="lineNum">      36 </span><span class="lineCov">       1071 :     e-&gt;flags= (unsigned int)nlocals;</span>
+<span class="lineNum">      37 </span><span class="lineCov">       1071 :     e-&gt;mid = mrb-&gt;ci-&gt;mid;</span>
+<span class="lineNum">      38 </span><span class="lineCov">       1071 :     e-&gt;cioff = mrb-&gt;ci - mrb-&gt;cibase;</span>
+<span class="lineNum">      39 </span><span class="lineCov">       1071 :     e-&gt;stack = mrb-&gt;stack;</span>
+<span class="lineNum">      40 </span><span class="lineCov">       1071 :     mrb-&gt;ci-&gt;env = e;</span>
+<span class="lineNum">      41 </span>            :   }
+<span class="lineNum">      42 </span>            :   else {
+<span class="lineNum">      43 </span><span class="lineCov">        632 :     e = mrb-&gt;ci-&gt;env;</span>
+<span class="lineNum">      44 </span>            :   }
+<span class="lineNum">      45 </span><span class="lineCov">       1703 :   p-&gt;env = e;</span>
+<span class="lineNum">      46 </span><span class="lineCov">       1703 : }</span>
+<span class="lineNum">      47 </span>            : 
+<a name="48"><span class="lineNum">      48 </span>            : struct RProc *</a>
+<span class="lineNum">      49 </span>            : mrb_closure_new(mrb_state *mrb, mrb_irep *irep)
+<span class="lineNum">      50 </span><span class="lineCov">       1703 : {</span>
+<span class="lineNum">      51 </span><span class="lineCov">       1703 :   struct RProc *p = mrb_proc_new(mrb, irep);</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">       1703 :   closure_setup(mrb, p, mrb-&gt;ci-&gt;proc-&gt;body.irep-&gt;nlocals);</span>
+<span class="lineNum">      54 </span><span class="lineCov">       1703 :   return p;</span>
+<span class="lineNum">      55 </span>            : }
+<span class="lineNum">      56 </span>            : 
+<a name="57"><span class="lineNum">      57 </span>            : struct RProc *</a>
+<span class="lineNum">      58 </span>            : mrb_proc_new_cfunc(mrb_state *mrb, mrb_func_t func)
+<span class="lineNum">      59 </span><span class="lineCov">      17075 : {</span>
+<span class="lineNum">      60 </span>            :   struct RProc *p;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineCov">      17075 :   p = (struct RProc*)mrb_obj_alloc(mrb, MRB_TT_PROC, mrb-&gt;proc_class);</span>
+<span class="lineNum">      63 </span><span class="lineCov">      17075 :   p-&gt;body.func = func;</span>
+<span class="lineNum">      64 </span><span class="lineCov">      17075 :   p-&gt;flags |= MRB_PROC_CFUNC;</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineCov">      17075 :   return p;</span>
+<span class="lineNum">      67 </span>            : }
+<span class="lineNum">      68 </span>            : 
+<a name="69"><span class="lineNum">      69 </span>            : struct RProc *</a>
+<span class="lineNum">      70 </span>            : mrb_closure_new_cfunc(mrb_state *mrb, mrb_func_t func, int nlocals)
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :   struct RProc *p = mrb_proc_new_cfunc(mrb, func);</span>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :   closure_setup(mrb, p, nlocals);</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :   return p;</span>
+<span class="lineNum">      76 </span>            : }
+<span class="lineNum">      77 </span>            : 
+<a name="78"><span class="lineNum">      78 </span>            : void</a>
+<span class="lineNum">      79 </span>            : mrb_proc_copy(struct RProc *a, struct RProc *b)
+<span class="lineNum">      80 </span><span class="lineCov">         88 : {</span>
+<span class="lineNum">      81 </span><span class="lineCov">         88 :   a-&gt;flags = b-&gt;flags;</span>
+<span class="lineNum">      82 </span><span class="lineCov">         88 :   a-&gt;body = b-&gt;body;</span>
+<span class="lineNum">      83 </span><span class="lineCov">         88 :   a-&gt;target_class = b-&gt;target_class;</span>
+<span class="lineNum">      84 </span><span class="lineCov">         88 :   a-&gt;env = b-&gt;env;</span>
+<span class="lineNum">      85 </span><span class="lineCov">         88 : }</span>
+<span class="lineNum">      86 </span>            : 
+<a name="87"><span class="lineNum">      87 </span>            : static mrb_value</a>
+<span class="lineNum">      88 </span>            : mrb_proc_initialize(mrb_state *mrb, mrb_value self)
+<span class="lineNum">      89 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">      90 </span>            :   mrb_value blk;
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineCov">         16 :   mrb_get_args(mrb, &quot;&amp;&quot;, &amp;blk);</span>
+<span class="lineNum">      93 </span><span class="lineCov">         16 :   if (mrb_nil_p(blk)) {</span>
+<span class="lineNum">      94 </span>            :     /* Calling Proc.new without a block is not implemented yet */
+<span class="lineNum">      95 </span><span class="lineCov">          1 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;tried to create Proc object without a block&quot;);</span>
+<span class="lineNum">      96 </span>            :   }
+<span class="lineNum">      97 </span>            :   else {
+<span class="lineNum">      98 </span><span class="lineCov">         15 :     mrb_proc_copy(mrb_proc_ptr(self), mrb_proc_ptr(blk));</span>
+<span class="lineNum">      99 </span>            :   }
+<span class="lineNum">     100 </span><span class="lineCov">         15 :   return self;</span>
+<span class="lineNum">     101 </span>            : }
+<span class="lineNum">     102 </span>            : 
+<a name="103"><span class="lineNum">     103 </span>            : static mrb_value</a>
+<span class="lineNum">     104 </span>            : mrb_proc_init_copy(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     106 </span>            :   mrb_value proc;
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :   mrb_get_args(mrb, &quot;o&quot;, &amp;proc);</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :   if (mrb_type(proc) != MRB_TT_PROC) {</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;not a proc&quot;);</span>
+<span class="lineNum">     111 </span>            :   }
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :   mrb_proc_copy(mrb_proc_ptr(self), mrb_proc_ptr(proc));</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :   return self;</span>
+<span class="lineNum">     114 </span>            : }
+<span class="lineNum">     115 </span>            : 
+<a name="116"><span class="lineNum">     116 </span>            : int</a>
+<span class="lineNum">     117 </span>            : mrb_proc_cfunc_p(struct RProc *p)
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :   return MRB_PROC_CFUNC_P(p);</span>
+<span class="lineNum">     120 </span>            : }
+<span class="lineNum">     121 </span>            : 
+<a name="122"><span class="lineNum">     122 </span>            : mrb_value</a>
+<span class="lineNum">     123 </span>            : mrb_proc_call_cfunc(mrb_state *mrb, struct RProc *p, mrb_value self)
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :   return (p-&gt;body.func)(mrb, self);</span>
+<span class="lineNum">     126 </span>            : }
+<span class="lineNum">     127 </span>            : 
+<a name="128"><span class="lineNum">     128 </span>            : mrb_code*</a>
+<span class="lineNum">     129 </span>            : mrb_proc_iseq(mrb_state *mrb, struct RProc *p)
+<span class="lineNum">     130 </span><span class="lineCov">         12 : {</span>
+<span class="lineNum">     131 </span><span class="lineCov">         12 :   return p-&gt;body.irep-&gt;iseq;</span>
+<span class="lineNum">     132 </span>            : }
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            : /* 15.2.17.4.2 */
+<a name="135"><span class="lineNum">     135 </span>            : static mrb_value</a>
+<span class="lineNum">     136 </span>            : mrb_proc_arity(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     137 </span><span class="lineCov">         12 : {</span>
+<span class="lineNum">     138 </span><span class="lineCov">         12 :   struct RProc *p = mrb_proc_ptr(self);</span>
+<span class="lineNum">     139 </span><span class="lineCov">         12 :   mrb_code *iseq = mrb_proc_iseq(mrb, p);</span>
+<span class="lineNum">     140 </span><span class="lineCov">         12 :   mrb_aspec aspec = GETARG_Ax(*iseq);</span>
+<span class="lineNum">     141 </span>            :   int ma, ra, pa, arity;
+<span class="lineNum">     142 </span>            :   
+<span class="lineNum">     143 </span><span class="lineCov">         12 :   ma = MRB_ASPEC_REQ(aspec);</span>
+<span class="lineNum">     144 </span><span class="lineCov">         12 :   ra = MRB_ASPEC_REST(aspec);</span>
+<span class="lineNum">     145 </span><span class="lineCov">         12 :   pa = MRB_ASPEC_POST(aspec);</span>
+<span class="lineNum">     146 </span><span class="lineCov">         12 :   arity = ra ? -(ma + pa + 1) : ma + pa;</span>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineCov">         12 :   return mrb_fixnum_value(arity);</span>
+<span class="lineNum">     149 </span>            : }
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            : /* 15.3.1.2.6  */
+<span class="lineNum">     152 </span>            : /* 15.3.1.3.27 */
+<span class="lineNum">     153 </span>            : /*
+<span class="lineNum">     154 </span>            :  * call-seq:
+<span class="lineNum">     155 </span>            :  *   lambda { |...| block }  -&gt; a_proc
+<span class="lineNum">     156 </span>            :  *
+<span class="lineNum">     157 </span>            :  * Equivalent to &lt;code&gt;Proc.new&lt;/code&gt;, except the resulting Proc objects
+<span class="lineNum">     158 </span>            :  * check the number of parameters passed when called.
+<span class="lineNum">     159 </span>            :  */
+<a name="160"><span class="lineNum">     160 </span>            : static mrb_value</a>
+<span class="lineNum">     161 </span>            : proc_lambda(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     162 </span><span class="lineCov">         17 : {</span>
+<span class="lineNum">     163 </span>            :   mrb_value blk;
+<span class="lineNum">     164 </span>            :   struct RProc *p;
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span><span class="lineCov">         17 :   mrb_get_args(mrb, &quot;&amp;&quot;, &amp;blk);</span>
+<span class="lineNum">     167 </span><span class="lineCov">         17 :   if (mrb_nil_p(blk)) {</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;tried to create Proc object without a block&quot;);</span>
+<span class="lineNum">     169 </span>            :   }
+<span class="lineNum">     170 </span><span class="lineCov">         17 :   p = mrb_proc_ptr(blk);</span>
+<span class="lineNum">     171 </span><span class="lineCov">         17 :   if (!MRB_PROC_STRICT_P(p)) {</span>
+<span class="lineNum">     172 </span><span class="lineCov">         15 :     struct RProc *p2 = (struct RProc*)mrb_obj_alloc(mrb, MRB_TT_PROC, p-&gt;c);</span>
+<span class="lineNum">     173 </span><span class="lineCov">         15 :     mrb_proc_copy(p2, p);</span>
+<span class="lineNum">     174 </span><span class="lineCov">         15 :     p2-&gt;flags |= MRB_PROC_STRICT;</span>
+<span class="lineNum">     175 </span><span class="lineCov">         15 :     return mrb_obj_value(p2);</span>
+<span class="lineNum">     176 </span>            :   }
+<span class="lineNum">     177 </span><span class="lineCov">          2 :   return blk;</span>
+<span class="lineNum">     178 </span>            : }
+<span class="lineNum">     179 </span>            : 
+<a name="180"><span class="lineNum">     180 </span>            : void</a>
+<span class="lineNum">     181 </span>            : mrb_init_proc(mrb_state *mrb)
+<span class="lineNum">     182 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">     183 </span>            :   struct RProc *m;
+<span class="lineNum">     184 </span><span class="lineCov">         53 :   mrb_irep *call_irep = (mrb_irep *)mrb_alloca(mrb, sizeof(mrb_irep));</span>
+<span class="lineNum">     185 </span>            :   static const mrb_irep mrb_irep_zero = { 0 };
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            :   STATIC_ASSERT(call_iseq != NULL, &quot;call_iseq should not be NULL.&quot;);
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">         53 :   if ( call_irep == NULL )</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :     return;</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineCov">         53 :   *call_irep = mrb_irep_zero;</span>
+<span class="lineNum">     193 </span><span class="lineCov">         53 :   call_irep-&gt;flags = MRB_ISEQ_NO_FREE;</span>
+<span class="lineNum">     194 </span><span class="lineCov">         53 :   call_irep-&gt;idx = -1;</span>
+<span class="lineNum">     195 </span><span class="lineCov">         53 :   call_irep-&gt;iseq = call_iseq;</span>
+<span class="lineNum">     196 </span><span class="lineCov">         53 :   call_irep-&gt;ilen = 1;</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineCov">         53 :   mrb-&gt;proc_class = mrb_define_class(mrb, &quot;Proc&quot;, mrb-&gt;object_class);</span>
+<span class="lineNum">     199 </span><span class="lineCov">         53 :   MRB_SET_INSTANCE_TT(mrb-&gt;proc_class, MRB_TT_PROC);</span>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineCov">         53 :   mrb_define_method(mrb, mrb-&gt;proc_class, &quot;initialize&quot;, mrb_proc_initialize, MRB_ARGS_NONE());</span>
+<span class="lineNum">     202 </span><span class="lineCov">         53 :   mrb_define_method(mrb, mrb-&gt;proc_class, &quot;initialize_copy&quot;, mrb_proc_init_copy, MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     203 </span><span class="lineCov">         53 :   mrb_define_method(mrb, mrb-&gt;proc_class, &quot;arity&quot;, mrb_proc_arity, MRB_ARGS_NONE());</span>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span><span class="lineCov">         53 :   m = mrb_proc_new(mrb, call_irep);</span>
+<span class="lineNum">     206 </span><span class="lineCov">         53 :   mrb_define_method_raw(mrb, mrb-&gt;proc_class, mrb_intern(mrb, &quot;call&quot;), m);</span>
+<span class="lineNum">     207 </span><span class="lineCov">         53 :   mrb_define_method_raw(mrb, mrb-&gt;proc_class, mrb_intern(mrb, &quot;[]&quot;), m);</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">         53 :   mrb_define_class_method(mrb, mrb-&gt;kernel_module, &quot;lambda&quot;, proc_lambda, MRB_ARGS_NONE()); /* 15.3.1.2.6  */</span>
+<span class="lineNum">     210 </span><span class="lineCov">         53 :   mrb_define_method(mrb, mrb-&gt;kernel_module,       &quot;lambda&quot;, proc_lambda, MRB_ARGS_NONE()); /* 15.3.1.3.27 */</span>
+<span class="lineNum">     211 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

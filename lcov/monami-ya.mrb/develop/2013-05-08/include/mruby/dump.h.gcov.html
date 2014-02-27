@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - include/mruby/dump.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">include/mruby</a> - dump.h<span style="font-size: 80%;"> (source / <a href="dump.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryMed">89.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryMed">83.3 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** mruby/dump.h - mruby binary dumper (mrbc binary format)
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #ifndef MRUBY_DUMP_H
+<span class="lineNum">       8 </span>            : #define MRUBY_DUMP_H
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : #if defined(__cplusplus)
+<span class="lineNum">      13 </span>            : extern &quot;C&quot; {
+<span class="lineNum">      14 </span>            : #endif
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #ifdef ENABLE_STDIO
+<span class="lineNum">      19 </span>            : int mrb_dump_irep_binary(mrb_state*, size_t, int, FILE*);
+<span class="lineNum">      20 </span>            : int mrb_dump_irep_cfunc(mrb_state *mrb, size_t n, int, FILE *f, const char *initname);
+<span class="lineNum">      21 </span>            : int32_t mrb_read_irep_file(mrb_state*, FILE*);
+<span class="lineNum">      22 </span>            : #endif
+<span class="lineNum">      23 </span>            : int32_t mrb_read_irep(mrb_state*, const uint8_t*);
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : #ifdef ENABLE_STDIO
+<span class="lineNum">      26 </span>            : mrb_value mrb_load_irep_file(mrb_state*,FILE*);
+<span class="lineNum">      27 </span>            : #endif
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : /* dump/load error code
+<span class="lineNum">      30 </span>            :  *
+<span class="lineNum">      31 </span>            :  * NOTE: MRB_DUMP_GENERAL_FAILURE is caused by
+<span class="lineNum">      32 </span>            :  * unspecified issues like malloc failed.
+<span class="lineNum">      33 </span>            :  */
+<span class="lineNum">      34 </span>            : #define MRB_DUMP_OK                   0
+<span class="lineNum">      35 </span>            : #define MRB_DUMP_GENERAL_FAILURE      -1
+<span class="lineNum">      36 </span>            : #define MRB_DUMP_WRITE_FAULT          -2
+<span class="lineNum">      37 </span>            : #define MRB_DUMP_READ_FAULT           -3
+<span class="lineNum">      38 </span>            : #define MRB_DUMP_CRC_ERROR            -4
+<span class="lineNum">      39 </span>            : #define MRB_DUMP_INVALID_FILE_HEADER  -5
+<span class="lineNum">      40 </span>            : #define MRB_DUMP_INVALID_IREP         -6
+<span class="lineNum">      41 </span>            : #define MRB_DUMP_INVALID_ARGUMENT     -7
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /* null symbol length */
+<span class="lineNum">      44 </span>            : #define MRB_DUMP_NULL_SYM_LEN         0xFFFF
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : /* Rite Binary File header */
+<span class="lineNum">      47 </span>            : #define RITE_BINARY_IDENFIFIER        &quot;RITe&quot;
+<span class="lineNum">      48 </span>            : #define RITE_BINARY_FORMAT_VER        &quot;0001&quot;
+<span class="lineNum">      49 </span>            : #define RITE_COMPILER_NAME            &quot;MATZ&quot;
+<span class="lineNum">      50 </span>            : #define RITE_COMPILER_VERSION         &quot;0000&quot;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : #define RITE_VM_VER                   &quot;0000&quot;
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : #define RITE_BINARY_EOF               &quot;END\0&quot;
+<span class="lineNum">      55 </span>            : #define RITE_SECTION_IREP_IDENTIFIER  &quot;IREP&quot;
+<span class="lineNum">      56 </span>            : #define RITE_SECTION_LIENO_IDENTIFIER &quot;LINE&quot;
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : #define MRB_DUMP_DEFAULT_STR_LEN      128
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : // binary header
+<span class="lineNum">      61 </span>            : struct rite_binary_header {
+<span class="lineNum">      62 </span>            :   uint8_t binary_identify[4]; // Binary Identifier
+<span class="lineNum">      63 </span>            :   uint8_t binary_version[4];  // Binary Format Version
+<span class="lineNum">      64 </span>            :   uint8_t binary_crc[2];      // Binary CRC
+<span class="lineNum">      65 </span>            :   uint8_t binary_size[4];     // Binary Size
+<span class="lineNum">      66 </span>            :   uint8_t compiler_name[4];   // Compiler name
+<span class="lineNum">      67 </span>            :   uint8_t compiler_version[4];
+<span class="lineNum">      68 </span>            : };
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : // section header
+<span class="lineNum">      71 </span>            : #define RITE_SECTION_HEADER \
+<span class="lineNum">      72 </span>            :   uint8_t section_identify[4]; \
+<span class="lineNum">      73 </span>            :   uint8_t section_size[4]
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span>            : struct rite_section_header {
+<span class="lineNum">      76 </span>            :   RITE_SECTION_HEADER;
+<span class="lineNum">      77 </span>            : };
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            : struct rite_section_irep_header {
+<span class="lineNum">      80 </span>            :   RITE_SECTION_HEADER;
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :   uint8_t rite_version[4];    // Rite Instruction Specification Version
+<span class="lineNum">      83 </span>            :   uint8_t nirep[2];           // Number of ireps
+<span class="lineNum">      84 </span>            :   uint8_t sirep[2];           // Start index  
+<span class="lineNum">      85 </span>            : };
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : struct rite_section_lineno_header {
+<span class="lineNum">      88 </span>            :   RITE_SECTION_HEADER;
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :   uint8_t nirep[2];           // Number of ireps
+<span class="lineNum">      91 </span>            :   uint8_t sirep[2];           // Start index  
+<span class="lineNum">      92 </span>            : };
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : struct rite_binary_footer {
+<span class="lineNum">      95 </span>            :   RITE_SECTION_HEADER;
+<span class="lineNum">      96 </span>            : };
+<span class="lineNum">      97 </span>            : 
+<a name="98"><span class="lineNum">      98 </span>            : static inline int</a>
+<span class="lineNum">      99 </span>            : uint8_to_bin(uint8_t s, uint8_t *bin)
+<span class="lineNum">     100 </span><span class="lineCov">       3786 : {</span>
+<span class="lineNum">     101 </span><span class="lineCov">       3786 :   *bin = s;</span>
+<span class="lineNum">     102 </span><span class="lineCov">       3786 :   return sizeof(uint8_t);</span>
+<span class="lineNum">     103 </span>            : }
+<span class="lineNum">     104 </span>            : 
+<a name="105"><span class="lineNum">     105 </span>            : static inline int</a>
+<span class="lineNum">     106 </span>            : uint16_to_bin(uint16_t s, uint8_t *bin)
+<span class="lineNum">     107 </span><span class="lineCov">      12380 : {</span>
+<span class="lineNum">     108 </span><span class="lineCov">      12380 :   *bin++ = (s &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     109 </span><span class="lineCov">      12380 :   *bin   = s &amp; 0xff;</span>
+<span class="lineNum">     110 </span><span class="lineCov">      12380 :   return sizeof(uint16_t);</span>
+<span class="lineNum">     111 </span>            : }
+<span class="lineNum">     112 </span>            : 
+<a name="113"><span class="lineNum">     113 </span>            : static inline int</a>
+<span class="lineNum">     114 </span>            : uint32_to_bin(uint32_t l, uint8_t *bin)
+<span class="lineNum">     115 </span><span class="lineCov">      35134 : {</span>
+<span class="lineNum">     116 </span><span class="lineCov">      35134 :   *bin++ = (l &gt;&gt; 24) &amp; 0xff;</span>
+<span class="lineNum">     117 </span><span class="lineCov">      35134 :   *bin++ = (l &gt;&gt; 16) &amp; 0xff;</span>
+<span class="lineNum">     118 </span><span class="lineCov">      35134 :   *bin++ = (l &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     119 </span><span class="lineCov">      35134 :   *bin   = l &amp; 0xff;</span>
+<span class="lineNum">     120 </span><span class="lineCov">      35134 :   return sizeof(uint32_t);</span>
+<span class="lineNum">     121 </span>            : }
+<span class="lineNum">     122 </span>            : 
+<a name="123"><span class="lineNum">     123 </span>            : static inline uint32_t</a>
+<span class="lineNum">     124 </span>            : bin_to_uint32(const uint8_t *bin)
+<span class="lineNum">     125 </span><span class="lineCov">      82650 : {</span>
+<span class="lineNum">     126 </span><span class="lineCov">      82650 :   return (uint32_t)bin[0] &lt;&lt; 24 |</span>
+<span class="lineNum">     127 </span>            :          (uint32_t)bin[1] &lt;&lt; 16 |
+<span class="lineNum">     128 </span>            :          (uint32_t)bin[2] &lt;&lt; 8  |
+<span class="lineNum">     129 </span>            :          (uint32_t)bin[3];
+<span class="lineNum">     130 </span>            : }
+<span class="lineNum">     131 </span>            : 
+<a name="132"><span class="lineNum">     132 </span>            : static inline uint16_t</a>
+<span class="lineNum">     133 </span>            : bin_to_uint16(const uint8_t *bin)
+<span class="lineNum">     134 </span><span class="lineCov">      28365 : {</span>
+<span class="lineNum">     135 </span><span class="lineCov">      28365 :   return (uint16_t)bin[0] &lt;&lt; 8 |</span>
+<span class="lineNum">     136 </span>            :          (uint16_t)bin[1];
+<span class="lineNum">     137 </span>            : }
+<span class="lineNum">     138 </span>            : 
+<a name="139"><span class="lineNum">     139 </span>            : static inline uint8_t</a>
+<span class="lineNum">     140 </span>            : bin_to_uint8(const uint8_t *bin)
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :   return (uint8_t)bin[0];</span>
+<span class="lineNum">     143 </span>            : }
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span>            : #if defined(__cplusplus)
+<span class="lineNum">     146 </span>            : }  /* extern &quot;C&quot; { */
+<span class="lineNum">     147 </span>            : #endif
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            : /* crc.c */
+<span class="lineNum">     150 </span>            : uint16_t
+<span class="lineNum">     151 </span>            : calc_crc_16_ccitt(const uint8_t *src, size_t nbytes, uint16_t crc);
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : #endif  /* MRUBY_DUMP_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

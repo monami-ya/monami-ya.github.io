@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/state.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - state.c<span style="font-size: 80%;"> (source / <a href="state.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** state.c - mrb_state open/close functions
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">       8 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">       9 </span>            : #include &quot;mruby/class.h&quot;
+<span class="lineNum">      10 </span>            : #include &quot;mruby/irep.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;mruby/variable.h&quot;
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &quot;tlsf.h&quot;
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      16 </span>            : void mrb_init_heap(mrb_state*);
+<span class="lineNum">      17 </span>            : void mrb_init_core(mrb_state*);
+<span class="lineNum">      18 </span>            : void mrb_final_core(mrb_state*);
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifdef TLSF_HEAP_SIZE
+<span class="lineNum">      21 </span>            : static char memory_pool[TLSF_HEAP_SIZE];
+<span class="lineNum">      22 </span>            : #undef free(p)
+<span class="lineNum">      23 </span>            : #define free(p)                 do { free_ex((p), memory_pool); } while(0)
+<span class="lineNum">      24 </span>            : #undef realloc(p, size)
+<span class="lineNum">      25 </span>            : #define realloc(p, size)        (realloc_ex((p), (size), memory_pool))
+<span class="lineNum">      26 </span>            : #endif
+<span class="lineNum">      27 </span>            : 
+<a name="28"><span class="lineNum">      28 </span>            : static mrb_value</a>
+<span class="lineNum">      29 </span>            : inspect_main(mrb_state *mrb, mrb_value mod)
+<span class="lineNum">      30 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">      31 </span><span class="lineCov">          3 :   return mrb_str_new(mrb, &quot;main&quot;, 4);</span>
+<span class="lineNum">      32 </span>            : }
+<span class="lineNum">      33 </span>            : 
+<a name="34"><span class="lineNum">      34 </span>            : mrb_state*</a>
+<span class="lineNum">      35 </span>            : mrb_open_allocf(mrb_allocf f, uintptr_t ud)
+<span class="lineNum">      36 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">      37 </span>            :   static const mrb_state mrb_state_zero = { 0 };
+<span class="lineNum">      38 </span><span class="lineCov">         53 :   mrb_state *mrb = (mrb_state *)(f)(NULL, NULL, sizeof(mrb_state), ud);</span>
+<span class="lineNum">      39 </span><span class="lineCov">         53 :   if (mrb == NULL) return NULL;</span>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span><span class="lineCov">         53 :   *mrb = mrb_state_zero;</span>
+<span class="lineNum">      42 </span><span class="lineCov">         53 :   mrb-&gt;ud = ud;</span>
+<span class="lineNum">      43 </span><span class="lineCov">         53 :   mrb-&gt;allocf = f;</span>
+<span class="lineNum">      44 </span><span class="lineCov">         53 :   mrb-&gt;current_white_part = MRB_GC_WHITE_A;</span>
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span><span class="lineCov">         53 :   mrb_init_heap(mrb);</span>
+<span class="lineNum">      47 </span><span class="lineCov">         53 :   mrb_init_core(mrb);</span>
+<span class="lineNum">      48 </span><span class="lineCov">         53 :   return mrb;</span>
+<span class="lineNum">      49 </span>            : }
+<span class="lineNum">      50 </span>            : 
+<a name="51"><span class="lineNum">      51 </span>            : static void*</a>
+<span class="lineNum">      52 </span>            : allocf(mrb_state *mrb, void *p, size_t size, uintptr_t ud)
+<span class="lineNum">      53 </span><span class="lineCov">     190218 : {</span>
+<span class="lineNum">      54 </span><span class="lineCov">     190218 :   if (size == 0) {</span>
+<span class="lineNum">      55 </span><span class="lineCov">      96351 :     free(p);</span>
+<span class="lineNum">      56 </span><span class="lineCov">      96351 :     return NULL;</span>
+<span class="lineNum">      57 </span>            :   }
+<span class="lineNum">      58 </span>            :   else {
+<span class="lineNum">      59 </span><span class="lineCov">      93867 :     return realloc(p, size);</span>
+<span class="lineNum">      60 </span>            :   }
+<span class="lineNum">      61 </span>            : }
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : struct alloca_header {
+<span class="lineNum">      64 </span>            :   struct alloca_header *next;
+<span class="lineNum">      65 </span>            :   char buf[];
+<span class="lineNum">      66 </span>            : };
+<span class="lineNum">      67 </span>            : 
+<a name="68"><span class="lineNum">      68 </span>            : void*</a>
+<span class="lineNum">      69 </span>            : mrb_alloca(mrb_state *mrb, size_t size)
+<span class="lineNum">      70 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">      71 </span>            :   struct alloca_header *p;
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineCov">         53 :   p = (struct alloca_header*) mrb_malloc(mrb, sizeof(struct alloca_header)+size);</span>
+<span class="lineNum">      74 </span><span class="lineCov">         53 :   if (p == NULL) return NULL;</span>
+<span class="lineNum">      75 </span><span class="lineCov">         53 :   p-&gt;next = mrb-&gt;mems;</span>
+<span class="lineNum">      76 </span><span class="lineCov">         53 :   mrb-&gt;mems = p;</span>
+<span class="lineNum">      77 </span><span class="lineCov">         53 :   return (void*)p-&gt;buf;</span>
+<span class="lineNum">      78 </span>            : }
+<span class="lineNum">      79 </span>            : 
+<a name="80"><span class="lineNum">      80 </span>            : static void</a>
+<span class="lineNum">      81 </span>            : mrb_alloca_free(mrb_state *mrb)
+<span class="lineNum">      82 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">      83 </span>            :   struct alloca_header *p;
+<span class="lineNum">      84 </span>            :   struct alloca_header *tmp;
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span><span class="lineCov">         53 :   if (mrb == NULL) return;</span>
+<span class="lineNum">      87 </span><span class="lineCov">         53 :   p = mrb-&gt;mems;</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineCov">        159 :   while (p) {</span>
+<span class="lineNum">      90 </span><span class="lineCov">         53 :     tmp = p;</span>
+<span class="lineNum">      91 </span><span class="lineCov">         53 :     p = p-&gt;next;</span>
+<span class="lineNum">      92 </span><span class="lineCov">         53 :     mrb_free(mrb, tmp);</span>
+<span class="lineNum">      93 </span>            :   }
+<span class="lineNum">      94 </span>            : }
+<span class="lineNum">      95 </span>            : 
+<a name="96"><span class="lineNum">      96 </span>            : mrb_state*</a>
+<span class="lineNum">      97 </span>            : mrb_open(void)
+<span class="lineNum">      98 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">      99 </span>            :   mrb_state *mrb;
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : #ifdef TLSF_HEAP_SIZE
+<span class="lineNum">     102 </span>            :   init_memory_pool(TLSF_HEAP_SIZE, memory_pool);
+<span class="lineNum">     103 </span>            : #endif
+<span class="lineNum">     104 </span><span class="lineCov">         53 :   mrb = mrb_open_allocf(allocf, (uintptr_t)NULL);</span>
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineCov">         53 :   return mrb;</span>
+<span class="lineNum">     107 </span>            : }
+<span class="lineNum">     108 </span>            : 
+<span class="lineNum">     109 </span>            : void mrb_free_symtbl(mrb_state *mrb);
+<span class="lineNum">     110 </span>            : void mrb_free_heap(mrb_state *mrb);
+<span class="lineNum">     111 </span>            : 
+<a name="112"><span class="lineNum">     112 </span>            : void</a>
+<span class="lineNum">     113 </span>            : mrb_irep_free(mrb_state *mrb, struct mrb_irep *irep)
+<span class="lineNum">     114 </span><span class="lineCov">       5911 : {</span>
+<span class="lineNum">     115 </span><span class="lineCov">       5911 :   if (!(irep-&gt;flags &amp; MRB_ISEQ_NO_FREE))</span>
+<span class="lineNum">     116 </span><span class="lineCov">       5911 :     mrb_free(mrb, irep-&gt;iseq);</span>
+<span class="lineNum">     117 </span><span class="lineCov">       5911 :   mrb_free(mrb, irep-&gt;pool);</span>
+<span class="lineNum">     118 </span><span class="lineCov">       5911 :   mrb_free(mrb, irep-&gt;syms);</span>
+<span class="lineNum">     119 </span><span class="lineCov">       5911 :   mrb_free(mrb, irep-&gt;lines);</span>
+<span class="lineNum">     120 </span><span class="lineCov">       5911 :   mrb_free(mrb, irep);</span>
+<span class="lineNum">     121 </span><span class="lineCov">       5911 : }</span>
+<span class="lineNum">     122 </span>            : 
+<a name="123"><span class="lineNum">     123 </span>            : void</a>
+<span class="lineNum">     124 </span>            : mrb_close(mrb_state *mrb)
+<span class="lineNum">     125 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">     126 </span>            :   size_t i;
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineCov">         53 :   mrb_final_core(mrb);</span>
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :   /* free */
+<span class="lineNum">     131 </span><span class="lineCov">         53 :   mrb_gc_free_gv(mrb);</span>
+<span class="lineNum">     132 </span><span class="lineCov">         53 :   mrb_free(mrb, mrb-&gt;stbase);</span>
+<span class="lineNum">     133 </span><span class="lineCov">         53 :   mrb_free(mrb, mrb-&gt;cibase);</span>
+<span class="lineNum">     134 </span><span class="lineCov">       5964 :   for (i=0; i&lt;mrb-&gt;irep_len; i++) {</span>
+<span class="lineNum">     135 </span><span class="lineCov">       5911 :     mrb_irep_free(mrb, mrb-&gt;irep[i]);</span>
+<span class="lineNum">     136 </span>            :   }
+<span class="lineNum">     137 </span><span class="lineCov">         53 :   mrb_free(mrb, mrb-&gt;irep);</span>
+<span class="lineNum">     138 </span><span class="lineCov">         53 :   mrb_free(mrb, mrb-&gt;rescue);</span>
+<span class="lineNum">     139 </span><span class="lineCov">         53 :   mrb_free(mrb, mrb-&gt;ensure);</span>
+<span class="lineNum">     140 </span><span class="lineCov">         53 :   mrb_free_symtbl(mrb);</span>
+<span class="lineNum">     141 </span><span class="lineCov">         53 :   mrb_free_heap(mrb);</span>
+<span class="lineNum">     142 </span><span class="lineCov">         53 :   mrb_alloca_free(mrb);</span>
+<span class="lineNum">     143 </span><span class="lineCov">         53 :   mrb_free(mrb, mrb);</span>
+<span class="lineNum">     144 </span><span class="lineCov">         53 : }</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : #ifndef MRB_IREP_ARRAY_INIT_SIZE
+<span class="lineNum">     147 </span>            : # define MRB_IREP_ARRAY_INIT_SIZE (256u)
+<span class="lineNum">     148 </span>            : #endif
+<span class="lineNum">     149 </span>            : 
+<a name="150"><span class="lineNum">     150 </span>            : mrb_irep*</a>
+<span class="lineNum">     151 </span>            : mrb_add_irep(mrb_state *mrb)
+<span class="lineNum">     152 </span><span class="lineCov">       5911 : {</span>
+<span class="lineNum">     153 </span>            :   static const mrb_irep mrb_irep_zero = { 0 };
+<span class="lineNum">     154 </span>            :   mrb_irep *irep;
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span><span class="lineCov">       5911 :   if (!mrb-&gt;irep) {</span>
+<span class="lineNum">     157 </span><span class="lineCov">         53 :     size_t max = MRB_IREP_ARRAY_INIT_SIZE;</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineCov">         53 :     if (mrb-&gt;irep_len &gt; max) max = mrb-&gt;irep_len+1;</span>
+<span class="lineNum">     160 </span><span class="lineCov">         53 :     mrb-&gt;irep = (mrb_irep **)mrb_calloc(mrb, max, sizeof(mrb_irep*));</span>
+<span class="lineNum">     161 </span><span class="lineCov">         53 :     mrb-&gt;irep_capa = max;</span>
+<span class="lineNum">     162 </span>            :   }
+<span class="lineNum">     163 </span><span class="lineCov">       5858 :   else if (mrb-&gt;irep_capa &lt;= mrb-&gt;irep_len) {</span>
+<span class="lineNum">     164 </span>            :     size_t i;
+<span class="lineNum">     165 </span><span class="lineCov">          7 :     size_t old_capa = mrb-&gt;irep_capa;</span>
+<span class="lineNum">     166 </span><span class="lineCov">         21 :     while (mrb-&gt;irep_capa &lt;= mrb-&gt;irep_len) {</span>
+<span class="lineNum">     167 </span><span class="lineCov">          7 :       mrb-&gt;irep_capa *= 2;</span>
+<span class="lineNum">     168 </span>            :     }
+<span class="lineNum">     169 </span><span class="lineCov">          7 :     mrb-&gt;irep = (mrb_irep **)mrb_realloc(mrb, mrb-&gt;irep, sizeof(mrb_irep*)*mrb-&gt;irep_capa);</span>
+<span class="lineNum">     170 </span><span class="lineCov">       3079 :     for (i = old_capa; i &lt; mrb-&gt;irep_capa; i++) {</span>
+<span class="lineNum">     171 </span><span class="lineCov">       3072 :       mrb-&gt;irep[i] = NULL;</span>
+<span class="lineNum">     172 </span>            :     }
+<span class="lineNum">     173 </span>            :   }
+<span class="lineNum">     174 </span><span class="lineCov">       5911 :   irep = (mrb_irep *)mrb_malloc(mrb, sizeof(mrb_irep));</span>
+<span class="lineNum">     175 </span><span class="lineCov">       5911 :   *irep = mrb_irep_zero;</span>
+<span class="lineNum">     176 </span><span class="lineCov">       5911 :   mrb-&gt;irep[mrb-&gt;irep_len] = irep;</span>
+<span class="lineNum">     177 </span><span class="lineCov">       5911 :   irep-&gt;idx = mrb-&gt;irep_len++;</span>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineCov">       5911 :   return irep;</span>
+<span class="lineNum">     180 </span>            : }
+<span class="lineNum">     181 </span>            : 
+<a name="182"><span class="lineNum">     182 </span>            : mrb_value</a>
+<span class="lineNum">     183 </span>            : mrb_top_self(mrb_state *mrb)
+<span class="lineNum">     184 </span><span class="lineCov">        154 : {</span>
+<span class="lineNum">     185 </span><span class="lineCov">        154 :   if (!mrb-&gt;top_self) {</span>
+<span class="lineNum">     186 </span><span class="lineCov">         14 :     mrb-&gt;top_self = (struct RObject*)mrb_obj_alloc(mrb, MRB_TT_OBJECT, mrb-&gt;object_class);  </span>
+<span class="lineNum">     187 </span><span class="lineCov">         14 :     mrb_define_singleton_method(mrb, mrb-&gt;top_self, &quot;inspect&quot;, inspect_main, MRB_ARGS_NONE());</span>
+<span class="lineNum">     188 </span><span class="lineCov">         14 :     mrb_define_singleton_method(mrb, mrb-&gt;top_self, &quot;to_s&quot;, inspect_main, MRB_ARGS_NONE());</span>
+<span class="lineNum">     189 </span>            :   }
+<span class="lineNum">     190 </span><span class="lineCov">        154 :   return mrb_obj_value(mrb-&gt;top_self);</span>
+<span class="lineNum">     191 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

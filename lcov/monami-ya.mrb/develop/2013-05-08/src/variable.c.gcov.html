@@ -1,0 +1,1182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/variable.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - variable.c<span style="font-size: 80%;"> (source / <a href="variable.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">299</td>
+            <td class="headerCovTableEntry">384</td>
+            <td class="headerCovTableEntryMed">77.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">63</td>
+            <td class="headerCovTableEntry">74</td>
+            <td class="headerCovTableEntryMed">85.1 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** variable.c - mruby variables
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">       8 </span>            : #include &quot;mruby/array.h&quot;
+<span class="lineNum">       9 </span>            : #include &quot;mruby/class.h&quot;
+<span class="lineNum">      10 </span>            : #include &quot;mruby/proc.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;mruby/string.h&quot;
+<span class="lineNum">      12 </span>            : #include &quot;mruby/variable.h&quot;
+<span class="lineNum">      13 </span>            : #include &quot;error.h&quot;
+<span class="lineNum">      14 </span>            : #include &lt;ctype.h&gt;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : typedef int (iv_foreach_func)(mrb_state*,mrb_sym,mrb_value,void*);
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #ifdef MRB_USE_IV_SEGLIST
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef MRB_SEGMENT_SIZE
+<span class="lineNum">      21 </span>            : #define MRB_SEGMENT_SIZE 4
+<span class="lineNum">      22 </span>            : #endif
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : typedef struct segment {
+<span class="lineNum">      25 </span>            :   mrb_sym key[MRB_SEGMENT_SIZE];
+<span class="lineNum">      26 </span>            :   mrb_value val[MRB_SEGMENT_SIZE];
+<span class="lineNum">      27 </span>            :   struct segment *next;
+<span class="lineNum">      28 </span>            : } segment;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : typedef struct iv_tbl {
+<span class="lineNum">      31 </span>            :   segment *rootseg;
+<span class="lineNum">      32 </span>            :   size_t size;
+<span class="lineNum">      33 </span>            :   size_t last_len;
+<span class="lineNum">      34 </span>            : } iv_tbl;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : static iv_tbl*
+<span class="lineNum">      37 </span>            : iv_new(mrb_state *mrb)
+<span class="lineNum">      38 </span>            : {
+<span class="lineNum">      39 </span>            :   iv_tbl *t;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :   t = mrb_malloc(mrb, sizeof(iv_tbl));
+<span class="lineNum">      42 </span>            :   if (t) {
+<span class="lineNum">      43 </span>            :     t-&gt;size = 0;
+<span class="lineNum">      44 </span>            :     t-&gt;rootseg =  NULL;
+<span class="lineNum">      45 </span>            :     t-&gt;last_len = 0;
+<span class="lineNum">      46 </span>            :   }
+<span class="lineNum">      47 </span>            :   return t;
+<span class="lineNum">      48 </span>            : }
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            : static void
+<span class="lineNum">      51 </span>            : iv_put(mrb_state *mrb, iv_tbl *t, mrb_sym sym, mrb_value val)
+<span class="lineNum">      52 </span>            : {
+<span class="lineNum">      53 </span>            :   segment *seg = t-&gt;rootseg;
+<span class="lineNum">      54 </span>            :   segment *prev = NULL;
+<span class="lineNum">      55 </span>            :   segment *matched_seg = NULL;
+<span class="lineNum">      56 </span>            :   size_t matched_idx = 0;
+<span class="lineNum">      57 </span>            :   size_t i;
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :   while (seg) {
+<span class="lineNum">      60 </span>            :     for (i=0; i&lt;MRB_SEGMENT_SIZE; i++) {
+<span class="lineNum">      61 </span>            :       mrb_sym key = seg-&gt;key[i];
+<span class="lineNum">      62 </span>            :       /* found room in last segment after last_len */
+<span class="lineNum">      63 </span>            :       if (!seg-&gt;next &amp;&amp; i &gt;= t-&gt;last_len) {
+<span class="lineNum">      64 </span>            :         seg-&gt;key[i] = sym;
+<span class="lineNum">      65 </span>            :         seg-&gt;val[i] = val;
+<span class="lineNum">      66 </span>            :         t-&gt;last_len = i+1;
+<span class="lineNum">      67 </span>            :         t-&gt;size++;
+<span class="lineNum">      68 </span>            :         return;
+<span class="lineNum">      69 </span>            :       }
+<span class="lineNum">      70 </span>            :       if (!matched_seg &amp;&amp; key == 0) {
+<span class="lineNum">      71 </span>            :         matched_seg = seg;
+<span class="lineNum">      72 </span>            :         matched_idx = i;
+<span class="lineNum">      73 </span>            :       }
+<span class="lineNum">      74 </span>            :       else if (key == sym) {
+<span class="lineNum">      75 </span>            :         seg-&gt;val[i] = val;
+<span class="lineNum">      76 </span>            :         return;
+<span class="lineNum">      77 </span>            :       }
+<span class="lineNum">      78 </span>            :     }
+<span class="lineNum">      79 </span>            :     prev = seg;
+<span class="lineNum">      80 </span>            :     seg = seg-&gt;next;
+<span class="lineNum">      81 </span>            :   }
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :   /* not found */
+<span class="lineNum">      84 </span>            :   t-&gt;size++;
+<span class="lineNum">      85 </span>            :   if (matched_seg) {
+<span class="lineNum">      86 </span>            :     matched_seg-&gt;key[matched_idx] = sym;
+<span class="lineNum">      87 </span>            :     matched_seg-&gt;val[matched_idx] = val;
+<span class="lineNum">      88 </span>            :     return;
+<span class="lineNum">      89 </span>            :   }
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :   seg = mrb_malloc(mrb, sizeof(segment));
+<span class="lineNum">      92 </span>            :   if (!seg) return;
+<span class="lineNum">      93 </span>            :   seg-&gt;next = NULL;
+<span class="lineNum">      94 </span>            :   seg-&gt;key[0] = sym;
+<span class="lineNum">      95 </span>            :   seg-&gt;val[0] = val;
+<span class="lineNum">      96 </span>            :   t-&gt;last_len = 1;
+<span class="lineNum">      97 </span>            :   if (prev) {
+<span class="lineNum">      98 </span>            :     prev-&gt;next = seg;
+<span class="lineNum">      99 </span>            :   }
+<span class="lineNum">     100 </span>            :   else {
+<span class="lineNum">     101 </span>            :     t-&gt;rootseg = seg;
+<span class="lineNum">     102 </span>            :   }
+<span class="lineNum">     103 </span>            :   return;
+<span class="lineNum">     104 </span>            : }
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            : static mrb_bool
+<span class="lineNum">     107 </span>            : iv_get(mrb_state *mrb, iv_tbl *t, mrb_sym sym, mrb_value *vp)
+<span class="lineNum">     108 </span>            : {
+<span class="lineNum">     109 </span>            :   segment *seg;
+<span class="lineNum">     110 </span>            :   size_t i;
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :   seg = t-&gt;rootseg;
+<span class="lineNum">     113 </span>            :   while (seg) {
+<span class="lineNum">     114 </span>            :     for (i=0; i&lt;MRB_SEGMENT_SIZE; i++) {
+<span class="lineNum">     115 </span>            :       mrb_sym key = seg-&gt;key[i];
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            :       if (!seg-&gt;next &amp;&amp; i &gt;= t-&gt;last_len) {
+<span class="lineNum">     118 </span>            :         return FALSE;
+<span class="lineNum">     119 </span>            :       }
+<span class="lineNum">     120 </span>            :       if (key == sym) {
+<span class="lineNum">     121 </span>            :         if (vp) *vp = seg-&gt;val[i];
+<span class="lineNum">     122 </span>            :         return TRUE;
+<span class="lineNum">     123 </span>            :       }
+<span class="lineNum">     124 </span>            :     }
+<span class="lineNum">     125 </span>            :     seg = seg-&gt;next;
+<span class="lineNum">     126 </span>            :   }
+<span class="lineNum">     127 </span>            :   return FALSE;
+<span class="lineNum">     128 </span>            : }
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : static mrb_bool
+<span class="lineNum">     131 </span>            : iv_del(mrb_state *mrb, iv_tbl *t, mrb_sym sym, mrb_value *vp)
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span>            :   segment *seg;
+<span class="lineNum">     134 </span>            :   size_t i;
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :   seg = t-&gt;rootseg;
+<span class="lineNum">     137 </span>            :   while (seg) {
+<span class="lineNum">     138 </span>            :     for (i=0; i&lt;MRB_SEGMENT_SIZE; i++) {
+<span class="lineNum">     139 </span>            :       mrb_sym key = seg-&gt;key[i];
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            :       if (!seg-&gt;next &amp;&amp; i &gt;= t-&gt;last_len) {
+<span class="lineNum">     142 </span>            :         return FALSE;
+<span class="lineNum">     143 </span>            :       }
+<span class="lineNum">     144 </span>            :       if (key == sym) {
+<span class="lineNum">     145 </span>            :         t-&gt;size--;
+<span class="lineNum">     146 </span>            :         seg-&gt;key[i] = 0;
+<span class="lineNum">     147 </span>            :         if (vp) *vp = seg-&gt;val[i];
+<span class="lineNum">     148 </span>            :         return TRUE;
+<span class="lineNum">     149 </span>            :       }
+<span class="lineNum">     150 </span>            :     }
+<span class="lineNum">     151 </span>            :     seg = seg-&gt;next;
+<span class="lineNum">     152 </span>            :   }
+<span class="lineNum">     153 </span>            :   return FALSE;
+<span class="lineNum">     154 </span>            : }
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            : static mrb_bool
+<span class="lineNum">     157 </span>            : iv_foreach(mrb_state *mrb, iv_tbl *t, iv_foreach_func *func, void *p)
+<span class="lineNum">     158 </span>            : {
+<span class="lineNum">     159 </span>            :   segment *seg;
+<span class="lineNum">     160 </span>            :   size_t i;
+<span class="lineNum">     161 </span>            :   int n;
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :   seg = t-&gt;rootseg;
+<span class="lineNum">     164 </span>            :   while (seg) {
+<span class="lineNum">     165 </span>            :     for (i=0; i&lt;MRB_SEGMENT_SIZE; i++) {
+<span class="lineNum">     166 </span>            :       mrb_sym key = seg-&gt;key[i];
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            :       /* no value in last segment after last_len */
+<span class="lineNum">     169 </span>            :       if (!seg-&gt;next &amp;&amp; i &gt;= t-&gt;last_len) {
+<span class="lineNum">     170 </span>            :         return FALSE;
+<span class="lineNum">     171 </span>            :       }
+<span class="lineNum">     172 </span>            :       if (key != 0) {
+<span class="lineNum">     173 </span>            :         n =(*func)(mrb, key, seg-&gt;val[i], p);
+<span class="lineNum">     174 </span>            :         if (n &gt; 0) return FALSE;
+<span class="lineNum">     175 </span>            :         if (n &lt; 0) {
+<span class="lineNum">     176 </span>            :           t-&gt;size--;
+<span class="lineNum">     177 </span>            :           seg-&gt;key[i] = 0;
+<span class="lineNum">     178 </span>            :         }
+<span class="lineNum">     179 </span>            :       }
+<span class="lineNum">     180 </span>            :     }
+<span class="lineNum">     181 </span>            :     seg = seg-&gt;next;
+<span class="lineNum">     182 </span>            :   }
+<span class="lineNum">     183 </span>            :   return TRUE;
+<span class="lineNum">     184 </span>            : }
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            : static size_t
+<span class="lineNum">     187 </span>            : iv_size(mrb_state *mrb, iv_tbl *t)
+<span class="lineNum">     188 </span>            : {
+<span class="lineNum">     189 </span>            :   segment *seg;
+<span class="lineNum">     190 </span>            :   size_t size = 0;
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :   if (!t) return 0;
+<span class="lineNum">     193 </span>            :   if (t-&gt;size &gt; 0) return t-&gt;size;
+<span class="lineNum">     194 </span>            :   seg = t-&gt;rootseg;
+<span class="lineNum">     195 </span>            :   while (seg) {
+<span class="lineNum">     196 </span>            :     if (seg-&gt;next == NULL) {
+<span class="lineNum">     197 </span>            :       size += t-&gt;last_len;
+<span class="lineNum">     198 </span>            :       return size;
+<span class="lineNum">     199 </span>            :     }
+<span class="lineNum">     200 </span>            :     seg = seg-&gt;next;
+<span class="lineNum">     201 </span>            :     size += MRB_SEGMENT_SIZE;
+<span class="lineNum">     202 </span>            :   }
+<span class="lineNum">     203 </span>            :   /* empty iv_tbl */
+<span class="lineNum">     204 </span>            :   return 0;
+<span class="lineNum">     205 </span>            : }
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            : static iv_tbl*
+<span class="lineNum">     208 </span>            : iv_copy(mrb_state *mrb, iv_tbl *t)
+<span class="lineNum">     209 </span>            : {
+<span class="lineNum">     210 </span>            :   segment *seg;
+<span class="lineNum">     211 </span>            :   iv_tbl *t2;
+<span class="lineNum">     212 </span>            : 
+<span class="lineNum">     213 </span>            :   size_t i;
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span>            :   seg = t-&gt;rootseg;
+<span class="lineNum">     216 </span>            :   t2 = iv_new(mrb);
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            :   while (seg != NULL) {
+<span class="lineNum">     219 </span>            :     for (i=0; i&lt;MRB_SEGMENT_SIZE; i++) {
+<span class="lineNum">     220 </span>            :       mrb_sym key = seg-&gt;key[i];
+<span class="lineNum">     221 </span>            :       mrb_value val = seg-&gt;val[i];
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            :       if ((seg-&gt;next == NULL) &amp;&amp; (i &gt;= t-&gt;last_len)) {
+<span class="lineNum">     224 </span>            :         return t2;
+<span class="lineNum">     225 </span>            :       }
+<span class="lineNum">     226 </span>            :       iv_put(mrb, t2, key, val);
+<span class="lineNum">     227 </span>            :     }
+<span class="lineNum">     228 </span>            :     seg = seg-&gt;next;
+<span class="lineNum">     229 </span>            :   }
+<span class="lineNum">     230 </span>            :   return t2;
+<span class="lineNum">     231 </span>            : }
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            : static void
+<span class="lineNum">     234 </span>            : iv_free(mrb_state *mrb, iv_tbl *t)
+<span class="lineNum">     235 </span>            : {
+<span class="lineNum">     236 </span>            :   segment *seg;
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            :   seg = t-&gt;rootseg;
+<span class="lineNum">     239 </span>            :   while (seg) {
+<span class="lineNum">     240 </span>            :     segment *p = seg;
+<span class="lineNum">     241 </span>            :     seg = seg-&gt;next;
+<span class="lineNum">     242 </span>            :     mrb_free(mrb, p);
+<span class="lineNum">     243 </span>            :   }
+<span class="lineNum">     244 </span>            :   mrb_free(mrb, t);
+<span class="lineNum">     245 </span>            : }
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            : #else
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            : #include &quot;mruby/khash.h&quot;
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span>            : #ifndef MRB_IVHASH_INIT_SIZE
+<span class="lineNum">     252 </span>            : #define MRB_IVHASH_INIT_SIZE 8
+<span class="lineNum">     253 </span>            : #endif
+<a name="254"><span class="lineNum">     254 </span>            : </a>
+<span class="lineNum">     255 </span>            : KHASH_DECLARE(iv, mrb_sym, mrb_value, 1)
+<span class="lineNum">     256 </span><span class="lineCov">     552480 : KHASH_DEFINE(iv, mrb_sym, mrb_value, 1, kh_int_hash_func, kh_int_hash_equal)</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            : typedef struct iv_tbl {
+<span class="lineNum">     259 </span>            :   khash_t(iv) h;
+<span class="lineNum">     260 </span>            : } iv_tbl;
+<span class="lineNum">     261 </span>            : 
+<a name="262"><span class="lineNum">     262 </span>            : static iv_tbl*</a>
+<span class="lineNum">     263 </span>            : iv_new(mrb_state *mrb)
+<span class="lineNum">     264 </span><span class="lineCov">       3397 : {</span>
+<span class="lineNum">     265 </span><span class="lineCov">       3397 :   return (iv_tbl*)kh_init_size(iv, mrb, MRB_IVHASH_INIT_SIZE);</span>
+<span class="lineNum">     266 </span>            : }
+<span class="lineNum">     267 </span>            : 
+<a name="268"><span class="lineNum">     268 </span>            : static void</a>
+<span class="lineNum">     269 </span>            : iv_put(mrb_state *mrb, iv_tbl *t, mrb_sym sym, mrb_value val)
+<span class="lineNum">     270 </span><span class="lineCov">     139216 : {</span>
+<span class="lineNum">     271 </span><span class="lineCov">     139216 :   khash_t(iv) *h = &amp;t-&gt;h;</span>
+<span class="lineNum">     272 </span>            :   khiter_t k;
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineCov">     139216 :   k = kh_put(iv, h, sym);</span>
+<span class="lineNum">     275 </span><span class="lineCov">     139216 :   kh_value(h, k) = val;</span>
+<span class="lineNum">     276 </span><span class="lineCov">     139216 : }</span>
+<span class="lineNum">     277 </span>            : 
+<a name="278"><span class="lineNum">     278 </span>            : static mrb_bool</a>
+<span class="lineNum">     279 </span>            : iv_get(mrb_state *mrb, iv_tbl *t, mrb_sym sym, mrb_value *vp)
+<span class="lineNum">     280 </span><span class="lineCov">     400202 : {</span>
+<span class="lineNum">     281 </span><span class="lineCov">     400202 :   khash_t(iv) *h = &amp;t-&gt;h;</span>
+<span class="lineNum">     282 </span>            :   khiter_t k;
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineCov">     400202 :   k = kh_get(iv, h, sym);</span>
+<span class="lineNum">     285 </span><span class="lineCov">     400202 :   if (k != kh_end(h)) {</span>
+<span class="lineNum">     286 </span><span class="lineCov">     397694 :     if (vp) *vp = kh_value(h, k);</span>
+<span class="lineNum">     287 </span><span class="lineCov">     397694 :     return TRUE;</span>
+<span class="lineNum">     288 </span>            :   }
+<span class="lineNum">     289 </span><span class="lineCov">       2508 :   return FALSE;</span>
+<span class="lineNum">     290 </span>            : }
+<span class="lineNum">     291 </span>            : 
+<a name="292"><span class="lineNum">     292 </span>            : static mrb_bool</a>
+<span class="lineNum">     293 </span>            : iv_del(mrb_state *mrb, iv_tbl *t, mrb_sym sym, mrb_value *vp)
+<span class="lineNum">     294 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     295 </span><span class="lineCov">          3 :   khash_t(iv) *h = &amp;t-&gt;h;</span>
+<span class="lineNum">     296 </span>            :   khiter_t k;
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span><span class="lineCov">          3 :   if (h) {</span>
+<span class="lineNum">     299 </span><span class="lineCov">          3 :     k = kh_get(iv, h, sym);</span>
+<span class="lineNum">     300 </span><span class="lineCov">          3 :     if (k != kh_end(h)) {</span>
+<span class="lineNum">     301 </span><span class="lineCov">          2 :       mrb_value val = kh_value(h, k);</span>
+<span class="lineNum">     302 </span><span class="lineCov">          2 :       kh_del(iv, h, k);</span>
+<span class="lineNum">     303 </span><span class="lineCov">          2 :       if (vp) *vp = val;</span>
+<span class="lineNum">     304 </span><span class="lineCov">          2 :       return TRUE;</span>
+<span class="lineNum">     305 </span>            :     }
+<span class="lineNum">     306 </span>            :   }
+<span class="lineNum">     307 </span><span class="lineCov">          1 :   return FALSE;</span>
+<span class="lineNum">     308 </span>            : }
+<span class="lineNum">     309 </span>            : 
+<a name="310"><span class="lineNum">     310 </span>            : static mrb_bool</a>
+<span class="lineNum">     311 </span>            : iv_foreach(mrb_state *mrb, iv_tbl *t, iv_foreach_func *func, void *p)
+<span class="lineNum">     312 </span><span class="lineCov">       1416 : {</span>
+<span class="lineNum">     313 </span><span class="lineCov">       1416 :   khash_t(iv) *h = &amp;t-&gt;h;</span>
+<span class="lineNum">     314 </span>            :   khiter_t k;
+<span class="lineNum">     315 </span>            :   int n;
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineCov">       1416 :   if (h) {</span>
+<span class="lineNum">     318 </span><span class="lineCov">      14816 :     for (k = kh_begin(h); k != kh_end(h); k++) {</span>
+<span class="lineNum">     319 </span><span class="lineCov">      13400 :       if (kh_exist(h, k)){</span>
+<span class="lineNum">     320 </span><span class="lineCov">       3154 :         n = (*func)(mrb, kh_key(h, k), kh_value(h, k), p);</span>
+<span class="lineNum">     321 </span><span class="lineCov">       3154 :         if (n &gt; 0) return FALSE;</span>
+<span class="lineNum">     322 </span><span class="lineCov">       3154 :         if (n &lt; 0) {</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :           kh_del(iv, h, k);</span>
+<span class="lineNum">     324 </span>            :         }
+<span class="lineNum">     325 </span>            :       }
+<span class="lineNum">     326 </span>            :     }
+<span class="lineNum">     327 </span>            :   }
+<span class="lineNum">     328 </span><span class="lineCov">       1416 :   return TRUE;</span>
+<span class="lineNum">     329 </span>            : }
+<span class="lineNum">     330 </span>            : 
+<a name="331"><span class="lineNum">     331 </span>            : static size_t</a>
+<span class="lineNum">     332 </span>            : iv_size(mrb_state *mrb, iv_tbl *t)
+<span class="lineNum">     333 </span><span class="lineCov">       1313 : {</span>
+<span class="lineNum">     334 </span><span class="lineCov">       1313 :   khash_t(iv) *h = &amp;t-&gt;h;</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span><span class="lineCov">       1313 :   if (!h) return 0;</span>
+<span class="lineNum">     337 </span><span class="lineCov">       1232 :   return kh_size(h);</span>
+<span class="lineNum">     338 </span>            : }
+<span class="lineNum">     339 </span>            : 
+<a name="340"><span class="lineNum">     340 </span>            : static iv_tbl*</a>
+<span class="lineNum">     341 </span>            : iv_copy(mrb_state *mrb, iv_tbl *t)
+<span class="lineNum">     342 </span><span class="lineCov">          9 : {</span>
+<span class="lineNum">     343 </span><span class="lineCov">          9 :   return (iv_tbl*)kh_copy(iv, mrb, &amp;t-&gt;h);</span>
+<span class="lineNum">     344 </span>            : }
+<span class="lineNum">     345 </span>            : 
+<a name="346"><span class="lineNum">     346 </span>            : static void</a>
+<span class="lineNum">     347 </span>            : iv_free(mrb_state *mrb, iv_tbl *t)
+<span class="lineNum">     348 </span><span class="lineCov">       3406 : {</span>
+<span class="lineNum">     349 </span><span class="lineCov">       3406 :   kh_destroy(iv, &amp;t-&gt;h);</span>
+<span class="lineNum">     350 </span><span class="lineCov">       3406 : }</span>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            : #endif
+<span class="lineNum">     353 </span>            : 
+<a name="354"><span class="lineNum">     354 </span>            : static int</a>
+<span class="lineNum">     355 </span>            : iv_mark_i(mrb_state *mrb, mrb_sym sym, mrb_value v, void *p)
+<span class="lineNum">     356 </span><span class="lineCov">       2717 : {</span>
+<span class="lineNum">     357 </span><span class="lineCov">       2717 :   mrb_gc_mark_value(mrb, v);</span>
+<span class="lineNum">     358 </span><span class="lineCov">       2717 :   return 0;</span>
+<span class="lineNum">     359 </span>            : }
+<span class="lineNum">     360 </span>            : 
+<a name="361"><span class="lineNum">     361 </span>            : static void</a>
+<span class="lineNum">     362 </span>            : mark_tbl(mrb_state *mrb, iv_tbl *t)
+<span class="lineNum">     363 </span><span class="lineCov">       1529 : {</span>
+<span class="lineNum">     364 </span><span class="lineCov">       1529 :   if (t) {</span>
+<span class="lineNum">     365 </span><span class="lineCov">       1393 :     iv_foreach(mrb, t, iv_mark_i, 0);</span>
+<span class="lineNum">     366 </span>            :   }
+<span class="lineNum">     367 </span><span class="lineCov">       1529 : }</span>
+<span class="lineNum">     368 </span>            : 
+<a name="369"><span class="lineNum">     369 </span>            : void</a>
+<span class="lineNum">     370 </span>            : mrb_gc_mark_gv(mrb_state *mrb)
+<span class="lineNum">     371 </span><span class="lineCov">         73 : {</span>
+<span class="lineNum">     372 </span><span class="lineCov">         73 :   mark_tbl(mrb, mrb-&gt;globals);</span>
+<span class="lineNum">     373 </span><span class="lineCov">         73 : }</span>
+<span class="lineNum">     374 </span>            : 
+<a name="375"><span class="lineNum">     375 </span>            : void</a>
+<span class="lineNum">     376 </span>            : mrb_gc_free_gv(mrb_state *mrb)
+<span class="lineNum">     377 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">     378 </span><span class="lineCov">         53 :   if (mrb-&gt;globals)</span>
+<span class="lineNum">     379 </span><span class="lineCov">         14 :     iv_free(mrb, mrb-&gt;globals);</span>
+<span class="lineNum">     380 </span><span class="lineCov">         53 : }</span>
+<span class="lineNum">     381 </span>            : 
+<a name="382"><span class="lineNum">     382 </span>            : void</a>
+<span class="lineNum">     383 </span>            : mrb_gc_mark_iv(mrb_state *mrb, struct RObject *obj)
+<span class="lineNum">     384 </span><span class="lineCov">       1456 : {</span>
+<span class="lineNum">     385 </span><span class="lineCov">       1456 :   mark_tbl(mrb, obj-&gt;iv);</span>
+<span class="lineNum">     386 </span><span class="lineCov">       1456 : }</span>
+<span class="lineNum">     387 </span>            : 
+<a name="388"><span class="lineNum">     388 </span>            : size_t</a>
+<span class="lineNum">     389 </span>            : mrb_gc_mark_iv_size(mrb_state *mrb, struct RObject *obj)
+<span class="lineNum">     390 </span><span class="lineCov">       1309 : {</span>
+<span class="lineNum">     391 </span><span class="lineCov">       1309 :   return iv_size(mrb, obj-&gt;iv);</span>
+<span class="lineNum">     392 </span>            : }
+<span class="lineNum">     393 </span>            : 
+<a name="394"><span class="lineNum">     394 </span>            : void</a>
+<span class="lineNum">     395 </span>            : mrb_gc_free_iv(mrb_state *mrb, struct RObject *obj)
+<span class="lineNum">     396 </span><span class="lineCov">       3575 : {</span>
+<span class="lineNum">     397 </span><span class="lineCov">       3575 :   if (obj-&gt;iv) {</span>
+<span class="lineNum">     398 </span><span class="lineCov">       3392 :     iv_free(mrb, obj-&gt;iv);</span>
+<span class="lineNum">     399 </span>            :   }
+<span class="lineNum">     400 </span><span class="lineCov">       3575 : }</span>
+<span class="lineNum">     401 </span>            : 
+<a name="402"><span class="lineNum">     402 </span>            : mrb_value</a>
+<span class="lineNum">     403 </span>            : mrb_vm_special_get(mrb_state *mrb, mrb_sym i)
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :   return mrb_fixnum_value(0);</span>
+<span class="lineNum">     406 </span>            : }
+<span class="lineNum">     407 </span>            : 
+<a name="408"><span class="lineNum">     408 </span>            : void</a>
+<span class="lineNum">     409 </span>            : mrb_vm_special_set(mrb_state *mrb, mrb_sym i, mrb_value v)
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     412 </span>            : 
+<a name="413"><span class="lineNum">     413 </span>            : static mrb_bool</a>
+<span class="lineNum">     414 </span>            : obj_iv_p(mrb_value obj)
+<span class="lineNum">     415 </span><span class="lineCov">        472 : {</span>
+<span class="lineNum">     416 </span><span class="lineCov">        472 :   switch (mrb_type(obj)) {</span>
+<span class="lineNum">     417 </span>            :     case MRB_TT_OBJECT:
+<span class="lineNum">     418 </span>            :     case MRB_TT_CLASS:
+<span class="lineNum">     419 </span>            :     case MRB_TT_MODULE:
+<span class="lineNum">     420 </span>            :     case MRB_TT_SCLASS:
+<span class="lineNum">     421 </span>            :     case MRB_TT_HASH:
+<span class="lineNum">     422 </span>            :     case MRB_TT_DATA:
+<span class="lineNum">     423 </span><span class="lineCov">        472 :       return TRUE;</span>
+<span class="lineNum">     424 </span>            :     default:
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :       return FALSE;</span>
+<span class="lineNum">     426 </span>            :   }
+<span class="lineNum">     427 </span>            : }
+<span class="lineNum">     428 </span>            : 
+<a name="429"><span class="lineNum">     429 </span>            : mrb_value</a>
+<span class="lineNum">     430 </span>            : mrb_obj_iv_get(mrb_state *mrb, struct RObject *obj, mrb_sym sym)
+<span class="lineNum">     431 </span><span class="lineCov">        550 : {</span>
+<span class="lineNum">     432 </span>            :   mrb_value v;
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineCov">        550 :   if (obj-&gt;iv &amp;&amp; iv_get(mrb, obj-&gt;iv, sym, &amp;v))</span>
+<span class="lineNum">     435 </span><span class="lineCov">        287 :     return v;</span>
+<span class="lineNum">     436 </span><span class="lineCov">        263 :   return mrb_nil_value();</span>
+<span class="lineNum">     437 </span>            : }
+<span class="lineNum">     438 </span>            : 
+<a name="439"><span class="lineNum">     439 </span>            : mrb_value</a>
+<span class="lineNum">     440 </span>            : mrb_iv_get(mrb_state *mrb, mrb_value obj, mrb_sym sym)
+<span class="lineNum">     441 </span><span class="lineCov">         75 : {</span>
+<span class="lineNum">     442 </span><span class="lineCov">         75 :   if (obj_iv_p(obj)) {</span>
+<span class="lineNum">     443 </span><span class="lineCov">         75 :     return mrb_obj_iv_get(mrb, mrb_obj_ptr(obj), sym);</span>
+<span class="lineNum">     444 </span>            :   }
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :   return mrb_nil_value();</span>
+<span class="lineNum">     446 </span>            : }
+<span class="lineNum">     447 </span>            : 
+<a name="448"><span class="lineNum">     448 </span>            : void</a>
+<span class="lineNum">     449 </span>            : mrb_obj_iv_set(mrb_state *mrb, struct RObject *obj, mrb_sym sym, mrb_value v)
+<span class="lineNum">     450 </span><span class="lineCov">       5550 : {</span>
+<span class="lineNum">     451 </span><span class="lineCov">       5550 :   iv_tbl *t = obj-&gt;iv;</span>
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span><span class="lineCov">       5550 :   if (!t) {</span>
+<span class="lineNum">     454 </span><span class="lineCov">       3383 :     t = obj-&gt;iv = iv_new(mrb);</span>
+<span class="lineNum">     455 </span>            :   }
+<span class="lineNum">     456 </span><span class="lineCov">       5550 :   mrb_write_barrier(mrb, (struct RBasic*)obj);</span>
+<span class="lineNum">     457 </span><span class="lineCov">       5550 :   iv_put(mrb, t, sym, v);</span>
+<span class="lineNum">     458 </span><span class="lineCov">       5550 : }</span>
+<span class="lineNum">     459 </span>            : 
+<a name="460"><span class="lineNum">     460 </span>            : void</a>
+<span class="lineNum">     461 </span>            : mrb_obj_iv_ifnone(mrb_state *mrb, struct RObject *obj, mrb_sym sym, mrb_value v)
+<span class="lineNum">     462 </span><span class="lineCov">        124 : {</span>
+<span class="lineNum">     463 </span><span class="lineCov">        124 :   iv_tbl *t = obj-&gt;iv;</span>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineCov">        124 :   if (!t) {</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :     t = obj-&gt;iv = iv_new(mrb);</span>
+<span class="lineNum">     467 </span>            :   }
+<span class="lineNum">     468 </span><span class="lineCov">        124 :   else if (iv_get(mrb, t, sym, &amp;v)) {</span>
+<span class="lineNum">     469 </span><span class="lineCov">         76 :     return;</span>
+<span class="lineNum">     470 </span>            :   }
+<span class="lineNum">     471 </span><span class="lineCov">         48 :   mrb_write_barrier(mrb, (struct RBasic*)obj);</span>
+<span class="lineNum">     472 </span><span class="lineCov">         48 :   iv_put(mrb, t, sym, v);</span>
+<span class="lineNum">     473 </span>            : }
+<span class="lineNum">     474 </span>            : 
+<a name="475"><span class="lineNum">     475 </span>            : void</a>
+<span class="lineNum">     476 </span>            : mrb_iv_set(mrb_state *mrb, mrb_value obj, mrb_sym sym, mrb_value v)
+<span class="lineNum">     477 </span><span class="lineCov">        393 : {</span>
+<span class="lineNum">     478 </span><span class="lineCov">        393 :   if (obj_iv_p(obj)) {</span>
+<span class="lineNum">     479 </span><span class="lineCov">        393 :     mrb_obj_iv_set(mrb, mrb_obj_ptr(obj), sym, v);</span>
+<span class="lineNum">     480 </span>            :   }
+<span class="lineNum">     481 </span>            :   else {
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;cannot set instance variable&quot;);</span>
+<span class="lineNum">     483 </span>            :   }
+<span class="lineNum">     484 </span><span class="lineCov">        393 : }</span>
+<span class="lineNum">     485 </span>            : 
+<a name="486"><span class="lineNum">     486 </span>            : mrb_bool</a>
+<span class="lineNum">     487 </span>            : mrb_obj_iv_defined(mrb_state *mrb, struct RObject *obj, mrb_sym sym)
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     489 </span>            :   iv_tbl *t;
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :   t = obj-&gt;iv;</span>
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :   if (t) {</span>
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :     return iv_get(mrb, t, sym, NULL);</span>
+<span class="lineNum">     494 </span>            :   }
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :   return FALSE;</span>
+<span class="lineNum">     496 </span>            : }
+<span class="lineNum">     497 </span>            : 
+<a name="498"><span class="lineNum">     498 </span>            : mrb_bool</a>
+<span class="lineNum">     499 </span>            : mrb_iv_defined(mrb_state *mrb, mrb_value obj, mrb_sym sym)
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :   if (!obj_iv_p(obj)) return FALSE;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :   return mrb_obj_iv_defined(mrb, mrb_obj_ptr(obj), sym);</span>
+<span class="lineNum">     503 </span>            : }
+<span class="lineNum">     504 </span>            : 
+<a name="505"><span class="lineNum">     505 </span>            : void</a>
+<span class="lineNum">     506 </span>            : mrb_iv_copy(mrb_state *mrb, mrb_value dest, mrb_value src)
+<span class="lineNum">     507 </span><span class="lineCov">         10 : {</span>
+<span class="lineNum">     508 </span><span class="lineCov">         10 :   struct RObject *d = mrb_obj_ptr(dest);</span>
+<span class="lineNum">     509 </span><span class="lineCov">         10 :   struct RObject *s = mrb_obj_ptr(src);</span>
+<span class="lineNum">     510 </span>            : 
+<span class="lineNum">     511 </span><span class="lineCov">         10 :   if (d-&gt;iv) {</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :     iv_free(mrb, d-&gt;iv);</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :     d-&gt;iv = 0;</span>
+<span class="lineNum">     514 </span>            :   }
+<span class="lineNum">     515 </span><span class="lineCov">         10 :   if (s-&gt;iv) {</span>
+<span class="lineNum">     516 </span><span class="lineCov">          9 :     d-&gt;iv = iv_copy(mrb, s-&gt;iv);</span>
+<span class="lineNum">     517 </span>            :   }
+<span class="lineNum">     518 </span><span class="lineCov">         10 : }</span>
+<span class="lineNum">     519 </span>            : 
+<a name="520"><span class="lineNum">     520 </span>            : static int</a>
+<span class="lineNum">     521 </span>            : inspect_i(mrb_state *mrb, mrb_sym sym, mrb_value v, void *p)
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :   mrb_value str = *(mrb_value*)p;</span>
+<span class="lineNum">     524 </span>            :   const char *s;
+<span class="lineNum">     525 </span>            :   size_t len;
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span>            :   /* need not to show internal data */
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :   if (RSTRING_PTR(str)[0] == '-') { /* first element */</span>
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :     RSTRING_PTR(str)[0] = '#';</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :     mrb_str_cat(mrb, str, &quot; &quot;, 1);</span>
+<span class="lineNum">     531 </span>            :   }
+<span class="lineNum">     532 </span>            :   else {
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :     mrb_str_cat(mrb, str, &quot;, &quot;, 2);</span>
+<span class="lineNum">     534 </span>            :   }
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :   s = mrb_sym2name_len(mrb, sym, &amp;len);</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :   mrb_str_cat(mrb, str, s, len);</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :   mrb_str_cat(mrb, str, &quot;=&quot;, 1);</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :   mrb_str_append(mrb, str, mrb_inspect(mrb, v));</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :   return 0;</span>
+<span class="lineNum">     540 </span>            : }
+<span class="lineNum">     541 </span>            : 
+<a name="542"><span class="lineNum">     542 </span>            : mrb_value</a>
+<span class="lineNum">     543 </span>            : mrb_obj_iv_inspect(mrb_state *mrb, struct RObject *obj)
+<span class="lineNum">     544 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     545 </span><span class="lineCov">          4 :   iv_tbl *t = obj-&gt;iv;</span>
+<span class="lineNum">     546 </span><span class="lineCov">          4 :   size_t len = iv_size(mrb, t);</span>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineCov">          4 :   if (len &gt; 0) {</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :     const char *cn = mrb_obj_classname(mrb, mrb_obj_value(obj));</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :     mrb_value str = mrb_str_buf_new(mrb, 30);</span>
+<span class="lineNum">     551 </span>            : 
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :     mrb_str_buf_cat(mrb, str, &quot;-&lt;&quot;, 2);</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :     mrb_str_cat2(mrb, str, cn);</span>
+<span class="lineNum">     554 </span><span class="lineNoCov">          0 :     mrb_str_cat(mrb, str, &quot;:&quot;, 1);</span>
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :     mrb_str_concat(mrb, str, mrb_ptr_to_str(mrb, obj));</span>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :     iv_foreach(mrb, t, inspect_i, &amp;str);</span>
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :     mrb_str_cat(mrb, str, &quot;&gt;&quot;, 1);</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :     return str;</span>
+<span class="lineNum">     560 </span>            :   }
+<span class="lineNum">     561 </span><span class="lineCov">          4 :   return mrb_any_to_s(mrb, mrb_obj_value(obj));</span>
+<span class="lineNum">     562 </span>            : }
+<span class="lineNum">     563 </span>            : 
+<a name="564"><span class="lineNum">     564 </span>            : mrb_value</a>
+<span class="lineNum">     565 </span>            : mrb_iv_remove(mrb_state *mrb, mrb_value obj, mrb_sym sym)
+<span class="lineNum">     566 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     567 </span><span class="lineCov">          3 :   if (obj_iv_p(obj)) {</span>
+<span class="lineNum">     568 </span><span class="lineCov">          3 :     iv_tbl *t = mrb_obj_ptr(obj)-&gt;iv;</span>
+<span class="lineNum">     569 </span>            :     mrb_value val;
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span><span class="lineCov">          3 :     if (t &amp;&amp; iv_del(mrb, t, sym, &amp;val)) {</span>
+<span class="lineNum">     572 </span><span class="lineCov">          2 :       return val;</span>
+<span class="lineNum">     573 </span>            :     }
+<span class="lineNum">     574 </span>            :   }
+<span class="lineNum">     575 </span><span class="lineCov">          1 :   return mrb_undef_value();</span>
+<span class="lineNum">     576 </span>            : }
+<span class="lineNum">     577 </span>            : 
+<a name="578"><span class="lineNum">     578 </span>            : mrb_value</a>
+<span class="lineNum">     579 </span>            : mrb_vm_iv_get(mrb_state *mrb, mrb_sym sym)
+<span class="lineNum">     580 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     581 </span>            :   /* get self */
+<span class="lineNum">     582 </span><span class="lineCov">         14 :   return mrb_iv_get(mrb, mrb-&gt;stack[0], sym);</span>
+<span class="lineNum">     583 </span>            : }
+<span class="lineNum">     584 </span>            : 
+<a name="585"><span class="lineNum">     585 </span>            : void</a>
+<span class="lineNum">     586 </span>            : mrb_vm_iv_set(mrb_state *mrb, mrb_sym sym, mrb_value v)
+<span class="lineNum">     587 </span><span class="lineCov">         30 : {</span>
+<span class="lineNum">     588 </span>            :   /* get self */
+<span class="lineNum">     589 </span><span class="lineCov">         30 :   mrb_iv_set(mrb, mrb-&gt;stack[0], sym, v);</span>
+<span class="lineNum">     590 </span><span class="lineCov">         30 : }</span>
+<span class="lineNum">     591 </span>            : 
+<a name="592"><span class="lineNum">     592 </span>            : static int</a>
+<span class="lineNum">     593 </span>            : iv_i(mrb_state *mrb, mrb_sym sym, mrb_value v, void *p)
+<span class="lineNum">     594 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     595 </span>            :   mrb_value ary;
+<span class="lineNum">     596 </span>            :   const char* s;
+<span class="lineNum">     597 </span>            :   size_t len;
+<span class="lineNum">     598 </span>            : 
+<span class="lineNum">     599 </span><span class="lineCov">          2 :   ary = *(mrb_value*)p;</span>
+<span class="lineNum">     600 </span><span class="lineCov">          2 :   s = mrb_sym2name_len(mrb, sym, &amp;len);</span>
+<span class="lineNum">     601 </span><span class="lineCov">          2 :   if (len &gt; 1 &amp;&amp; s[0] == '@' &amp;&amp; s[1] != '@') {</span>
+<span class="lineNum">     602 </span><span class="lineCov">          2 :     mrb_ary_push(mrb, ary, mrb_symbol_value(sym));</span>
+<span class="lineNum">     603 </span>            :   }
+<span class="lineNum">     604 </span><span class="lineCov">          2 :   return 0;</span>
+<span class="lineNum">     605 </span>            : }
+<span class="lineNum">     606 </span>            : 
+<span class="lineNum">     607 </span>            : /* 15.3.1.3.23 */
+<span class="lineNum">     608 </span>            : /*
+<span class="lineNum">     609 </span>            :  *  call-seq:
+<span class="lineNum">     610 </span>            :  *     obj.instance_variables    -&gt; array
+<span class="lineNum">     611 </span>            :  *
+<span class="lineNum">     612 </span>            :  *  Returns an array of instance variable names for the receiver. Note
+<span class="lineNum">     613 </span>            :  *  that simply defining an accessor does not create the corresponding
+<span class="lineNum">     614 </span>            :  *  instance variable.
+<span class="lineNum">     615 </span>            :  *
+<span class="lineNum">     616 </span>            :  *     class Fred
+<span class="lineNum">     617 </span>            :  *       attr_accessor :a1
+<span class="lineNum">     618 </span>            :  *       def initialize
+<span class="lineNum">     619 </span>            :  *         @iv = 3
+<span class="lineNum">     620 </span>            :  *       end
+<span class="lineNum">     621 </span>            :  *     end
+<span class="lineNum">     622 </span>            :  *     Fred.new.instance_variables   #=&gt; [:@iv]
+<span class="lineNum">     623 </span>            :  */
+<a name="624"><span class="lineNum">     624 </span>            : mrb_value</a>
+<span class="lineNum">     625 </span>            : mrb_obj_instance_variables(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     626 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     627 </span>            :   mrb_value ary;
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span><span class="lineCov">          1 :   ary = mrb_ary_new(mrb);</span>
+<span class="lineNum">     630 </span><span class="lineCov">          1 :   if (obj_iv_p(self) &amp;&amp; mrb_obj_ptr(self)-&gt;iv) {</span>
+<span class="lineNum">     631 </span><span class="lineCov">          1 :     iv_foreach(mrb, mrb_obj_ptr(self)-&gt;iv, iv_i, &amp;ary);</span>
+<span class="lineNum">     632 </span>            :   }
+<span class="lineNum">     633 </span><span class="lineCov">          1 :   return ary;</span>
+<span class="lineNum">     634 </span>            : }
+<span class="lineNum">     635 </span>            : 
+<a name="636"><span class="lineNum">     636 </span>            : static int</a>
+<span class="lineNum">     637 </span>            : cv_i(mrb_state *mrb, mrb_sym sym, mrb_value v, void *p)
+<span class="lineNum">     638 </span><span class="lineCov">        406 : {</span>
+<span class="lineNum">     639 </span>            :   mrb_value ary;
+<span class="lineNum">     640 </span>            :   const char* s;
+<span class="lineNum">     641 </span>            :   size_t len;
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span><span class="lineCov">        406 :   ary = *(mrb_value*)p;</span>
+<span class="lineNum">     644 </span><span class="lineCov">        406 :   s = mrb_sym2name_len(mrb, sym, &amp;len);</span>
+<span class="lineNum">     645 </span><span class="lineCov">        406 :   if (len &gt; 2 &amp;&amp; s[0] == '@' &amp;&amp; s[1] == '@') {</span>
+<span class="lineNum">     646 </span><span class="lineCov">          5 :     mrb_ary_push(mrb, ary, mrb_symbol_value(sym));</span>
+<span class="lineNum">     647 </span>            :   }
+<span class="lineNum">     648 </span><span class="lineCov">        406 :   return 0;</span>
+<span class="lineNum">     649 </span>            : }
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span>            : /* 15.2.2.4.19 */
+<span class="lineNum">     652 </span>            : /*
+<span class="lineNum">     653 </span>            :  *  call-seq:
+<span class="lineNum">     654 </span>            :  *     mod.class_variables   -&gt; array
+<span class="lineNum">     655 </span>            :  *
+<span class="lineNum">     656 </span>            :  *  Returns an array of the names of class variables in &lt;i&gt;mod&lt;/i&gt;.
+<span class="lineNum">     657 </span>            :  *
+<span class="lineNum">     658 </span>            :  *     class One
+<span class="lineNum">     659 </span>            :  *       @@var1 = 1
+<span class="lineNum">     660 </span>            :  *     end
+<span class="lineNum">     661 </span>            :  *     class Two &lt; One
+<span class="lineNum">     662 </span>            :  *       @@var2 = 2
+<span class="lineNum">     663 </span>            :  *     end
+<span class="lineNum">     664 </span>            :  *     One.class_variables   #=&gt; [:@@var1]
+<span class="lineNum">     665 </span>            :  *     Two.class_variables   #=&gt; [:@@var2]
+<span class="lineNum">     666 </span>            :  */
+<a name="667"><span class="lineNum">     667 </span>            : mrb_value</a>
+<span class="lineNum">     668 </span>            : mrb_mod_class_variables(mrb_state *mrb, mrb_value mod)
+<span class="lineNum">     669 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     670 </span>            :   mrb_value ary;
+<span class="lineNum">     671 </span>            :   struct RClass *c;
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span><span class="lineCov">          4 :   ary = mrb_ary_new(mrb);</span>
+<span class="lineNum">     674 </span><span class="lineCov">          4 :   c = mrb_class_ptr(mod);</span>
+<span class="lineNum">     675 </span><span class="lineCov">         25 :   while (c) {</span>
+<span class="lineNum">     676 </span><span class="lineCov">         17 :     if (c-&gt;iv) {</span>
+<span class="lineNum">     677 </span><span class="lineCov">         17 :       iv_foreach(mrb, c-&gt;iv, cv_i, &amp;ary);</span>
+<span class="lineNum">     678 </span>            :     }
+<span class="lineNum">     679 </span><span class="lineCov">         17 :     c = c-&gt;super;</span>
+<span class="lineNum">     680 </span>            :   }
+<span class="lineNum">     681 </span><span class="lineCov">          4 :   return ary;</span>
+<span class="lineNum">     682 </span>            : }
+<span class="lineNum">     683 </span>            : 
+<a name="684"><span class="lineNum">     684 </span>            : mrb_value</a>
+<span class="lineNum">     685 </span>            : mrb_mod_cv_get(mrb_state *mrb, struct RClass * c, mrb_sym sym)
+<span class="lineNum">     686 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     687 </span><span class="lineCov">          3 :   struct RClass * cls = c;</span>
+<span class="lineNum">     688 </span>            : 
+<span class="lineNum">     689 </span><span class="lineCov">          6 :   while (c) {</span>
+<span class="lineNum">     690 </span><span class="lineCov">          3 :     if (c-&gt;iv) {</span>
+<span class="lineNum">     691 </span><span class="lineCov">          3 :       iv_tbl *t = c-&gt;iv;</span>
+<span class="lineNum">     692 </span>            :       mrb_value v;
+<span class="lineNum">     693 </span>            : 
+<span class="lineNum">     694 </span><span class="lineCov">          3 :       if (iv_get(mrb, t, sym, &amp;v))</span>
+<span class="lineNum">     695 </span><span class="lineCov">          3 :         return v;</span>
+<span class="lineNum">     696 </span>            :     }
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :     c = c-&gt;super;</span>
+<span class="lineNum">     698 </span>            :   }
+<span class="lineNum">     699 </span><span class="lineNoCov">          0 :   mrb_name_error(mrb, sym, &quot;uninitialized class variable %S in %S&quot;,</span>
+<span class="lineNum">     700 </span>            :              mrb_sym2str(mrb, sym), cls);
+<span class="lineNum">     701 </span>            :   /* not reached */
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :   return mrb_nil_value();</span>
+<span class="lineNum">     703 </span>            : }
+<span class="lineNum">     704 </span>            : 
+<a name="705"><span class="lineNum">     705 </span>            : mrb_value</a>
+<span class="lineNum">     706 </span>            : mrb_cv_get(mrb_state *mrb, mrb_value mod, mrb_sym sym)
+<span class="lineNum">     707 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     708 </span><span class="lineCov">          2 :   return mrb_mod_cv_get(mrb, mrb_class_ptr(mod), sym);</span>
+<span class="lineNum">     709 </span>            : }
+<span class="lineNum">     710 </span>            : 
+<a name="711"><span class="lineNum">     711 </span>            : void</a>
+<span class="lineNum">     712 </span>            : mrb_mod_cv_set(mrb_state *mrb, struct RClass * c, mrb_sym sym, mrb_value v)
+<span class="lineNum">     713 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     714 </span><span class="lineCov">          2 :   struct RClass * cls = c;</span>
+<span class="lineNum">     715 </span>            : 
+<span class="lineNum">     716 </span><span class="lineCov">          8 :   while (c) {</span>
+<span class="lineNum">     717 </span><span class="lineCov">          5 :     if (c-&gt;iv) {</span>
+<span class="lineNum">     718 </span><span class="lineCov">          5 :       iv_tbl *t = c-&gt;iv;</span>
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span><span class="lineCov">          5 :       if (iv_get(mrb, t, sym, NULL)) {</span>
+<span class="lineNum">     721 </span><span class="lineCov">          1 :         mrb_write_barrier(mrb, (struct RBasic*)c);</span>
+<span class="lineNum">     722 </span><span class="lineCov">          1 :         iv_put(mrb, t, sym, v);</span>
+<span class="lineNum">     723 </span><span class="lineCov">          1 :         return;</span>
+<span class="lineNum">     724 </span>            :       }
+<span class="lineNum">     725 </span>            :     }
+<span class="lineNum">     726 </span><span class="lineCov">          4 :     c = c-&gt;super;</span>
+<span class="lineNum">     727 </span>            :   }
+<span class="lineNum">     728 </span>            : 
+<span class="lineNum">     729 </span><span class="lineCov">          1 :   if (!cls-&gt;iv) {</span>
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :     cls-&gt;iv = iv_new(mrb);</span>
+<span class="lineNum">     731 </span>            :   }
+<span class="lineNum">     732 </span>            : 
+<span class="lineNum">     733 </span><span class="lineCov">          1 :   mrb_write_barrier(mrb, (struct RBasic*)cls);</span>
+<span class="lineNum">     734 </span><span class="lineCov">          1 :   iv_put(mrb, cls-&gt;iv, sym, v);</span>
+<span class="lineNum">     735 </span>            : }
+<span class="lineNum">     736 </span>            : 
+<a name="737"><span class="lineNum">     737 </span>            : void</a>
+<span class="lineNum">     738 </span>            : mrb_cv_set(mrb_state *mrb, mrb_value mod, mrb_sym sym, mrb_value v)
+<span class="lineNum">     739 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     740 </span><span class="lineCov">          2 :   mrb_mod_cv_set(mrb, mrb_class_ptr(mod), sym, v);</span>
+<span class="lineNum">     741 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     742 </span>            : 
+<a name="743"><span class="lineNum">     743 </span>            : mrb_bool</a>
+<span class="lineNum">     744 </span>            : mrb_mod_cv_defined(mrb_state *mrb, struct RClass * c, mrb_sym sym)
+<span class="lineNum">     745 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     746 </span><span class="lineCov">          8 :   while (c) {</span>
+<span class="lineNum">     747 </span><span class="lineCov">          5 :     if (c-&gt;iv) {</span>
+<span class="lineNum">     748 </span><span class="lineCov">          5 :       iv_tbl *t = c-&gt;iv;</span>
+<span class="lineNum">     749 </span><span class="lineCov">          5 :       if (iv_get(mrb, t, sym, NULL)) return TRUE;</span>
+<span class="lineNum">     750 </span>            :     }
+<span class="lineNum">     751 </span><span class="lineCov">          4 :     c = c-&gt;super;</span>
+<span class="lineNum">     752 </span>            :   }
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span><span class="lineCov">          1 :   return FALSE;</span>
+<span class="lineNum">     755 </span>            : }
+<span class="lineNum">     756 </span>            : 
+<a name="757"><span class="lineNum">     757 </span>            : mrb_bool</a>
+<span class="lineNum">     758 </span>            : mrb_cv_defined(mrb_state *mrb, mrb_value mod, mrb_sym sym)
+<span class="lineNum">     759 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     760 </span><span class="lineCov">          2 :   return mrb_mod_cv_defined(mrb, mrb_class_ptr(mod), sym);</span>
+<span class="lineNum">     761 </span>            : }
+<span class="lineNum">     762 </span>            : 
+<a name="763"><span class="lineNum">     763 </span>            : mrb_value</a>
+<span class="lineNum">     764 </span>            : mrb_vm_cv_get(mrb_state *mrb, mrb_sym sym)
+<span class="lineNum">     765 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     766 </span><span class="lineCov">          1 :   struct RClass *c = mrb-&gt;ci-&gt;proc-&gt;target_class;</span>
+<span class="lineNum">     767 </span>            : 
+<span class="lineNum">     768 </span><span class="lineCov">          1 :   if (!c) c = mrb-&gt;ci-&gt;target_class;</span>
+<span class="lineNum">     769 </span>            : 
+<span class="lineNum">     770 </span><span class="lineCov">          1 :   return mrb_mod_cv_get(mrb, c, sym);</span>
+<span class="lineNum">     771 </span>            : }
+<span class="lineNum">     772 </span>            : 
+<a name="773"><span class="lineNum">     773 </span>            : void</a>
+<span class="lineNum">     774 </span>            : mrb_vm_cv_set(mrb_state *mrb, mrb_sym sym, mrb_value v)
+<span class="lineNum">     775 </span><span class="lineCov">          6 : {</span>
+<span class="lineNum">     776 </span><span class="lineCov">          6 :   struct RClass *c = mrb-&gt;ci-&gt;proc-&gt;target_class;</span>
+<span class="lineNum">     777 </span>            : 
+<span class="lineNum">     778 </span><span class="lineCov">          6 :   if (!c) c = mrb-&gt;ci-&gt;target_class;</span>
+<span class="lineNum">     779 </span><span class="lineCov">         37 :   while (c) {</span>
+<span class="lineNum">     780 </span><span class="lineCov">         25 :     if (c-&gt;iv) {</span>
+<span class="lineNum">     781 </span><span class="lineCov">         25 :       iv_tbl *t = c-&gt;iv;</span>
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span><span class="lineCov">         25 :       if (iv_get(mrb, t, sym, NULL)) {</span>
+<span class="lineNum">     784 </span><span class="lineNoCov">          0 :         mrb_write_barrier(mrb, (struct RBasic*)c);</span>
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 :         iv_put(mrb, t, sym, v);</span>
+<span class="lineNum">     786 </span><span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     787 </span>            :       }
+<span class="lineNum">     788 </span>            :     }
+<span class="lineNum">     789 </span><span class="lineCov">         25 :     c = c-&gt;super;</span>
+<span class="lineNum">     790 </span>            :   }
+<span class="lineNum">     791 </span><span class="lineCov">          6 :   c = mrb-&gt;ci-&gt;target_class;</span>
+<span class="lineNum">     792 </span><span class="lineCov">          6 :   if (!c-&gt;iv) {</span>
+<span class="lineNum">     793 </span><span class="lineNoCov">          0 :     c-&gt;iv = iv_new(mrb);</span>
+<span class="lineNum">     794 </span>            :   }
+<span class="lineNum">     795 </span><span class="lineCov">          6 :   mrb_write_barrier(mrb, (struct RBasic*)c);</span>
+<span class="lineNum">     796 </span><span class="lineCov">          6 :   iv_put(mrb, c-&gt;iv, sym, v);</span>
+<span class="lineNum">     797 </span>            : }
+<span class="lineNum">     798 </span>            : 
+<a name="799"><span class="lineNum">     799 </span>            : mrb_bool</a>
+<span class="lineNum">     800 </span>            : mrb_const_defined(mrb_state *mrb, mrb_value mod, mrb_sym sym)
+<span class="lineNum">     801 </span><span class="lineCov">        747 : {</span>
+<span class="lineNum">     802 </span><span class="lineCov">        747 :   struct RClass *m = mrb_class_ptr(mod);</span>
+<span class="lineNum">     803 </span><span class="lineCov">        747 :   iv_tbl *t = m-&gt;iv;</span>
+<span class="lineNum">     804 </span>            : 
+<span class="lineNum">     805 </span><span class="lineCov">        747 :   if (!t) return FALSE;</span>
+<span class="lineNum">     806 </span><span class="lineCov">        747 :   return iv_get(mrb, t, sym, NULL);</span>
+<span class="lineNum">     807 </span>            : }
+<span class="lineNum">     808 </span>            : 
+<a name="809"><span class="lineNum">     809 </span>            : static void</a>
+<span class="lineNum">     810 </span>            : mod_const_check(mrb_state *mrb, mrb_value mod)
+<span class="lineNum">     811 </span><span class="lineCov">       1373 : {</span>
+<span class="lineNum">     812 </span><span class="lineCov">       1373 :   switch (mrb_type(mod)) {</span>
+<span class="lineNum">     813 </span>            :   case MRB_TT_CLASS:
+<span class="lineNum">     814 </span>            :   case MRB_TT_MODULE:
+<span class="lineNum">     815 </span>            :   case MRB_TT_SCLASS:
+<span class="lineNum">     816 </span><span class="lineCov">       1373 :     break;</span>
+<span class="lineNum">     817 </span>            :   default:
+<span class="lineNum">     818 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_TYPE_ERROR, &quot;constant look-up for non class/module&quot;);</span>
+<span class="lineNum">     819 </span>            :     break;
+<span class="lineNum">     820 </span>            :   }
+<span class="lineNum">     821 </span><span class="lineCov">       1373 : }</span>
+<span class="lineNum">     822 </span>            : 
+<a name="823"><span class="lineNum">     823 </span>            : static mrb_value</a>
+<span class="lineNum">     824 </span>            : const_get(mrb_state *mrb, struct RClass *base, mrb_sym sym)
+<span class="lineNum">     825 </span><span class="lineCov">       1303 : {</span>
+<span class="lineNum">     826 </span><span class="lineCov">       1303 :   struct RClass *c = base;</span>
+<span class="lineNum">     827 </span>            :   mrb_value v;
+<span class="lineNum">     828 </span>            :   iv_tbl *t;
+<span class="lineNum">     829 </span><span class="lineCov">       1303 :   mrb_bool retry = 0;</span>
+<span class="lineNum">     830 </span>            :   mrb_sym cm;
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span><span class="lineCov">       1325 : L_RETRY:</span>
+<span class="lineNum">     833 </span><span class="lineCov">       3125 :   while (c) {</span>
+<span class="lineNum">     834 </span><span class="lineCov">       1776 :     if (c-&gt;iv) {</span>
+<span class="lineNum">     835 </span><span class="lineCov">       1776 :       t = c-&gt;iv;</span>
+<span class="lineNum">     836 </span><span class="lineCov">       1776 :       if (iv_get(mrb, t, sym, &amp;v))</span>
+<span class="lineNum">     837 </span><span class="lineCov">       1301 :         return v;</span>
+<span class="lineNum">     838 </span>            :     }
+<span class="lineNum">     839 </span><span class="lineCov">        475 :     c = c-&gt;super;</span>
+<span class="lineNum">     840 </span>            :   }
+<span class="lineNum">     841 </span><span class="lineCov">         24 :   if (!retry &amp;&amp; base &amp;&amp; base-&gt;tt == MRB_TT_MODULE) {</span>
+<span class="lineNum">     842 </span><span class="lineCov">         22 :     c = mrb-&gt;object_class;</span>
+<span class="lineNum">     843 </span><span class="lineCov">         22 :     retry = 1;</span>
+<span class="lineNum">     844 </span><span class="lineCov">         22 :     goto L_RETRY;</span>
+<span class="lineNum">     845 </span>            :   }
+<span class="lineNum">     846 </span><span class="lineCov">          2 :   c = base;</span>
+<span class="lineNum">     847 </span><span class="lineCov">          2 :   cm = mrb_intern2(mrb, &quot;const_missing&quot;, 13);</span>
+<span class="lineNum">     848 </span><span class="lineCov">          7 :   while (c) {</span>
+<span class="lineNum">     849 </span><span class="lineCov">          4 :     if (mrb_respond_to(mrb, mrb_obj_value(c), cm)) {</span>
+<span class="lineNum">     850 </span><span class="lineCov">          1 :       mrb_value name = mrb_symbol_value(sym);</span>
+<span class="lineNum">     851 </span><span class="lineCov">          1 :       return mrb_funcall_argv(mrb, mrb_obj_value(c), cm, 1, &amp;name);</span>
+<span class="lineNum">     852 </span>            :     }
+<span class="lineNum">     853 </span><span class="lineCov">          3 :     c = c-&gt;super;</span>
+<span class="lineNum">     854 </span>            :   }
+<span class="lineNum">     855 </span><span class="lineCov">          1 :   mrb_name_error(mrb, sym, &quot;uninitialized constant %S&quot;,</span>
+<span class="lineNum">     856 </span>            :              mrb_sym2str(mrb, sym));
+<span class="lineNum">     857 </span>            :   /* not reached */
+<span class="lineNum">     858 </span><span class="lineNoCov">          0 :   return mrb_nil_value();</span>
+<span class="lineNum">     859 </span>            : }
+<span class="lineNum">     860 </span>            : 
+<a name="861"><span class="lineNum">     861 </span>            : mrb_value</a>
+<span class="lineNum">     862 </span>            : mrb_const_get(mrb_state *mrb, mrb_value mod, mrb_sym sym)
+<span class="lineNum">     863 </span><span class="lineCov">       1103 : {</span>
+<span class="lineNum">     864 </span><span class="lineCov">       1103 :   mod_const_check(mrb, mod);</span>
+<span class="lineNum">     865 </span><span class="lineCov">       1103 :   return const_get(mrb, mrb_class_ptr(mod), sym);</span>
+<span class="lineNum">     866 </span>            : }
+<span class="lineNum">     867 </span>            : 
+<a name="868"><span class="lineNum">     868 </span>            : mrb_value</a>
+<span class="lineNum">     869 </span>            : mrb_vm_const_get(mrb_state *mrb, mrb_sym sym)
+<span class="lineNum">     870 </span><span class="lineCov">     132257 : {</span>
+<span class="lineNum">     871 </span><span class="lineCov">     132257 :   struct RClass *c = mrb-&gt;ci-&gt;proc-&gt;target_class;</span>
+<span class="lineNum">     872 </span>            : 
+<span class="lineNum">     873 </span><span class="lineCov">     132257 :   if (!c) c = mrb-&gt;ci-&gt;target_class;</span>
+<span class="lineNum">     874 </span><span class="lineCov">     132257 :   if (c) {</span>
+<span class="lineNum">     875 </span><span class="lineCov">     132257 :     struct RClass *c2 = c;</span>
+<span class="lineNum">     876 </span>            :     mrb_value v;
+<span class="lineNum">     877 </span>            : 
+<span class="lineNum">     878 </span><span class="lineCov">     132257 :     if (c-&gt;iv &amp;&amp; iv_get(mrb, c-&gt;iv, sym, &amp;v)) {</span>
+<span class="lineNum">     879 </span><span class="lineCov">     132035 :       return v;</span>
+<span class="lineNum">     880 </span>            :     }
+<span class="lineNum">     881 </span><span class="lineCov">        222 :     c2 = c;</span>
+<span class="lineNum">     882 </span>            :     for (;;) {
+<span class="lineNum">     883 </span><span class="lineCov">        222 :       c2 = mrb_class_outer_module(mrb, c2);</span>
+<span class="lineNum">     884 </span><span class="lineCov">        222 :       if (!c2) break;</span>
+<span class="lineNum">     885 </span><span class="lineCov">         22 :       if (c2-&gt;iv &amp;&amp; iv_get(mrb, c2-&gt;iv, sym, &amp;v)) {</span>
+<span class="lineNum">     886 </span><span class="lineCov">         22 :         return v;</span>
+<span class="lineNum">     887 </span>            :       }
+<span class="lineNum">     888 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     889 </span>            :   }
+<span class="lineNum">     890 </span><span class="lineCov">        200 :   return const_get(mrb, c, sym);</span>
+<span class="lineNum">     891 </span>            : }
+<span class="lineNum">     892 </span>            : 
+<a name="893"><span class="lineNum">     893 </span>            : void</a>
+<span class="lineNum">     894 </span>            : mrb_const_set(mrb_state *mrb, mrb_value mod, mrb_sym sym, mrb_value v)
+<span class="lineNum">     895 </span><span class="lineCov">        270 : {</span>
+<span class="lineNum">     896 </span><span class="lineCov">        270 :   mod_const_check(mrb, mod);</span>
+<span class="lineNum">     897 </span><span class="lineCov">        270 :   mrb_iv_set(mrb, mod, sym, v);</span>
+<span class="lineNum">     898 </span><span class="lineCov">        270 : }</span>
+<span class="lineNum">     899 </span>            : 
+<a name="900"><span class="lineNum">     900 </span>            :  void</a>
+<span class="lineNum">     901 </span>            : mrb_vm_const_set(mrb_state *mrb, mrb_sym sym, mrb_value v)
+<span class="lineNum">     902 </span><span class="lineCov">         12 : {</span>
+<span class="lineNum">     903 </span><span class="lineCov">         12 :   struct RClass *c = mrb-&gt;ci-&gt;proc-&gt;target_class;</span>
+<span class="lineNum">     904 </span>            : 
+<span class="lineNum">     905 </span><span class="lineCov">         12 :   if (!c) c = mrb-&gt;ci-&gt;target_class;</span>
+<span class="lineNum">     906 </span><span class="lineCov">         12 :   mrb_obj_iv_set(mrb, (struct RObject*)c, sym, v);</span>
+<span class="lineNum">     907 </span><span class="lineCov">         12 : }</span>
+<span class="lineNum">     908 </span>            : 
+<a name="909"><span class="lineNum">     909 </span>            : void</a>
+<span class="lineNum">     910 </span>            : mrb_const_remove(mrb_state *mrb, mrb_value mod, mrb_sym sym)
+<span class="lineNum">     911 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     912 </span><span class="lineNoCov">          0 :   mod_const_check(mrb, mod);</span>
+<span class="lineNum">     913 </span><span class="lineNoCov">          0 :   mrb_iv_remove(mrb, mod, sym);</span>
+<span class="lineNum">     914 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     915 </span>            : 
+<a name="916"><span class="lineNum">     916 </span>            : void</a>
+<span class="lineNum">     917 </span>            : mrb_define_const(mrb_state *mrb, struct RClass *mod, const char *name, mrb_value v)
+<span class="lineNum">     918 </span><span class="lineCov">        307 : {</span>
+<span class="lineNum">     919 </span><span class="lineCov">        307 :   mrb_obj_iv_set(mrb, (struct RObject*)mod, mrb_intern(mrb, name), v);</span>
+<span class="lineNum">     920 </span><span class="lineCov">        307 : }</span>
+<span class="lineNum">     921 </span>            : 
+<a name="922"><span class="lineNum">     922 </span>            : void</a>
+<span class="lineNum">     923 </span>            : mrb_define_global_const(mrb_state *mrb, const char *name, mrb_value val)
+<span class="lineNum">     924 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     925 </span><span class="lineNoCov">          0 :   mrb_define_const(mrb, mrb-&gt;object_class, name, val);</span>
+<span class="lineNum">     926 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     927 </span>            : 
+<a name="928"><span class="lineNum">     928 </span>            : static int</a>
+<span class="lineNum">     929 </span>            : const_i(mrb_state *mrb, mrb_sym sym, mrb_value v, void *p)
+<span class="lineNum">     930 </span><span class="lineCov">          9 : {</span>
+<span class="lineNum">     931 </span>            :   mrb_value ary;
+<span class="lineNum">     932 </span>            :   const char* s;
+<span class="lineNum">     933 </span>            :   size_t len;
+<span class="lineNum">     934 </span>            : 
+<span class="lineNum">     935 </span><span class="lineCov">          9 :   ary = *(mrb_value*)p;</span>
+<span class="lineNum">     936 </span><span class="lineCov">          9 :   s = mrb_sym2name_len(mrb, sym, &amp;len);</span>
+<span class="lineNum">     937 </span><span class="lineCov">          9 :   if (len &gt; 1 &amp;&amp; ISUPPER(s[0])) {</span>
+<span class="lineNum">     938 </span><span class="lineCov">          3 :     mrb_ary_push(mrb, ary, mrb_symbol_value(sym));</span>
+<span class="lineNum">     939 </span>            :   }
+<span class="lineNum">     940 </span><span class="lineCov">          9 :   return 0;</span>
+<span class="lineNum">     941 </span>            : }
+<span class="lineNum">     942 </span>            : 
+<span class="lineNum">     943 </span>            : /* 15.2.2.4.24 */
+<span class="lineNum">     944 </span>            : /*
+<span class="lineNum">     945 </span>            :  *  call-seq:
+<span class="lineNum">     946 </span>            :  *     mod.constants    -&gt; array
+<span class="lineNum">     947 </span>            :  *
+<span class="lineNum">     948 </span>            :  *  Returns an array of all names of contants defined in the receiver.
+<span class="lineNum">     949 </span>            :  */
+<a name="950"><span class="lineNum">     950 </span>            : mrb_value</a>
+<span class="lineNum">     951 </span>            : mrb_mod_constants(mrb_state *mrb, mrb_value mod)
+<span class="lineNum">     952 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     953 </span>            :   mrb_value ary;
+<span class="lineNum">     954 </span><span class="lineCov">          2 :   struct RClass *c = mrb_class_ptr(mod);</span>
+<span class="lineNum">     955 </span>            : 
+<span class="lineNum">     956 </span><span class="lineCov">          2 :   ary = mrb_ary_new(mrb);</span>
+<span class="lineNum">     957 </span><span class="lineCov">          6 :   while (c) {</span>
+<span class="lineNum">     958 </span><span class="lineCov">          3 :     if (c-&gt;iv) {</span>
+<span class="lineNum">     959 </span><span class="lineCov">          3 :       iv_foreach(mrb, c-&gt;iv, const_i, &amp;ary);</span>
+<span class="lineNum">     960 </span>            :     }
+<span class="lineNum">     961 </span><span class="lineCov">          3 :     c = c-&gt;super;</span>
+<span class="lineNum">     962 </span><span class="lineCov">          3 :     if (c == mrb-&gt;object_class) break;</span>
+<span class="lineNum">     963 </span>            :   }
+<span class="lineNum">     964 </span><span class="lineCov">          2 :   return ary;</span>
+<span class="lineNum">     965 </span>            : }
+<span class="lineNum">     966 </span>            : 
+<a name="967"><span class="lineNum">     967 </span>            : mrb_value</a>
+<span class="lineNum">     968 </span>            : mrb_gv_get(mrb_state *mrb, mrb_sym sym)
+<span class="lineNum">     969 </span><span class="lineCov">     264699 : {</span>
+<span class="lineNum">     970 </span>            :   mrb_value v;
+<span class="lineNum">     971 </span>            : 
+<span class="lineNum">     972 </span><span class="lineCov">     264699 :   if (!mrb-&gt;globals) {</span>
+<span class="lineNum">     973 </span><span class="lineNoCov">          0 :     return mrb_nil_value();</span>
+<span class="lineNum">     974 </span>            :   }
+<span class="lineNum">     975 </span><span class="lineCov">     264699 :   if (iv_get(mrb, mrb-&gt;globals, sym, &amp;v))</span>
+<span class="lineNum">     976 </span><span class="lineCov">     263476 :     return v;</span>
+<span class="lineNum">     977 </span><span class="lineCov">       1223 :   return mrb_nil_value();</span>
+<span class="lineNum">     978 </span>            : }
+<span class="lineNum">     979 </span>            : 
+<a name="980"><span class="lineNum">     980 </span>            : void</a>
+<span class="lineNum">     981 </span>            : mrb_gv_set(mrb_state *mrb, mrb_sym sym, mrb_value v)
+<span class="lineNum">     982 </span><span class="lineCov">     133610 : {</span>
+<span class="lineNum">     983 </span>            :   iv_tbl *t;
+<span class="lineNum">     984 </span>            : 
+<span class="lineNum">     985 </span><span class="lineCov">     133610 :   if (!mrb-&gt;globals) {</span>
+<span class="lineNum">     986 </span><span class="lineCov">         14 :     t = mrb-&gt;globals = iv_new(mrb);</span>
+<span class="lineNum">     987 </span>            :   }
+<span class="lineNum">     988 </span>            :   else {
+<span class="lineNum">     989 </span><span class="lineCov">     133596 :     t = mrb-&gt;globals;</span>
+<span class="lineNum">     990 </span>            :   }
+<span class="lineNum">     991 </span><span class="lineCov">     133610 :   iv_put(mrb, t, sym, v);</span>
+<span class="lineNum">     992 </span><span class="lineCov">     133610 : }</span>
+<span class="lineNum">     993 </span>            : 
+<a name="994"><span class="lineNum">     994 </span>            : static int</a>
+<span class="lineNum">     995 </span>            : gv_i(mrb_state *mrb, mrb_sym sym, mrb_value v, void *p)
+<span class="lineNum">     996 </span><span class="lineCov">         20 : {</span>
+<span class="lineNum">     997 </span>            :   mrb_value ary;
+<span class="lineNum">     998 </span>            : 
+<span class="lineNum">     999 </span><span class="lineCov">         20 :   ary = *(mrb_value*)p;</span>
+<span class="lineNum">    1000 </span><span class="lineCov">         20 :   mrb_ary_push(mrb, ary, mrb_symbol_value(sym));</span>
+<span class="lineNum">    1001 </span><span class="lineCov">         20 :   return 0;</span>
+<span class="lineNum">    1002 </span>            : }
+<span class="lineNum">    1003 </span>            : 
+<span class="lineNum">    1004 </span>            : /* 15.3.1.2.4  */
+<span class="lineNum">    1005 </span>            : /* 15.3.1.3.14 */
+<span class="lineNum">    1006 </span>            : /*
+<span class="lineNum">    1007 </span>            :  *  call-seq:
+<span class="lineNum">    1008 </span>            :  *     global_variables    -&gt; array
+<span class="lineNum">    1009 </span>            :  *
+<span class="lineNum">    1010 </span>            :  *  Returns an array of the names of global variables.
+<span class="lineNum">    1011 </span>            :  *
+<span class="lineNum">    1012 </span>            :  *     global_variables.grep /std/   #=&gt; [:$stdin, :$stdout, :$stderr]
+<span class="lineNum">    1013 </span>            :  */
+<a name="1014"><span class="lineNum">    1014 </span>            : mrb_value</a>
+<span class="lineNum">    1015 </span>            : mrb_f_global_variables(mrb_state *mrb, mrb_value self)
+<span class="lineNum">    1016 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">    1017 </span><span class="lineCov">          2 :   iv_tbl *t = mrb-&gt;globals;</span>
+<span class="lineNum">    1018 </span><span class="lineCov">          2 :   mrb_value ary = mrb_ary_new(mrb);</span>
+<span class="lineNum">    1019 </span>            :   size_t i;
+<span class="lineNum">    1020 </span>            :   char buf[3];
+<span class="lineNum">    1021 </span>            : 
+<span class="lineNum">    1022 </span><span class="lineCov">          2 :   if (t) {</span>
+<span class="lineNum">    1023 </span><span class="lineCov">          2 :     iv_foreach(mrb, t, gv_i, &amp;ary);</span>
+<span class="lineNum">    1024 </span>            :   }
+<span class="lineNum">    1025 </span><span class="lineCov">          2 :   buf[0] = '$';</span>
+<span class="lineNum">    1026 </span><span class="lineCov">          2 :   buf[2] = 0;</span>
+<span class="lineNum">    1027 </span><span class="lineCov">         20 :   for (i = 1; i &lt;= 9; ++i) {</span>
+<span class="lineNum">    1028 </span><span class="lineCov">         18 :     buf[1] = (char)(i + '0');</span>
+<span class="lineNum">    1029 </span><span class="lineCov">         18 :     mrb_ary_push(mrb, ary, mrb_symbol_value(mrb_intern2(mrb, buf, 2)));</span>
+<span class="lineNum">    1030 </span>            :   }
+<span class="lineNum">    1031 </span><span class="lineCov">          2 :   return ary;</span>
+<span class="lineNum">    1032 </span>            : }
+<span class="lineNum">    1033 </span>            : 
+<a name="1034"><span class="lineNum">    1034 </span>            : static mrb_bool</a>
+<span class="lineNum">    1035 </span>            : mrb_const_defined_0(mrb_state *mrb, struct RClass *klass, mrb_sym id, mrb_bool exclude, mrb_bool recurse)
+<span class="lineNum">    1036 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">    1037 </span>            :   struct RClass * tmp;
+<span class="lineNum">    1038 </span><span class="lineNoCov">          0 :   mrb_bool mod_retry = 0;</span>
+<span class="lineNum">    1039 </span>            : 
+<span class="lineNum">    1040 </span><span class="lineNoCov">          0 :   tmp = klass;</span>
+<span class="lineNum">    1041 </span><span class="lineNoCov">          0 : retry:</span>
+<span class="lineNum">    1042 </span><span class="lineNoCov">          0 :   while (tmp) {</span>
+<span class="lineNum">    1043 </span><span class="lineNoCov">          0 :     if (tmp-&gt;iv &amp;&amp; iv_get(mrb, tmp-&gt;iv, id, NULL)) {</span>
+<span class="lineNum">    1044 </span><span class="lineNoCov">          0 :       return TRUE;</span>
+<span class="lineNum">    1045 </span>            :     }
+<span class="lineNum">    1046 </span><span class="lineNoCov">          0 :     if (!recurse &amp;&amp; (klass != mrb-&gt;object_class)) break;</span>
+<span class="lineNum">    1047 </span><span class="lineNoCov">          0 :     tmp = tmp-&gt;super;</span>
+<span class="lineNum">    1048 </span>            :   }
+<span class="lineNum">    1049 </span><span class="lineNoCov">          0 :   if (!exclude &amp;&amp; !mod_retry &amp;&amp; (klass-&gt;tt == MRB_TT_MODULE)) {</span>
+<span class="lineNum">    1050 </span><span class="lineNoCov">          0 :     mod_retry = 1;</span>
+<span class="lineNum">    1051 </span><span class="lineNoCov">          0 :     tmp = mrb-&gt;object_class;</span>
+<span class="lineNum">    1052 </span><span class="lineNoCov">          0 :     goto retry;</span>
+<span class="lineNum">    1053 </span>            :   }
+<span class="lineNum">    1054 </span><span class="lineNoCov">          0 :   return FALSE;</span>
+<span class="lineNum">    1055 </span>            : }
+<span class="lineNum">    1056 </span>            : 
+<a name="1057"><span class="lineNum">    1057 </span>            : int</a>
+<span class="lineNum">    1058 </span>            : mrb_const_defined_at(mrb_state *mrb, struct RClass *klass, mrb_sym id)
+<span class="lineNum">    1059 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">    1060 </span><span class="lineNoCov">          0 :   return mrb_const_defined_0(mrb, klass, id, TRUE, FALSE);</span>
+<span class="lineNum">    1061 </span>            : }
+<span class="lineNum">    1062 </span>            : 
+<a name="1063"><span class="lineNum">    1063 </span>            : mrb_value</a>
+<span class="lineNum">    1064 </span>            : mrb_attr_get(mrb_state *mrb, mrb_value obj, mrb_sym id)
+<span class="lineNum">    1065 </span><span class="lineCov">         12 : {</span>
+<span class="lineNum">    1066 </span><span class="lineCov">         12 :   return mrb_iv_get(mrb, obj, id);</span>
+<span class="lineNum">    1067 </span>            : }
+<span class="lineNum">    1068 </span>            : 
+<span class="lineNum">    1069 </span>            : struct csym_arg {
+<span class="lineNum">    1070 </span>            :   struct RClass *c;
+<span class="lineNum">    1071 </span>            :   mrb_sym sym;
+<span class="lineNum">    1072 </span>            : };
+<span class="lineNum">    1073 </span>            : 
+<a name="1074"><span class="lineNum">    1074 </span>            : static int</a>
+<span class="lineNum">    1075 </span>            : csym_i(mrb_state *mrb, mrb_sym sym, mrb_value v, void *p)
+<span class="lineNum">    1076 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">    1077 </span><span class="lineNoCov">          0 :   struct csym_arg *a = (struct csym_arg*)p;</span>
+<span class="lineNum">    1078 </span><span class="lineNoCov">          0 :   struct RClass *c = a-&gt;c;</span>
+<span class="lineNum">    1079 </span>            : 
+<span class="lineNum">    1080 </span><span class="lineNoCov">          0 :   if (mrb_type(v) == c-&gt;tt &amp;&amp; mrb_class_ptr(v) == c) {</span>
+<span class="lineNum">    1081 </span><span class="lineNoCov">          0 :     a-&gt;sym = sym;</span>
+<span class="lineNum">    1082 </span><span class="lineNoCov">          0 :     return 1;     /* stop iteration */</span>
+<span class="lineNum">    1083 </span>            :   }
+<span class="lineNum">    1084 </span><span class="lineNoCov">          0 :   return 0;</span>
+<span class="lineNum">    1085 </span>            : }
+<span class="lineNum">    1086 </span>            : 
+<a name="1087"><span class="lineNum">    1087 </span>            : mrb_sym</a>
+<span class="lineNum">    1088 </span>            : mrb_class_sym(mrb_state *mrb, struct RClass *c, struct RClass *outer)
+<span class="lineNum">    1089 </span><span class="lineCov">         23 : {</span>
+<span class="lineNum">    1090 </span>            :   mrb_value name;
+<span class="lineNum">    1091 </span>            : 
+<span class="lineNum">    1092 </span><span class="lineCov">         23 :   name = mrb_obj_iv_get(mrb, (struct RObject*)c, mrb_intern2(mrb, &quot;__classid__&quot;, 11));</span>
+<span class="lineNum">    1093 </span><span class="lineCov">         23 :   if (mrb_nil_p(name)) {</span>
+<span class="lineNum">    1094 </span>            : 
+<span class="lineNum">    1095 </span><span class="lineCov">         11 :     if (!outer) return 0;</span>
+<span class="lineNum">    1096 </span>            :     else {
+<span class="lineNum">    1097 </span>            :       struct csym_arg arg;
+<span class="lineNum">    1098 </span>            : 
+<span class="lineNum">    1099 </span><span class="lineNoCov">          0 :       arg.c = c;</span>
+<span class="lineNum">    1100 </span><span class="lineNoCov">          0 :       arg.sym = 0;</span>
+<span class="lineNum">    1101 </span><span class="lineNoCov">          0 :       iv_foreach(mrb, outer-&gt;iv, csym_i, &amp;arg);</span>
+<span class="lineNum">    1102 </span><span class="lineNoCov">          0 :       return arg.sym;</span>
+<span class="lineNum">    1103 </span>            :     }
+<span class="lineNum">    1104 </span>            :   }
+<span class="lineNum">    1105 </span><span class="lineCov">         12 :   return mrb_symbol(name);</span>
+<span class="lineNum">    1106 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

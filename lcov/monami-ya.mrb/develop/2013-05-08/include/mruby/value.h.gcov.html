@@ -1,0 +1,365 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - include/mruby/value.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">include/mruby</a> - value.h<span style="font-size: 80%;"> (source / <a href="value.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** mruby/value.h - mrb_value definition
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #ifndef MRUBY_VALUE_H
+<span class="lineNum">       8 </span>            : #define MRUBY_VALUE_H
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : typedef uint8_t mrb_bool;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #ifndef MRB_NAN_BOXING
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : enum mrb_vtype {
+<span class="lineNum">      17 </span>            :   MRB_TT_FALSE = 0,   /*   0 */
+<span class="lineNum">      18 </span>            :   MRB_TT_FREE,        /*   1 */
+<span class="lineNum">      19 </span>            :   MRB_TT_TRUE,        /*   2 */
+<span class="lineNum">      20 </span>            :   MRB_TT_FIXNUM,      /*   3 */
+<span class="lineNum">      21 </span>            :   MRB_TT_SYMBOL,      /*   4 */
+<span class="lineNum">      22 </span>            :   MRB_TT_UNDEF,       /*   5 */
+<span class="lineNum">      23 </span>            :   MRB_TT_FLOAT,       /*   6 */
+<span class="lineNum">      24 </span>            :   MRB_TT_VOIDP,       /*   7 */
+<span class="lineNum">      25 </span>            :   MRB_TT_OBJECT,      /*   8 */
+<span class="lineNum">      26 </span>            :   MRB_TT_CLASS,       /*   9 */
+<span class="lineNum">      27 </span>            :   MRB_TT_MODULE,      /*  10 */
+<span class="lineNum">      28 </span>            :   MRB_TT_ICLASS,      /*  11 */
+<span class="lineNum">      29 </span>            :   MRB_TT_SCLASS,      /*  12 */
+<span class="lineNum">      30 </span>            :   MRB_TT_PROC,        /*  13 */
+<span class="lineNum">      31 </span>            :   MRB_TT_ARRAY,       /*  14 */
+<span class="lineNum">      32 </span>            :   MRB_TT_HASH,        /*  15 */
+<span class="lineNum">      33 </span>            :   MRB_TT_STRING,      /*  16 */
+<span class="lineNum">      34 </span>            :   MRB_TT_RANGE,       /*  17 */
+<span class="lineNum">      35 </span>            :   MRB_TT_EXCEPTION,   /*  18 */
+<span class="lineNum">      36 </span>            :   MRB_TT_FILE,        /*  19 */
+<span class="lineNum">      37 </span>            :   MRB_TT_ENV,         /*  20 */
+<span class="lineNum">      38 </span>            :   MRB_TT_DATA,        /*  21 */
+<span class="lineNum">      39 </span>            :   MRB_TT_MAXDEFINE    /*  22 */
+<span class="lineNum">      40 </span>            : };
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : typedef struct mrb_value {
+<span class="lineNum">      43 </span>            :   union {
+<span class="lineNum">      44 </span>            :     mrb_float f;
+<span class="lineNum">      45 </span>            :     void *p;
+<span class="lineNum">      46 </span>            :     mrb_int i;
+<span class="lineNum">      47 </span>            :     mrb_sym sym;
+<span class="lineNum">      48 </span>            :   } value;
+<span class="lineNum">      49 </span>            :   enum mrb_vtype tt;
+<span class="lineNum">      50 </span>            : } mrb_value;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : #define mrb_type(o)   (o).tt
+<span class="lineNum">      53 </span>            : #define mrb_float(o)  (o).value.f
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : #define MRB_SET_VALUE(o, ttt, attr, v) do {\
+<span class="lineNum">      56 </span>            :   (o).tt = ttt;\
+<span class="lineNum">      57 </span>            :   (o).attr = v;\
+<span class="lineNum">      58 </span>            : } while (0)
+<span class="lineNum">      59 </span>            : 
+<a name="60"><span class="lineNum">      60 </span>            : static inline mrb_value</a>
+<span class="lineNum">      61 </span>            : mrb_float_value(mrb_float f)
+<span class="lineNum">      62 </span><span class="lineCov">        591 : {</span>
+<span class="lineNum">      63 </span>            :   mrb_value v;
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span><span class="lineCov">        591 :   MRB_SET_VALUE(v, MRB_TT_FLOAT, value.f, f);</span>
+<span class="lineNum">      66 </span><span class="lineCov">        591 :   return v;</span>
+<span class="lineNum">      67 </span>            : }
+<span class="lineNum">      68 </span>            : #else  /* MRB_NAN_BOXING */
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : #ifdef MRB_USE_FLOAT
+<span class="lineNum">      71 </span>            : # error ----&gt;&gt; MRB_NAN_BOXING and MRB_USE_FLOAT conflict &lt;&lt;----
+<span class="lineNum">      72 </span>            : #endif
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : enum mrb_vtype {
+<span class="lineNum">      75 </span>            :   MRB_TT_FALSE = 1,   /*   1 */
+<span class="lineNum">      76 </span>            :   MRB_TT_FREE,        /*   2 */
+<span class="lineNum">      77 </span>            :   MRB_TT_TRUE,        /*   3 */
+<span class="lineNum">      78 </span>            :   MRB_TT_FIXNUM,      /*   4 */
+<span class="lineNum">      79 </span>            :   MRB_TT_SYMBOL,      /*   5 */
+<span class="lineNum">      80 </span>            :   MRB_TT_UNDEF,       /*   6 */
+<span class="lineNum">      81 </span>            :   MRB_TT_FLOAT,       /*   7 */
+<span class="lineNum">      82 </span>            :   MRB_TT_VOIDP,       /*   8 */
+<span class="lineNum">      83 </span>            :   MRB_TT_OBJECT,      /*   9 */
+<span class="lineNum">      84 </span>            :   MRB_TT_CLASS,       /*  10 */
+<span class="lineNum">      85 </span>            :   MRB_TT_MODULE,      /*  11 */
+<span class="lineNum">      86 </span>            :   MRB_TT_ICLASS,      /*  12 */
+<span class="lineNum">      87 </span>            :   MRB_TT_SCLASS,      /*  13 */
+<span class="lineNum">      88 </span>            :   MRB_TT_PROC,        /*  14 */
+<span class="lineNum">      89 </span>            :   MRB_TT_ARRAY,       /*  15 */
+<span class="lineNum">      90 </span>            :   MRB_TT_HASH,        /*  16 */
+<span class="lineNum">      91 </span>            :   MRB_TT_STRING,      /*  17 */
+<span class="lineNum">      92 </span>            :   MRB_TT_RANGE,       /*  18 */
+<span class="lineNum">      93 </span>            :   MRB_TT_EXCEPTION,   /*  19 */
+<span class="lineNum">      94 </span>            :   MRB_TT_FILE,        /*  20 */
+<span class="lineNum">      95 </span>            :   MRB_TT_ENV,         /*  21 */
+<span class="lineNum">      96 </span>            :   MRB_TT_DATA,        /*  22 */
+<span class="lineNum">      97 </span>            :   MRB_TT_MAXDEFINE    /*  23 */
+<span class="lineNum">      98 </span>            : };
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            : #ifdef MRB_ENDIAN_BIG
+<span class="lineNum">     101 </span>            : #define MRB_ENDIAN_LOHI(a,b) a b
+<span class="lineNum">     102 </span>            : #else
+<span class="lineNum">     103 </span>            : #define MRB_ENDIAN_LOHI(a,b) b a
+<span class="lineNum">     104 </span>            : #endif
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span>            : typedef struct mrb_value {
+<span class="lineNum">     107 </span>            :   union {
+<span class="lineNum">     108 </span>            :     mrb_float f;
+<span class="lineNum">     109 </span>            :     struct {
+<span class="lineNum">     110 </span>            :       MRB_ENDIAN_LOHI(
+<span class="lineNum">     111 </span>            :         uint32_t ttt;
+<span class="lineNum">     112 </span>            :         ,union {
+<span class="lineNum">     113 </span>            :           void *p;
+<span class="lineNum">     114 </span>            :           mrb_int i;
+<span class="lineNum">     115 </span>            :           mrb_sym sym;
+<span class="lineNum">     116 </span>            :         } value;
+<span class="lineNum">     117 </span>            :        )
+<span class="lineNum">     118 </span>            :     };
+<span class="lineNum">     119 </span>            :   };
+<span class="lineNum">     120 </span>            : } mrb_value;
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : #define mrb_tt(o)     ((o).ttt &amp; 0xff)
+<span class="lineNum">     123 </span>            : #define mrb_mktt(tt)  (0xfff00000|(tt))
+<span class="lineNum">     124 </span>            : #define mrb_type(o)   ((uint32_t)0xfff00000 &lt; (o).ttt ? mrb_tt(o) : MRB_TT_FLOAT)
+<span class="lineNum">     125 </span>            : #define mrb_float(o)  (o).f
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            : #define MRB_SET_VALUE(o, tt, attr, v) do {\
+<span class="lineNum">     128 </span>            :   (o).ttt = mrb_mktt(tt);\
+<span class="lineNum">     129 </span>            :   (o).attr = v;\
+<span class="lineNum">     130 </span>            : } while (0)
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : static inline mrb_value
+<span class="lineNum">     133 </span>            : mrb_float_value(mrb_float f)
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span>            :   mrb_value v;
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :   if (f != f) {
+<span class="lineNum">     138 </span>            :     v.ttt = 0x7ff80000;
+<span class="lineNum">     139 </span>            :     v.value.i = 0;
+<span class="lineNum">     140 </span>            :   } else {
+<span class="lineNum">     141 </span>            :     v.f = f;
+<span class="lineNum">     142 </span>            :   }
+<span class="lineNum">     143 </span>            :   return v;
+<span class="lineNum">     144 </span>            : }
+<span class="lineNum">     145 </span>            : #endif  /* MRB_NAN_BOXING */
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            : #define mrb_fixnum(o) (o).value.i
+<span class="lineNum">     148 </span>            : #define mrb_symbol(o) (o).value.sym
+<span class="lineNum">     149 </span>            : #define mrb_voidp(o) (o).value.p
+<span class="lineNum">     150 </span>            : #define mrb_fixnum_p(o) (mrb_type(o) == MRB_TT_FIXNUM)
+<span class="lineNum">     151 </span>            : #define mrb_float_p(o) (mrb_type(o) == MRB_TT_FLOAT)
+<span class="lineNum">     152 </span>            : #define mrb_undef_p(o) (mrb_type(o) == MRB_TT_UNDEF)
+<span class="lineNum">     153 </span>            : #define mrb_nil_p(o)  (mrb_type(o) == MRB_TT_FALSE &amp;&amp; !(o).value.i)
+<span class="lineNum">     154 </span>            : #define mrb_symbol_p(o) (mrb_type(o) == MRB_TT_SYMBOL)
+<span class="lineNum">     155 </span>            : #define mrb_array_p(o) (mrb_type(o) == MRB_TT_ARRAY)
+<span class="lineNum">     156 </span>            : #define mrb_string_p(o) (mrb_type(o) == MRB_TT_STRING)
+<span class="lineNum">     157 </span>            : #define mrb_hash_p(o) (mrb_type(o) == MRB_TT_HASH)
+<span class="lineNum">     158 </span>            : #define mrb_voidp_p(o) (mrb_type(o) == MRB_TT_VOIDP)
+<span class="lineNum">     159 </span>            : #define mrb_bool(o)   (mrb_type(o) != MRB_TT_FALSE)
+<span class="lineNum">     160 </span>            : #define mrb_test(o)   mrb_bool(o)
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : #define MRB_OBJECT_HEADER \
+<span class="lineNum">     163 </span>            :   enum mrb_vtype tt:8;\
+<span class="lineNum">     164 </span>            :   uint32_t color:3;\
+<span class="lineNum">     165 </span>            :   uint32_t flags:21;\
+<span class="lineNum">     166 </span>            :   struct RClass *c;\
+<span class="lineNum">     167 </span>            :   struct RBasic *gcnext
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : /* white: 011, black: 100, gray: 000 */
+<span class="lineNum">     170 </span>            : #define MRB_GC_GRAY 0
+<span class="lineNum">     171 </span>            : #define MRB_GC_WHITE_A 1
+<span class="lineNum">     172 </span>            : #define MRB_GC_WHITE_B (1 &lt;&lt; 1)
+<span class="lineNum">     173 </span>            : #define MRB_GC_BLACK (1 &lt;&lt; 2)
+<span class="lineNum">     174 </span>            : #define MRB_GC_WHITES (MRB_GC_WHITE_A | MRB_GC_WHITE_B)
+<span class="lineNum">     175 </span>            : #define MRB_GC_COLOR_MASK 7
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span>            : #define paint_gray(o) ((o)-&gt;color = MRB_GC_GRAY)
+<span class="lineNum">     178 </span>            : #define paint_black(o) ((o)-&gt;color = MRB_GC_BLACK)
+<span class="lineNum">     179 </span>            : #define paint_white(o) ((o)-&gt;color = MRB_GC_WHITES)
+<span class="lineNum">     180 </span>            : #define paint_partial_white(s, o) ((o)-&gt;color = (s)-&gt;current_white_part)
+<span class="lineNum">     181 </span>            : #define is_gray(o) ((o)-&gt;color == MRB_GC_GRAY)
+<span class="lineNum">     182 </span>            : #define is_white(o) ((o)-&gt;color &amp; MRB_GC_WHITES)
+<span class="lineNum">     183 </span>            : #define is_black(o) ((o)-&gt;color &amp; MRB_GC_BLACK)
+<span class="lineNum">     184 </span>            : #define is_dead(s, o) (((o)-&gt;color &amp; other_white_part(s) &amp; MRB_GC_WHITES) || (o)-&gt;tt == MRB_TT_FREE)
+<span class="lineNum">     185 </span>            : #define flip_white_part(s) ((s)-&gt;current_white_part = other_white_part(s))
+<span class="lineNum">     186 </span>            : #define other_white_part(s) ((s)-&gt;current_white_part ^ MRB_GC_WHITES)
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            : struct RBasic {
+<span class="lineNum">     189 </span>            :   MRB_OBJECT_HEADER;
+<span class="lineNum">     190 </span>            : };
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            : #define mrb_basic_ptr(v) ((struct RBasic*)((v).value.p))
+<span class="lineNum">     193 </span>            : /* obsolete macro mrb_basic; will be removed soon */
+<span class="lineNum">     194 </span>            : #define mrb_basic(v)     mrb_basic_ptr(v)
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            : struct RObject {
+<span class="lineNum">     197 </span>            :   MRB_OBJECT_HEADER;
+<span class="lineNum">     198 </span>            :   struct iv_tbl *iv;
+<span class="lineNum">     199 </span>            : };
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            : #define mrb_obj_ptr(v)   ((struct RObject*)((v).value.p))
+<span class="lineNum">     202 </span>            : /* obsolete macro mrb_object; will be removed soon */
+<span class="lineNum">     203 </span>            : #define mrb_object(o) mrb_obj_ptr(o)
+<span class="lineNum">     204 </span>            : #define mrb_immediate_p(x) (mrb_type(x) &lt;= MRB_TT_VOIDP)
+<span class="lineNum">     205 </span>            : #define mrb_special_const_p(x) mrb_immediate_p(x)
+<span class="lineNum">     206 </span>            : 
+<a name="207"><span class="lineNum">     207 </span>            : static inline mrb_value</a>
+<span class="lineNum">     208 </span>            : mrb_fixnum_value(mrb_int i)
+<span class="lineNum">     209 </span><span class="lineCov">       8425 : {</span>
+<span class="lineNum">     210 </span>            :   mrb_value v;
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">       8425 :   MRB_SET_VALUE(v, MRB_TT_FIXNUM, value.i, i);</span>
+<span class="lineNum">     213 </span><span class="lineCov">       8425 :   return v;</span>
+<span class="lineNum">     214 </span>            : }
+<span class="lineNum">     215 </span>            : 
+<a name="216"><span class="lineNum">     216 </span>            : static inline mrb_value</a>
+<span class="lineNum">     217 </span>            : mrb_symbol_value(mrb_sym i)
+<span class="lineNum">     218 </span><span class="lineCov">       2991 : {</span>
+<span class="lineNum">     219 </span>            :   mrb_value v;
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineCov">       2991 :   MRB_SET_VALUE(v, MRB_TT_SYMBOL, value.sym, i);</span>
+<span class="lineNum">     222 </span><span class="lineCov">       2991 :   return v;</span>
+<span class="lineNum">     223 </span>            : }
+<span class="lineNum">     224 </span>            : 
+<a name="225"><span class="lineNum">     225 </span>            : static inline mrb_value</a>
+<span class="lineNum">     226 </span>            : mrb_obj_value(void *p)
+<span class="lineNum">     227 </span><span class="lineCov">      32632 : {</span>
+<span class="lineNum">     228 </span>            :   mrb_value v;
+<span class="lineNum">     229 </span><span class="lineCov">      32632 :   struct RBasic *b = (struct RBasic*)p;</span>
+<span class="lineNum">     230 </span>            : 
+<span class="lineNum">     231 </span><span class="lineCov">      32632 :   MRB_SET_VALUE(v, b-&gt;tt, value.p, p);</span>
+<span class="lineNum">     232 </span><span class="lineCov">      32632 :   return v;</span>
+<span class="lineNum">     233 </span>            : }
+<span class="lineNum">     234 </span>            : 
+<a name="235"><span class="lineNum">     235 </span>            : static inline mrb_value</a>
+<span class="lineNum">     236 </span>            : mrb_voidp_value(void *p)
+<span class="lineNum">     237 </span><span class="lineCov">         76 : {</span>
+<span class="lineNum">     238 </span>            :   mrb_value v;
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span><span class="lineCov">         76 :   MRB_SET_VALUE(v, MRB_TT_VOIDP, value.p, p);</span>
+<span class="lineNum">     241 </span><span class="lineCov">         76 :   return v;</span>
+<span class="lineNum">     242 </span>            : }
+<span class="lineNum">     243 </span>            : 
+<a name="244"><span class="lineNum">     244 </span>            : static inline mrb_value</a>
+<span class="lineNum">     245 </span>            : mrb_false_value(void)
+<span class="lineNum">     246 </span><span class="lineCov">         60 : {</span>
+<span class="lineNum">     247 </span>            :   mrb_value v;
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span><span class="lineCov">         60 :   MRB_SET_VALUE(v, MRB_TT_FALSE, value.i, 1);</span>
+<span class="lineNum">     250 </span><span class="lineCov">         60 :   return v;</span>
+<span class="lineNum">     251 </span>            : }
+<span class="lineNum">     252 </span>            : 
+<a name="253"><span class="lineNum">     253 </span>            : static inline mrb_value</a>
+<span class="lineNum">     254 </span>            : mrb_nil_value(void)
+<span class="lineNum">     255 </span><span class="lineCov">       3765 : {</span>
+<span class="lineNum">     256 </span>            :   mrb_value v;
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineCov">       3765 :   MRB_SET_VALUE(v, MRB_TT_FALSE, value.i, 0);</span>
+<span class="lineNum">     259 </span><span class="lineCov">       3765 :   return v;</span>
+<span class="lineNum">     260 </span>            : }
+<span class="lineNum">     261 </span>            : 
+<a name="262"><span class="lineNum">     262 </span>            : static inline mrb_value</a>
+<span class="lineNum">     263 </span>            : mrb_true_value(void)
+<span class="lineNum">     264 </span><span class="lineCov">         45 : {</span>
+<span class="lineNum">     265 </span>            :   mrb_value v;
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineCov">         45 :   MRB_SET_VALUE(v, MRB_TT_TRUE, value.i, 1);</span>
+<span class="lineNum">     268 </span><span class="lineCov">         45 :   return v;</span>
+<span class="lineNum">     269 </span>            : }
+<span class="lineNum">     270 </span>            : 
+<a name="271"><span class="lineNum">     271 </span>            : static inline mrb_value</a>
+<span class="lineNum">     272 </span>            : mrb_undef_value(void)
+<span class="lineNum">     273 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     274 </span>            :   mrb_value v;
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span><span class="lineCov">          1 :   MRB_SET_VALUE(v, MRB_TT_UNDEF, value.i, 0);</span>
+<span class="lineNum">     277 </span><span class="lineCov">          1 :   return v;</span>
+<span class="lineNum">     278 </span>            : }
+<span class="lineNum">     279 </span>            : 
+<a name="280"><span class="lineNum">     280 </span>            : static inline mrb_value</a>
+<span class="lineNum">     281 </span>            : mrb_bool_value(mrb_bool boolean)
+<span class="lineNum">     282 </span><span class="lineCov">       2629 : {</span>
+<span class="lineNum">     283 </span>            :   mrb_value v;
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span><span class="lineCov">       2629 :   MRB_SET_VALUE(v, boolean ? MRB_TT_TRUE : MRB_TT_FALSE, value.i, 1);</span>
+<span class="lineNum">     286 </span><span class="lineCov">       2629 :   return v;</span>
+<span class="lineNum">     287 </span>            : }
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            : #endif  /* MRUBY_OBJECT_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

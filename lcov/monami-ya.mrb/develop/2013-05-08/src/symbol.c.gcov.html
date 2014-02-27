@@ -1,0 +1,549 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/symbol.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - symbol.c<span style="font-size: 80%;"> (source / <a href="symbol.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">117</td>
+            <td class="headerCovTableEntry">174</td>
+            <td class="headerCovTableEntryLo">67.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** symbol.c - Symbol class
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;ctype.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;limits.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      10 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      11 </span>            : #include &quot;mruby/khash.h&quot;
+<span class="lineNum">      12 </span>            : #include &quot;mruby/string.h&quot;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #ifdef MRB_ENABLE_ROMED
+<span class="lineNum">      15 </span>            : extern mrb_bool on_rodata_p(void *ptr);
+<span class="lineNum">      16 </span>            : #else
+<span class="lineNum">      17 </span>            : # define on_rodata_p(ptr) FALSE
+<span class="lineNum">      18 </span>            : #endif
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : /* ------------------------------------------------------ */
+<span class="lineNum">      21 </span>            : typedef struct symbol_name {
+<span class="lineNum">      22 </span>            :   size_t len;
+<span class="lineNum">      23 </span>            :   const char *name;
+<span class="lineNum">      24 </span>            : } symbol_name;
+<span class="lineNum">      25 </span>            : 
+<a name="26"><span class="lineNum">      26 </span>            : static inline khint_t</a>
+<span class="lineNum">      27 </span>            : sym_hash_func(mrb_state *mrb, const symbol_name s)
+<span class="lineNum">      28 </span><span class="lineCov">      94419 : {</span>
+<span class="lineNum">      29 </span><span class="lineCov">      94419 :   khint_t h = 0;</span>
+<span class="lineNum">      30 </span>            :   size_t i;
+<span class="lineNum">      31 </span><span class="lineCov">      94419 :   const char *p = s.name;</span>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">     751468 :   for (i=0; i&lt;s.len; i++) {</span>
+<span class="lineNum">      34 </span><span class="lineCov">     657049 :     h = (h &lt;&lt; 5) - h + *p++;</span>
+<span class="lineNum">      35 </span>            :   }
+<span class="lineNum">      36 </span><span class="lineCov">      94419 :   return h;</span>
+<span class="lineNum">      37 </span>            : }
+<span class="lineNum">      38 </span>            : #define sym_hash_equal(mrb,a, b) (a.len == b.len &amp;&amp; memcmp(a.name, b.name, a.len) == 0)
+<a name="39"><span class="lineNum">      39 </span>            : </a>
+<span class="lineNum">      40 </span>            : KHASH_DECLARE(n2s, symbol_name, mrb_sym, 1)
+<span class="lineNum">      41 </span><span class="lineCov">      95085 : KHASH_DEFINE (n2s, symbol_name, mrb_sym, 1, sym_hash_func, sym_hash_equal)</span>
+<span class="lineNum">      42 </span>            : /* ------------------------------------------------------ */
+<a name="43"><span class="lineNum">      43 </span>            : mrb_sym</a>
+<span class="lineNum">      44 </span>            : mrb_intern2(mrb_state *mrb, const char *name, size_t len)
+<span class="lineNum">      45 </span><span class="lineCov">      54103 : {</span>
+<span class="lineNum">      46 </span><span class="lineCov">      54103 :   khash_t(n2s) *h = mrb-&gt;name2sym;</span>
+<span class="lineNum">      47 </span>            :   symbol_name sname;
+<span class="lineNum">      48 </span>            :   khiter_t k;
+<span class="lineNum">      49 </span>            :   mrb_sym sym;
+<span class="lineNum">      50 </span>            :   char *p;
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">      54103 :   sname.len = len;</span>
+<span class="lineNum">      53 </span><span class="lineCov">      54103 :   sname.name = name;</span>
+<span class="lineNum">      54 </span><span class="lineCov">      54103 :   k = kh_get(n2s, h, sname);</span>
+<span class="lineNum">      55 </span><span class="lineCov">      54103 :   if (k != kh_end(h))</span>
+<span class="lineNum">      56 </span><span class="lineCov">      38631 :     return kh_value(h, k);</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineCov">      15472 :   sym = ++mrb-&gt;symidx;</span>
+<span class="lineNum">      59 </span>            :   if (on_rodata_p(name)) {
+<span class="lineNum">      60 </span>            :     sname.name = name;
+<span class="lineNum">      61 </span>            :   }
+<span class="lineNum">      62 </span>            :   else {
+<span class="lineNum">      63 </span><span class="lineCov">      15472 :     p = (char *)mrb_malloc(mrb, len+1);</span>
+<span class="lineNum">      64 </span><span class="lineCov">      15472 :     memcpy(p, name, len);</span>
+<span class="lineNum">      65 </span><span class="lineCov">      15472 :     p[len] = 0;</span>
+<span class="lineNum">      66 </span><span class="lineCov">      15472 :     sname.name = (const char*)p;</span>
+<span class="lineNum">      67 </span>            :   }
+<span class="lineNum">      68 </span><span class="lineCov">      15472 :   k = kh_put(n2s, h, sname);</span>
+<span class="lineNum">      69 </span><span class="lineCov">      15472 :   kh_value(h, k) = sym;</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineCov">      15472 :   return sym;</span>
+<span class="lineNum">      72 </span>            : }
+<span class="lineNum">      73 </span>            : 
+<a name="74"><span class="lineNum">      74 </span>            : mrb_sym</a>
+<span class="lineNum">      75 </span>            : mrb_intern_cstr(mrb_state *mrb, const char *name)
+<span class="lineNum">      76 </span><span class="lineCov">      34830 : {</span>
+<span class="lineNum">      77 </span><span class="lineCov">      34830 :   return mrb_intern2(mrb, name, strlen(name));</span>
+<span class="lineNum">      78 </span>            : }
+<span class="lineNum">      79 </span>            : 
+<a name="80"><span class="lineNum">      80 </span>            : mrb_sym</a>
+<span class="lineNum">      81 </span>            : mrb_intern_str(mrb_state *mrb, mrb_value str)
+<span class="lineNum">      82 </span><span class="lineCov">        116 : {</span>
+<span class="lineNum">      83 </span><span class="lineCov">        116 :   return mrb_intern2(mrb, RSTRING_PTR(str), RSTRING_LEN(str));</span>
+<span class="lineNum">      84 </span>            : }
+<span class="lineNum">      85 </span>            : 
+<a name="86"><span class="lineNum">      86 </span>            : mrb_value</a>
+<span class="lineNum">      87 </span>            : mrb_check_intern(mrb_state *mrb, const char *name, size_t len)
+<span class="lineNum">      88 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">      89 </span><span class="lineCov">          4 :   khash_t(n2s) *h = mrb-&gt;name2sym;</span>
+<span class="lineNum">      90 </span>            :   symbol_name sname;
+<span class="lineNum">      91 </span>            :   khiter_t k;
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">          4 :   sname.len = len;</span>
+<span class="lineNum">      94 </span><span class="lineCov">          4 :   sname.name = name;</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineCov">          4 :   k = kh_get(n2s, h, sname);</span>
+<span class="lineNum">      97 </span><span class="lineCov">          4 :   if (k != kh_end(h)) {</span>
+<span class="lineNum">      98 </span><span class="lineCov">          3 :     return mrb_symbol_value(kh_value(h, k));</span>
+<span class="lineNum">      99 </span>            :   }
+<span class="lineNum">     100 </span><span class="lineCov">          1 :   return mrb_nil_value();</span>
+<span class="lineNum">     101 </span>            : }
+<span class="lineNum">     102 </span>            : 
+<a name="103"><span class="lineNum">     103 </span>            : mrb_value</a>
+<span class="lineNum">     104 </span>            : mrb_check_intern_cstr(mrb_state *mrb, const char *name)
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :   return mrb_check_intern(mrb, name, strlen(name));</span>
+<span class="lineNum">     107 </span>            : }
+<span class="lineNum">     108 </span>            : 
+<a name="109"><span class="lineNum">     109 </span>            : mrb_value</a>
+<span class="lineNum">     110 </span>            : mrb_check_intern_str(mrb_state *mrb, mrb_value str)
+<span class="lineNum">     111 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     112 </span><span class="lineCov">          4 :   return mrb_check_intern(mrb, RSTRING_PTR(str), RSTRING_LEN(str));</span>
+<span class="lineNum">     113 </span>            : }
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span>            : /* lenp must be a pointer to a size_t variable */
+<a name="116"><span class="lineNum">     116 </span>            : const char*</a>
+<span class="lineNum">     117 </span>            : mrb_sym2name_len(mrb_state *mrb, mrb_sym sym, size_t *lenp)
+<span class="lineNum">     118 </span><span class="lineCov">      28152 : {</span>
+<span class="lineNum">     119 </span><span class="lineCov">      28152 :   khash_t(n2s) *h = mrb-&gt;name2sym;</span>
+<span class="lineNum">     120 </span>            :   khiter_t k;
+<span class="lineNum">     121 </span>            :   symbol_name sname;
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineCov">   10618209 :   for (k = kh_begin(h); k != kh_end(h); k++) {</span>
+<span class="lineNum">     124 </span><span class="lineCov">   10618209 :     if (kh_exist(h, k)) {</span>
+<span class="lineNum">     125 </span><span class="lineCov">    6088969 :       if (kh_value(h, k) == sym) {</span>
+<span class="lineNum">     126 </span><span class="lineCov">      28152 :         sname = kh_key(h, k);</span>
+<span class="lineNum">     127 </span><span class="lineCov">      28152 :         *lenp = sname.len;</span>
+<span class="lineNum">     128 </span><span class="lineCov">      28152 :         return sname.name;</span>
+<span class="lineNum">     129 </span>            :       }
+<span class="lineNum">     130 </span>            :     }
+<span class="lineNum">     131 </span>            :   }
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :   *lenp = 0;</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :   return NULL;  /* missing */</span>
+<span class="lineNum">     134 </span>            : }
+<span class="lineNum">     135 </span>            : 
+<a name="136"><span class="lineNum">     136 </span>            : void</a>
+<span class="lineNum">     137 </span>            : mrb_free_symtbl(mrb_state *mrb)
+<span class="lineNum">     138 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">     139 </span><span class="lineCov">         53 :   khash_t(n2s) *h = mrb-&gt;name2sym;</span>
+<span class="lineNum">     140 </span>            :   khiter_t k;
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span><span class="lineCov">      34869 :   for (k = kh_begin(h); k != kh_end(h); k++) {</span>
+<span class="lineNum">     143 </span><span class="lineCov">      34816 :     if (kh_exist(h, k)) {</span>
+<span class="lineNum">     144 </span><span class="lineCov">      15472 :       char *name = (char *)kh_key(h, k).name;</span>
+<span class="lineNum">     145 </span>            :       if (!on_rodata_p(name)) {
+<span class="lineNum">     146 </span><span class="lineCov">      15472 :         mrb_free(mrb, name);</span>
+<span class="lineNum">     147 </span>            :       }
+<span class="lineNum">     148 </span>            :     }
+<span class="lineNum">     149 </span>            :   }
+<span class="lineNum">     150 </span><span class="lineCov">         53 :   kh_destroy(n2s,mrb-&gt;name2sym);</span>
+<span class="lineNum">     151 </span><span class="lineCov">         53 : }</span>
+<span class="lineNum">     152 </span>            : 
+<a name="153"><span class="lineNum">     153 </span>            : void</a>
+<span class="lineNum">     154 </span>            : mrb_init_symtbl(mrb_state *mrb)
+<span class="lineNum">     155 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">     156 </span><span class="lineCov">         53 :   mrb-&gt;name2sym = kh_init(n2s, mrb);</span>
+<span class="lineNum">     157 </span><span class="lineCov">         53 : }</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : /**********************************************************************
+<span class="lineNum">     160 </span>            :  * Document-class: Symbol
+<span class="lineNum">     161 </span>            :  *
+<span class="lineNum">     162 </span>            :  *  &lt;code&gt;Symbol&lt;/code&gt; objects represent names and some strings
+<span class="lineNum">     163 </span>            :  *  inside the Ruby
+<span class="lineNum">     164 </span>            :  *  interpreter. They are generated using the &lt;code&gt;:name&lt;/code&gt; and
+<span class="lineNum">     165 </span>            :  *  &lt;code&gt;:&quot;string&quot;&lt;/code&gt; literals
+<span class="lineNum">     166 </span>            :  *  syntax, and by the various &lt;code&gt;to_sym&lt;/code&gt; methods. The same
+<span class="lineNum">     167 </span>            :  *  &lt;code&gt;Symbol&lt;/code&gt; object will be created for a given name or string
+<span class="lineNum">     168 </span>            :  *  for the duration of a program's execution, regardless of the context
+<span class="lineNum">     169 </span>            :  *  or meaning of that name. Thus if &lt;code&gt;Fred&lt;/code&gt; is a constant in
+<span class="lineNum">     170 </span>            :  *  one context, a method in another, and a class in a third, the
+<span class="lineNum">     171 </span>            :  *  &lt;code&gt;Symbol&lt;/code&gt; &lt;code&gt;:Fred&lt;/code&gt; will be the same object in
+<span class="lineNum">     172 </span>            :  *  all three contexts.
+<span class="lineNum">     173 </span>            :  *
+<span class="lineNum">     174 </span>            :  *     module One
+<span class="lineNum">     175 </span>            :  *       class Fred
+<span class="lineNum">     176 </span>            :  *       end
+<span class="lineNum">     177 </span>            :  *       $f1 = :Fred
+<span class="lineNum">     178 </span>            :  *     end
+<span class="lineNum">     179 </span>            :  *     module Two
+<span class="lineNum">     180 </span>            :  *       Fred = 1
+<span class="lineNum">     181 </span>            :  *       $f2 = :Fred
+<span class="lineNum">     182 </span>            :  *     end
+<span class="lineNum">     183 </span>            :  *     def Fred()
+<span class="lineNum">     184 </span>            :  *     end
+<span class="lineNum">     185 </span>            :  *     $f3 = :Fred
+<span class="lineNum">     186 </span>            :  *     $f1.object_id   #=&gt; 2514190
+<span class="lineNum">     187 </span>            :  *     $f2.object_id   #=&gt; 2514190
+<span class="lineNum">     188 </span>            :  *     $f3.object_id   #=&gt; 2514190
+<span class="lineNum">     189 </span>            :  *
+<span class="lineNum">     190 </span>            :  */
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            : /* 15.2.11.3.1  */
+<span class="lineNum">     194 </span>            : /*
+<span class="lineNum">     195 </span>            :  *  call-seq:
+<span class="lineNum">     196 </span>            :  *     sym == obj   -&gt; true or false
+<span class="lineNum">     197 </span>            :  *
+<span class="lineNum">     198 </span>            :  *  Equality---If &lt;i&gt;sym&lt;/i&gt; and &lt;i&gt;obj&lt;/i&gt; are exactly the same
+<span class="lineNum">     199 </span>            :  *  symbol, returns &lt;code&gt;true&lt;/code&gt;.
+<span class="lineNum">     200 </span>            :  */
+<span class="lineNum">     201 </span>            : 
+<a name="202"><span class="lineNum">     202 </span>            : static mrb_value</a>
+<span class="lineNum">     203 </span>            : sym_equal(mrb_state *mrb, mrb_value sym1)
+<span class="lineNum">     204 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     205 </span>            :   mrb_value sym2;
+<span class="lineNum">     206 </span>            :   mrb_bool equal_p;
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;o&quot;, &amp;sym2);</span>
+<span class="lineNum">     209 </span><span class="lineCov">          2 :   equal_p = mrb_obj_equal(mrb, sym1, sym2);</span>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineCov">          2 :   return mrb_bool_value(equal_p);</span>
+<span class="lineNum">     212 </span>            : }
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span>            : /* 15.2.11.3.2  */
+<span class="lineNum">     215 </span>            : /* 15.2.11.3.3  */
+<span class="lineNum">     216 </span>            : /*
+<span class="lineNum">     217 </span>            :  *  call-seq:
+<span class="lineNum">     218 </span>            :  *     sym.id2name   -&gt; string
+<span class="lineNum">     219 </span>            :  *     sym.to_s      -&gt; string
+<span class="lineNum">     220 </span>            :  *
+<span class="lineNum">     221 </span>            :  *  Returns the name or string corresponding to &lt;i&gt;sym&lt;/i&gt;.
+<span class="lineNum">     222 </span>            :  *
+<span class="lineNum">     223 </span>            :  *     :fred.id2name   #=&gt; &quot;fred&quot;
+<span class="lineNum">     224 </span>            :  */
+<a name="225"><span class="lineNum">     225 </span>            : mrb_value</a>
+<span class="lineNum">     226 </span>            : mrb_sym_to_s(mrb_state *mrb, mrb_value sym)
+<span class="lineNum">     227 </span><span class="lineCov">        497 : {</span>
+<span class="lineNum">     228 </span><span class="lineCov">        497 :   mrb_sym id = mrb_symbol(sym);</span>
+<span class="lineNum">     229 </span>            :   const char *p;
+<span class="lineNum">     230 </span>            :   size_t len;
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineCov">        497 :   p = mrb_sym2name_len(mrb, id, &amp;len);</span>
+<span class="lineNum">     233 </span><span class="lineCov">        497 :   return mrb_str_new_static(mrb, p, len);</span>
+<span class="lineNum">     234 </span>            : }
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            : /* 15.2.11.3.4  */
+<span class="lineNum">     237 </span>            : /*
+<span class="lineNum">     238 </span>            :  * call-seq:
+<span class="lineNum">     239 </span>            :  *   sym.to_sym   -&gt; sym
+<span class="lineNum">     240 </span>            :  *   sym.intern   -&gt; sym
+<span class="lineNum">     241 </span>            :  *
+<span class="lineNum">     242 </span>            :  * In general, &lt;code&gt;to_sym&lt;/code&gt; returns the &lt;code&gt;Symbol&lt;/code&gt; corresponding
+<span class="lineNum">     243 </span>            :  * to an object. As &lt;i&gt;sym&lt;/i&gt; is already a symbol, &lt;code&gt;self&lt;/code&gt; is returned
+<span class="lineNum">     244 </span>            :  * in this case.
+<span class="lineNum">     245 </span>            :  */
+<span class="lineNum">     246 </span>            : 
+<a name="247"><span class="lineNum">     247 </span>            : static mrb_value</a>
+<span class="lineNum">     248 </span>            : sym_to_sym(mrb_state *mrb, mrb_value sym)
+<span class="lineNum">     249 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     250 </span><span class="lineCov">          3 :   return sym;</span>
+<span class="lineNum">     251 </span>            : }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            : /* 15.2.11.3.5(x)  */
+<span class="lineNum">     254 </span>            : /*
+<span class="lineNum">     255 </span>            :  *  call-seq:
+<span class="lineNum">     256 </span>            :  *     sym.inspect    -&gt; string
+<span class="lineNum">     257 </span>            :  *
+<span class="lineNum">     258 </span>            :  *  Returns the representation of &lt;i&gt;sym&lt;/i&gt; as a symbol literal.
+<span class="lineNum">     259 </span>            :  *
+<span class="lineNum">     260 </span>            :  *     :fred.inspect   #=&gt; &quot;:fred&quot;
+<span class="lineNum">     261 </span>            :  */
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span>            : #if __STDC__
+<span class="lineNum">     264 </span>            : # define SIGN_EXTEND_CHAR(c) ((signed char)(c))
+<span class="lineNum">     265 </span>            : #else  /* not __STDC__ */
+<span class="lineNum">     266 </span>            : /* As in Harbison and Steele.  */
+<span class="lineNum">     267 </span>            : # define SIGN_EXTEND_CHAR(c) ((((unsigned char)(c)) ^ 128) - 128)
+<span class="lineNum">     268 </span>            : #endif
+<span class="lineNum">     269 </span>            : #define is_identchar(c) (SIGN_EXTEND_CHAR(c)!=-1&amp;&amp;(ISALNUM(c) || (c) == '_'))
+<span class="lineNum">     270 </span>            : 
+<a name="271"><span class="lineNum">     271 </span>            : static int</a>
+<span class="lineNum">     272 </span>            : is_special_global_name(const char* m)
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :   switch (*m) {</span>
+<span class="lineNum">     275 </span>            :     case '~': case '*': case '$': case '?': case '!': case '@':
+<span class="lineNum">     276 </span>            :     case '/': case '\\': case ';': case ',': case '.': case '=':
+<span class="lineNum">     277 </span>            :     case ':': case '&lt;': case '&gt;': case '\&quot;':
+<span class="lineNum">     278 </span>            :     case '&amp;': case '`': case '\'': case '+':
+<span class="lineNum">     279 </span>            :     case '0':
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :       ++m;</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     282 </span>            :     case '-':
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :       ++m;</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :       if (is_identchar(*m)) m += 1;</span>
+<span class="lineNum">     285 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     286 </span>            :     default:
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :       if (!ISDIGIT(*m)) return FALSE;</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :       do ++m; while (ISDIGIT(*m));</span>
+<span class="lineNum">     289 </span>            :       break;
+<span class="lineNum">     290 </span>            :   }
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :   return !*m;</span>
+<span class="lineNum">     292 </span>            : }
+<span class="lineNum">     293 </span>            : 
+<a name="294"><span class="lineNum">     294 </span>            : static int</a>
+<span class="lineNum">     295 </span>            : symname_p(const char *name)
+<span class="lineNum">     296 </span><span class="lineCov">         17 : {</span>
+<span class="lineNum">     297 </span><span class="lineCov">         17 :   const char *m = name;</span>
+<span class="lineNum">     298 </span><span class="lineCov">         17 :   int localid = FALSE;</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineCov">         17 :   if (!m) return FALSE;</span>
+<span class="lineNum">     301 </span><span class="lineCov">         17 :   switch (*m) {</span>
+<span class="lineNum">     302 </span>            :     case '\0':
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :       return FALSE;</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span>            :     case '$':
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :       if (is_special_global_name(++m)) return TRUE;</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :       goto id;</span>
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            :     case '@':
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :       if (*++m == '@') ++m;</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :       goto id;</span>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            :     case '&lt;':
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :       switch (*++m) {</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :         case '&lt;': ++m; break;</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :         case '=': if (*++m == '&gt;') ++m; break;</span>
+<span class="lineNum">     317 </span>            :         default: break;
+<span class="lineNum">     318 </span>            :       }
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     320 </span>            : 
+<span class="lineNum">     321 </span>            :     case '&gt;':
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :       switch (*++m) {</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :         case '&gt;': case '=': ++m; break;</span>
+<span class="lineNum">     324 </span>            :         default: break;
+<span class="lineNum">     325 </span>            :       }
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            :     case '=':
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :       switch (*++m) {</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         case '~': ++m; break;</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :         case '=': if (*++m == '=') ++m; break;</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         default: return FALSE;</span>
+<span class="lineNum">     333 </span>            :       }
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            :     case '*':
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :       if (*++m == '*') ++m;</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     339 </span>            :     case '!':
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :       if (*++m == '=') ++m;</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     342 </span>            :     case '+': case '-':
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :       if (*++m == '@') ++m;</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     345 </span>            :     case '|':
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :       if (*++m == '|') ++m;</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     348 </span>            :     case '&amp;':
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :       if (*++m == '&amp;') ++m;</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            :     case '^': case '/': case '%': case '~': case '`':
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :       ++m;</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            :     case '[':
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :       if (*++m != ']') return FALSE;</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :       if (*++m == '=') ++m;</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span>            :     default:
+<span class="lineNum">     362 </span><span class="lineCov">         17 :       localid = !ISUPPER(*m);</span>
+<span class="lineNum">     363 </span><span class="lineCov">         17 : id:</span>
+<span class="lineNum">     364 </span><span class="lineCov">         17 :       if (*m != '_' &amp;&amp; !ISALPHA(*m)) return FALSE;</span>
+<span class="lineNum">     365 </span><span class="lineCov">         17 :       while (is_identchar(*m)) m += 1;</span>
+<span class="lineNum">     366 </span><span class="lineCov">         17 :       if (localid) {</span>
+<span class="lineNum">     367 </span><span class="lineCov">         13 :         switch (*m) {</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :           case '!': case '?': case '=': ++m;</span>
+<span class="lineNum">     369 </span>            :           default: break;
+<span class="lineNum">     370 </span>            :             }
+<span class="lineNum">     371 </span>            :         }
+<span class="lineNum">     372 </span>            :       break;
+<span class="lineNum">     373 </span>            :   }
+<span class="lineNum">     374 </span><span class="lineCov">         17 :   return *m ? FALSE : TRUE;</span>
+<span class="lineNum">     375 </span>            : }
+<span class="lineNum">     376 </span>            : 
+<a name="377"><span class="lineNum">     377 </span>            : static mrb_value</a>
+<span class="lineNum">     378 </span>            : sym_inspect(mrb_state *mrb, mrb_value sym)
+<span class="lineNum">     379 </span><span class="lineCov">          6 : {</span>
+<span class="lineNum">     380 </span>            :   mrb_value str;
+<span class="lineNum">     381 </span>            :   const char *name;
+<span class="lineNum">     382 </span>            :   size_t len;
+<span class="lineNum">     383 </span><span class="lineCov">          6 :   mrb_sym id = mrb_symbol(sym);</span>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span><span class="lineCov">          6 :   name = mrb_sym2name_len(mrb, id, &amp;len);</span>
+<span class="lineNum">     386 </span><span class="lineCov">          6 :   str = mrb_str_new(mrb, 0, len+1);</span>
+<span class="lineNum">     387 </span><span class="lineCov">          6 :   RSTRING(str)-&gt;ptr[0] = ':';</span>
+<span class="lineNum">     388 </span><span class="lineCov">          6 :   memcpy(RSTRING(str)-&gt;ptr+1, name, len);</span>
+<span class="lineNum">     389 </span><span class="lineCov">          6 :   if (!symname_p(name) || strlen(name) != len) {</span>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :     str = mrb_str_dump(mrb, str);</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :     memcpy(RSTRING(str)-&gt;ptr, &quot;:\&quot;&quot;, 2);</span>
+<span class="lineNum">     392 </span>            :   }
+<span class="lineNum">     393 </span><span class="lineCov">          6 :   return str;</span>
+<span class="lineNum">     394 </span>            : }
+<span class="lineNum">     395 </span>            : 
+<a name="396"><span class="lineNum">     396 </span>            : mrb_value</a>
+<span class="lineNum">     397 </span>            : mrb_sym2str(mrb_state *mrb, mrb_sym sym)
+<span class="lineNum">     398 </span><span class="lineCov">         11 : {</span>
+<span class="lineNum">     399 </span>            :   size_t len;
+<span class="lineNum">     400 </span><span class="lineCov">         11 :   const char *name = mrb_sym2name_len(mrb, sym, &amp;len);</span>
+<span class="lineNum">     401 </span>            :   mrb_value str;
+<span class="lineNum">     402 </span>            :   
+<span class="lineNum">     403 </span><span class="lineCov">         11 :   if (!name) return mrb_undef_value(); /* can't happen */</span>
+<span class="lineNum">     404 </span><span class="lineCov">         11 :   str = mrb_str_new_static(mrb, name, len);</span>
+<span class="lineNum">     405 </span><span class="lineCov">         11 :   if (symname_p(name) &amp;&amp; strlen(name) == len) {</span>
+<span class="lineNum">     406 </span><span class="lineCov">         11 :     return str;</span>
+<span class="lineNum">     407 </span>            :   }
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :   return mrb_str_dump(mrb, str);</span>
+<span class="lineNum">     409 </span>            : }
+<span class="lineNum">     410 </span>            : 
+<a name="411"><span class="lineNum">     411 </span>            : const char*</a>
+<span class="lineNum">     412 </span>            : mrb_sym2name(mrb_state *mrb, mrb_sym sym)
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     414 </span>            :   size_t len;
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :   const char *name = mrb_sym2name_len(mrb, sym, &amp;len);</span>
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :   if (!name) return NULL;</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :   if (symname_p(name) &amp;&amp; strlen(name) == len) {</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :     return name;</span>
+<span class="lineNum">     420 </span>            :   }
+<span class="lineNum">     421 </span>            :   else {
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :     mrb_value str = mrb_str_dump(mrb, mrb_str_new_static(mrb, name, len));</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :     return RSTRING(str)-&gt;ptr;</span>
+<span class="lineNum">     424 </span>            :   }
+<span class="lineNum">     425 </span>            : }
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            : #define lesser(a,b) (((a)&gt;(b))?(b):(a))
+<span class="lineNum">     428 </span>            : 
+<a name="429"><span class="lineNum">     429 </span>            : static mrb_value</a>
+<span class="lineNum">     430 </span>            : sym_cmp(mrb_state *mrb, mrb_value s1)
+<span class="lineNum">     431 </span><span class="lineCov">          6 : {</span>
+<span class="lineNum">     432 </span>            :   mrb_value s2;
+<span class="lineNum">     433 </span>            :   mrb_sym sym1, sym2;
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span><span class="lineCov">          6 :   mrb_get_args(mrb, &quot;o&quot;, &amp;s2);</span>
+<span class="lineNum">     436 </span><span class="lineCov">          6 :   if (mrb_type(s2) != MRB_TT_SYMBOL) return mrb_nil_value();</span>
+<span class="lineNum">     437 </span><span class="lineCov">          6 :   sym1 = mrb_symbol(s1);</span>
+<span class="lineNum">     438 </span><span class="lineCov">          6 :   sym2 = mrb_symbol(s2);</span>
+<span class="lineNum">     439 </span><span class="lineCov">          6 :   if (sym1 == sym2) return mrb_fixnum_value(0);</span>
+<span class="lineNum">     440 </span>            :   else {
+<span class="lineNum">     441 </span>            :     const char *p1, *p2;
+<span class="lineNum">     442 </span>            :     int retval;
+<span class="lineNum">     443 </span>            :     size_t len, len1, len2;
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineCov">          6 :     p1 = mrb_sym2name_len(mrb, sym1, &amp;len1);</span>
+<span class="lineNum">     446 </span><span class="lineCov">          6 :     p2 = mrb_sym2name_len(mrb, sym2, &amp;len2);</span>
+<span class="lineNum">     447 </span><span class="lineCov">          6 :     len = lesser(len1, len2);</span>
+<span class="lineNum">     448 </span><span class="lineCov">          6 :     retval = memcmp(p1, p2, len);</span>
+<span class="lineNum">     449 </span><span class="lineCov">          6 :     if (retval == 0) {</span>
+<span class="lineNum">     450 </span><span class="lineCov">          1 :       if (len1 == len2) return mrb_fixnum_value(0);</span>
+<span class="lineNum">     451 </span><span class="lineCov">          1 :       if (len1 &gt; len2)  return mrb_fixnum_value(1);</span>
+<span class="lineNum">     452 </span><span class="lineCov">          1 :       return mrb_fixnum_value(-1);</span>
+<span class="lineNum">     453 </span>            :     }
+<span class="lineNum">     454 </span><span class="lineCov">          5 :     if (retval &gt; 0) return mrb_fixnum_value(1);</span>
+<span class="lineNum">     455 </span><span class="lineCov">          2 :     return mrb_fixnum_value(-1);</span>
+<span class="lineNum">     456 </span>            :   }
+<span class="lineNum">     457 </span>            : }
+<span class="lineNum">     458 </span>            : 
+<a name="459"><span class="lineNum">     459 </span>            : void</a>
+<span class="lineNum">     460 </span>            : mrb_init_symbol(mrb_state *mrb)
+<span class="lineNum">     461 </span><span class="lineCov">         53 : {</span>
+<span class="lineNum">     462 </span>            :   struct RClass *sym;
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span><span class="lineCov">         53 :   sym = mrb-&gt;symbol_class = mrb_define_class(mrb, &quot;Symbol&quot;, mrb-&gt;object_class);</span>
+<span class="lineNum">     465 </span>            : 
+<span class="lineNum">     466 </span><span class="lineCov">         53 :   mrb_define_method(mrb, sym, &quot;===&quot;,             sym_equal,      MRB_ARGS_REQ(1));              /* 15.2.11.3.1  */</span>
+<span class="lineNum">     467 </span><span class="lineCov">         53 :   mrb_define_method(mrb, sym, &quot;id2name&quot;,         mrb_sym_to_s,   MRB_ARGS_NONE());              /* 15.2.11.3.2  */</span>
+<span class="lineNum">     468 </span><span class="lineCov">         53 :   mrb_define_method(mrb, sym, &quot;to_s&quot;,            mrb_sym_to_s,   MRB_ARGS_NONE());              /* 15.2.11.3.3  */</span>
+<span class="lineNum">     469 </span><span class="lineCov">         53 :   mrb_define_method(mrb, sym, &quot;to_sym&quot;,          sym_to_sym,     MRB_ARGS_NONE());              /* 15.2.11.3.4  */</span>
+<span class="lineNum">     470 </span><span class="lineCov">         53 :   mrb_define_method(mrb, sym, &quot;inspect&quot;,         sym_inspect,    MRB_ARGS_NONE());              /* 15.2.11.3.5(x)  */</span>
+<span class="lineNum">     471 </span><span class="lineCov">         53 :   mrb_define_method(mrb, sym, &quot;&lt;=&gt;&quot;,             sym_cmp,        MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     472 </span><span class="lineCov">         53 :   mrb-&gt;init_sym = mrb_intern(mrb, &quot;initialize&quot;);</span>
+<span class="lineNum">     473 </span><span class="lineCov">         53 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

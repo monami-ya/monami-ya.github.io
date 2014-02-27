@@ -1,0 +1,269 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - mrbgems/mruby-random/src/mt19937ar.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">mrbgems/mruby-random/src</a> - mt19937ar.c<span style="font-size: 80%;"> (source / <a href="mt19937ar.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntry">83</td>
+            <td class="headerCovTableEntryLo">66.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">54.5 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** mt19937ar.c - MT Random functions
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">       8 </span>            : #include &quot;mt19937ar.h&quot;
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : /* Period parameters */  
+<span class="lineNum">      11 </span>            : //#define N 624
+<span class="lineNum">      12 </span>            : #define M 397
+<span class="lineNum">      13 </span>            : #define MATRIX_A 0x9908b0dfUL   /* constant vector a */
+<span class="lineNum">      14 </span>            : #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
+<span class="lineNum">      15 </span>            : #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : static unsigned long mt[N]; /* the array for the state vector  */
+<span class="lineNum">      18 </span>            : static int mti=N+1; /* mti==N+1 means mt[N] is not initialized */
+<a name="19"><span class="lineNum">      19 </span>            : </a>
+<span class="lineNum">      20 </span>            : void mrb_random_init_genrand(mt_state *t, unsigned long s)
+<span class="lineNum">      21 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">      22 </span><span class="lineCov">          2 :     t-&gt;mt[0]= s &amp; 0xffffffffUL;</span>
+<span class="lineNum">      23 </span><span class="lineCov">       1248 :     for (t-&gt;mti=1; t-&gt;mti&lt;N; t-&gt;mti++) {</span>
+<span class="lineNum">      24 </span><span class="lineCov">       1246 :         t-&gt;mt[t-&gt;mti] = </span>
+<span class="lineNum">      25 </span>            :             (1812433253UL * (t-&gt;mt[t-&gt;mti-1] ^ (t-&gt;mt[t-&gt;mti-1] &gt;&gt; 30)) + t-&gt;mti); 
+<span class="lineNum">      26 </span><span class="lineCov">       1246 :         t-&gt;mt[t-&gt;mti] &amp;= 0xffffffffUL;</span>
+<span class="lineNum">      27 </span>            :     }
+<span class="lineNum">      28 </span><span class="lineCov">          2 : }</span>
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<span class="lineNum">      30 </span>            : unsigned long mrb_random_genrand_int32(mt_state *t)
+<span class="lineNum">      31 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">      32 </span>            :     unsigned long y;
+<span class="lineNum">      33 </span>            :     static unsigned long mag01[2]={0x0UL, MATRIX_A};
+<span class="lineNum">      34 </span>            :     /* mag01[x] = x * MATRIX_A  for x=0,1 */
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span><span class="lineCov">          2 :     if (t-&gt;mti &gt;= N) { /* generate N words at one time */</span>
+<span class="lineNum">      37 </span>            :         int kk;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span><span class="lineCov">          2 :         if (t-&gt;mti == N+1)   /* if init_genrand() has not been called, */</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :             mrb_random_init_genrand(t, 5489UL); /* a default initial seed is used */</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineCov">        456 :         for (kk=0;kk&lt;N-M;kk++) {</span>
+<span class="lineNum">      43 </span><span class="lineCov">        454 :             y = (t-&gt;mt[kk]&amp;UPPER_MASK)|(t-&gt;mt[kk+1]&amp;LOWER_MASK);</span>
+<span class="lineNum">      44 </span><span class="lineCov">        454 :             t-&gt;mt[kk] = t-&gt;mt[kk+M] ^ (y &gt;&gt; 1) ^ mag01[y &amp; 0x1UL];</span>
+<span class="lineNum">      45 </span>            :         }
+<span class="lineNum">      46 </span><span class="lineCov">        794 :         for (;kk&lt;N-1;kk++) {</span>
+<span class="lineNum">      47 </span><span class="lineCov">        792 :             y = (t-&gt;mt[kk]&amp;UPPER_MASK)|(t-&gt;mt[kk+1]&amp;LOWER_MASK);</span>
+<span class="lineNum">      48 </span><span class="lineCov">        792 :             t-&gt;mt[kk] = t-&gt;mt[kk+(M-N)] ^ (y &gt;&gt; 1) ^ mag01[y &amp; 0x1UL];</span>
+<span class="lineNum">      49 </span>            :         }
+<span class="lineNum">      50 </span><span class="lineCov">          2 :         y = (t-&gt;mt[N-1]&amp;UPPER_MASK)|(t-&gt;mt[0]&amp;LOWER_MASK);</span>
+<span class="lineNum">      51 </span><span class="lineCov">          2 :         t-&gt;mt[N-1] = t-&gt;mt[M-1] ^ (y &gt;&gt; 1) ^ mag01[y &amp; 0x1UL];</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">          2 :         t-&gt;mti = 0;</span>
+<span class="lineNum">      54 </span>            :     }
+<span class="lineNum">      55 </span>            :   
+<span class="lineNum">      56 </span><span class="lineCov">          2 :     y = t-&gt;mt[t-&gt;mti++];</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            :     /* Tempering */
+<span class="lineNum">      59 </span><span class="lineCov">          2 :     y ^= (y &gt;&gt; 11);</span>
+<span class="lineNum">      60 </span><span class="lineCov">          2 :     y ^= (y &lt;&lt; 7) &amp; 0x9d2c5680UL;</span>
+<span class="lineNum">      61 </span><span class="lineCov">          2 :     y ^= (y &lt;&lt; 15) &amp; 0xefc60000UL;</span>
+<span class="lineNum">      62 </span><span class="lineCov">          2 :     y ^= (y &gt;&gt; 18);</span>
+<span class="lineNum">      63 </span>            :     
+<span class="lineNum">      64 </span><span class="lineCov">          2 :     t-&gt;gen_int = y;</span>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineCov">          2 :     return y;</span>
+<span class="lineNum">      67 </span>            : }
+<a name="68"><span class="lineNum">      68 </span>            : </a>
+<span class="lineNum">      69 </span>            : double mrb_random_genrand_real1(mt_state *t)
+<span class="lineNum">      70 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">      71 </span><span class="lineCov">          2 :     mrb_random_genrand_int32(t);</span>
+<span class="lineNum">      72 </span><span class="lineCov">          2 :     t-&gt;gen_dbl =  t-&gt;gen_int*(1.0/4294967295.0); </span>
+<span class="lineNum">      73 </span><span class="lineCov">          2 :     return t-&gt;gen_dbl;</span>
+<span class="lineNum">      74 </span>            :     /* divided by 2^32-1 */ 
+<span class="lineNum">      75 </span>            : }
+<span class="lineNum">      76 </span>            : 
+<a name="77"><span class="lineNum">      77 </span>            : /* initializes mt[N] with a seed */</a>
+<span class="lineNum">      78 </span>            : void init_genrand(unsigned long s)
+<span class="lineNum">      79 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">      80 </span><span class="lineCov">          4 :     mt[0]= s &amp; 0xffffffffUL;</span>
+<span class="lineNum">      81 </span><span class="lineCov">       2496 :     for (mti=1; mti&lt;N; mti++) {</span>
+<span class="lineNum">      82 </span><span class="lineCov">       2492 :         mt[mti] = </span>
+<span class="lineNum">      83 </span>            :             (1812433253UL * (mt[mti-1] ^ (mt[mti-1] &gt;&gt; 30)) + mti); 
+<span class="lineNum">      84 </span>            :         /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
+<span class="lineNum">      85 </span>            :         /* In the previous versions, MSBs of the seed affect   */
+<span class="lineNum">      86 </span>            :         /* only MSBs of the array mt[].                        */
+<span class="lineNum">      87 </span>            :         /* 2002/01/09 modified by Makoto Matsumoto             */
+<span class="lineNum">      88 </span><span class="lineCov">       2492 :         mt[mti] &amp;= 0xffffffffUL;</span>
+<span class="lineNum">      89 </span>            :         /* for &gt;32 bit machines */
+<span class="lineNum">      90 </span>            :     }
+<span class="lineNum">      91 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            : /* initialize by an array with array-length */
+<span class="lineNum">      94 </span>            : /* init_key is the array for initializing keys */
+<span class="lineNum">      95 </span>            : /* key_length is its length */
+<a name="96"><span class="lineNum">      96 </span>            : /* slight change for C++, 2004/2/26 */</a>
+<span class="lineNum">      97 </span>            : void init_by_array(unsigned long init_key[], int key_length)
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      99 </span>            :     int i, j, k;
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :     init_genrand(19650218UL);</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :     i=1; j=0;</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :     k = (N&gt;key_length ? N : key_length);</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :     for (; k; k--) {</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :         mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] &gt;&gt; 30)) * 1664525UL))</span>
+<span class="lineNum">     105 </span>            :           + init_key[j] + j; /* non linear */
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :         mt[i] &amp;= 0xffffffffUL; /* for WORDSIZE &gt; 32 machines */</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         i++; j++;</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         if (i&gt;=N) { mt[0] = mt[N-1]; i=1; }</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :         if (j&gt;=key_length) j=0;</span>
+<span class="lineNum">     110 </span>            :     }
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :     for (k=N-1; k; k--) {</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] &gt;&gt; 30)) * 1566083941UL))</span>
+<span class="lineNum">     113 </span>            :           - i; /* non linear */
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         mt[i] &amp;= 0xffffffffUL; /* for WORDSIZE &gt; 32 machines */</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         i++;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         if (i&gt;=N) { mt[0] = mt[N-1]; i=1; }</span>
+<span class="lineNum">     117 </span>            :     }
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :     mt[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */ </span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     121 </span>            : 
+<a name="122"><span class="lineNum">     122 </span>            : /* generates a random number on [0,0xffffffff]-interval */</a>
+<span class="lineNum">     123 </span>            : unsigned long genrand_int32(void)
+<span class="lineNum">     124 </span><span class="lineCov">          6 : {</span>
+<span class="lineNum">     125 </span>            :     unsigned long y;
+<span class="lineNum">     126 </span>            :     static unsigned long mag01[2]={0x0UL, MATRIX_A};
+<span class="lineNum">     127 </span>            :     /* mag01[x] = x * MATRIX_A  for x=0,1 */
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">          6 :     if (mti &gt;= N) { /* generate N words at one time */</span>
+<span class="lineNum">     130 </span>            :         int kk;
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineCov">          4 :         if (mti == N+1)   /* if init_genrand() has not been called, */</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :             init_genrand(5489UL); /* a default initial seed is used */</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span><span class="lineCov">        912 :         for (kk=0;kk&lt;N-M;kk++) {</span>
+<span class="lineNum">     136 </span><span class="lineCov">        908 :             y = (mt[kk]&amp;UPPER_MASK)|(mt[kk+1]&amp;LOWER_MASK);</span>
+<span class="lineNum">     137 </span><span class="lineCov">        908 :             mt[kk] = mt[kk+M] ^ (y &gt;&gt; 1) ^ mag01[y &amp; 0x1UL];</span>
+<span class="lineNum">     138 </span>            :         }
+<span class="lineNum">     139 </span><span class="lineCov">       1588 :         for (;kk&lt;N-1;kk++) {</span>
+<span class="lineNum">     140 </span><span class="lineCov">       1584 :             y = (mt[kk]&amp;UPPER_MASK)|(mt[kk+1]&amp;LOWER_MASK);</span>
+<span class="lineNum">     141 </span><span class="lineCov">       1584 :             mt[kk] = mt[kk+(M-N)] ^ (y &gt;&gt; 1) ^ mag01[y &amp; 0x1UL];</span>
+<span class="lineNum">     142 </span>            :         }
+<span class="lineNum">     143 </span><span class="lineCov">          4 :         y = (mt[N-1]&amp;UPPER_MASK)|(mt[0]&amp;LOWER_MASK);</span>
+<span class="lineNum">     144 </span><span class="lineCov">          4 :         mt[N-1] = mt[M-1] ^ (y &gt;&gt; 1) ^ mag01[y &amp; 0x1UL];</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">          4 :         mti = 0;</span>
+<span class="lineNum">     147 </span>            :     }
+<span class="lineNum">     148 </span>            :   
+<span class="lineNum">     149 </span><span class="lineCov">          6 :     y = mt[mti++];</span>
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            :     /* Tempering */
+<span class="lineNum">     152 </span><span class="lineCov">          6 :     y ^= (y &gt;&gt; 11);</span>
+<span class="lineNum">     153 </span><span class="lineCov">          6 :     y ^= (y &lt;&lt; 7) &amp; 0x9d2c5680UL;</span>
+<span class="lineNum">     154 </span><span class="lineCov">          6 :     y ^= (y &lt;&lt; 15) &amp; 0xefc60000UL;</span>
+<span class="lineNum">     155 </span><span class="lineCov">          6 :     y ^= (y &gt;&gt; 18);</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">          6 :     return y;</span>
+<span class="lineNum">     158 </span>            : }
+<span class="lineNum">     159 </span>            : 
+<a name="160"><span class="lineNum">     160 </span>            : /* generates a random number on [0,0x7fffffff]-interval */</a>
+<span class="lineNum">     161 </span>            : long genrand_int31(void)
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :     return (long)(genrand_int32()&gt;&gt;1);</span>
+<span class="lineNum">     164 </span>            : }
+<span class="lineNum">     165 </span>            : 
+<a name="166"><span class="lineNum">     166 </span>            : /* generates a random number on [0,1]-real-interval */</a>
+<span class="lineNum">     167 </span>            : double genrand_real1(void)
+<span class="lineNum">     168 </span><span class="lineCov">          5 : {</span>
+<span class="lineNum">     169 </span><span class="lineCov">          5 :     return genrand_int32()*(1.0/4294967295.0); </span>
+<span class="lineNum">     170 </span>            :     /* divided by 2^32-1 */ 
+<span class="lineNum">     171 </span>            : }
+<span class="lineNum">     172 </span>            : 
+<a name="173"><span class="lineNum">     173 </span>            : /* generates a random number on [0,1)-real-interval */</a>
+<span class="lineNum">     174 </span>            : double genrand_real2(void)
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :     return genrand_int32()*(1.0/4294967296.0); </span>
+<span class="lineNum">     177 </span>            :     /* divided by 2^32 */
+<span class="lineNum">     178 </span>            : }
+<span class="lineNum">     179 </span>            : 
+<a name="180"><span class="lineNum">     180 </span>            : /* generates a random number on (0,1)-real-interval */</a>
+<span class="lineNum">     181 </span>            : double genrand_real3(void)
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :     return (((double)genrand_int32()) + 0.5)*(1.0/4294967296.0); </span>
+<span class="lineNum">     184 </span>            :     /* divided by 2^32 */
+<span class="lineNum">     185 </span>            : }
+<span class="lineNum">     186 </span>            : 
+<a name="187"><span class="lineNum">     187 </span>            : /* generates a random number on [0,1) with 53-bit resolution*/</a>
+<span class="lineNum">     188 </span>            : double genrand_res53(void) 
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 : { </span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :     unsigned long a=genrand_int32()&gt;&gt;5, b=genrand_int32()&gt;&gt;6; </span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :     return(a*67108864.0+b)*(1.0/9007199254740992.0); </span>
+<span class="lineNum">     192 </span>            : } 
+<span class="lineNum">     193 </span>            : /* These real versions are due to Isaku Wada, 2002/01/09 added */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

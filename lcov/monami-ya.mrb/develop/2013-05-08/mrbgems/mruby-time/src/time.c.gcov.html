@@ -1,0 +1,825 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - mrbgems/mruby-time/src/time.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">mrbgems/mruby-time/src</a> - time.c<span style="font-size: 80%;"> (source / <a href="time.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">268</td>
+            <td class="headerCovTableEntry">278</td>
+            <td class="headerCovTableEntryHi">96.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** time.c - Time class
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">       9 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;time.h&gt;
+<span class="lineNum">      11 </span>            : #include &quot;mruby/class.h&quot;
+<span class="lineNum">      12 </span>            : #include &quot;mruby/data.h&quot;
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : /** Time class configuration */
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : /* gettimeofday(2) */
+<span class="lineNum">      17 </span>            : /* C99 does not have gettimeofday that is required to retrieve microseconds */
+<span class="lineNum">      18 </span>            : /* uncomment following macro on platforms without gettimeofday(2) */
+<span class="lineNum">      19 </span>            : /* #define NO_GETTIMEOFDAY */
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : /* gmtime(3) */
+<span class="lineNum">      22 </span>            : /* C99 does not have reentrant gmtime_r() so it might cause troubles under */
+<span class="lineNum">      23 </span>            : /* multi-threading environment.  undef following macro on platforms that */
+<span class="lineNum">      24 </span>            : /* does not have gmtime_r() and localtime_r(). */
+<span class="lineNum">      25 </span>            : /* #define NO_GMTIME_R */
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #ifdef _WIN32
+<span class="lineNum">      28 </span>            : #if _MSC_VER
+<span class="lineNum">      29 </span>            : /* Win32 platform do not provide gmtime_r/localtime_r; emulate them using gmtime_s/localtime_s */
+<span class="lineNum">      30 </span>            : #define gmtime_r(tp, tm)    ((gmtime_s((tm), (tp)) == 0) ? (tm) : NULL)
+<span class="lineNum">      31 </span>            : #define localtime_r(tp, tm)    ((localtime_s((tm), (tp)) == 0) ? (tm) : NULL)
+<span class="lineNum">      32 </span>            : #else
+<span class="lineNum">      33 </span>            : #define NO_GMTIME_R
+<span class="lineNum">      34 </span>            : #endif
+<span class="lineNum">      35 </span>            : #endif
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : /* timegm(3) */
+<span class="lineNum">      38 </span>            : /* mktime() creates tm structure for localtime; timegm() is for UTF time */
+<span class="lineNum">      39 </span>            : /* define following macro to use probably faster timegm() on the platform */
+<span class="lineNum">      40 </span>            : /* #define USE_SYSTEM_TIMEGM */
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : /** end of Time class configuration */
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : #ifndef NO_GETTIMEOFDAY
+<span class="lineNum">      45 </span>            : #include &lt;sys/time.h&gt;
+<span class="lineNum">      46 </span>            : #endif
+<span class="lineNum">      47 </span>            : #ifdef NO_GMTIME_R
+<span class="lineNum">      48 </span>            : #define gmtime_r(t,r) gmtime(t)
+<span class="lineNum">      49 </span>            : #define localtime_r(t,r) (tzset(),localtime(t))
+<span class="lineNum">      50 </span>            : #endif
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : #ifndef USE_SYSTEM_TIMEGM
+<span class="lineNum">      53 </span>            : #define timegm my_timgm
+<span class="lineNum">      54 </span>            : 
+<a name="55"><span class="lineNum">      55 </span>            : static unsigned int</a>
+<span class="lineNum">      56 </span>            : is_leapyear(unsigned int y)
+<span class="lineNum">      57 </span><span class="lineCov">        559 : {</span>
+<span class="lineNum">      58 </span><span class="lineCov">        559 :   return (y % 4) == 0 &amp;&amp; ((y % 100) != 0 || (y % 400) == 0);</span>
+<span class="lineNum">      59 </span>            : }
+<span class="lineNum">      60 </span>            : 
+<a name="61"><span class="lineNum">      61 </span>            : static time_t</a>
+<span class="lineNum">      62 </span>            : timegm(struct tm *tm)
+<span class="lineNum">      63 </span><span class="lineCov">         13 : {</span>
+<span class="lineNum">      64 </span>            :   static const unsigned int ndays[2][12] = {
+<span class="lineNum">      65 </span>            :     {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+<span class="lineNum">      66 </span>            :     {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+<span class="lineNum">      67 </span>            :   };
+<span class="lineNum">      68 </span><span class="lineCov">         13 :   time_t r = 0;</span>
+<span class="lineNum">      69 </span>            :   int i;
+<span class="lineNum">      70 </span><span class="lineCov">         13 :   unsigned int *nday = (unsigned int*) ndays[is_leapyear(tm-&gt;tm_year+1900)];</span>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineCov">        559 :   for (i = 70; i &lt; tm-&gt;tm_year; ++i)</span>
+<span class="lineNum">      73 </span><span class="lineCov">        546 :     r += is_leapyear(i+1900) ? 366*24*60*60 : 365*24*60*60;</span>
+<span class="lineNum">      74 </span><span class="lineCov">        156 :   for (i = 0; i &lt; tm-&gt;tm_mon; ++i)</span>
+<span class="lineNum">      75 </span><span class="lineCov">        143 :     r += nday[i] * 24 * 60 * 60;</span>
+<span class="lineNum">      76 </span><span class="lineCov">         13 :   r += (tm-&gt;tm_mday - 1) * 24 * 60 * 60;</span>
+<span class="lineNum">      77 </span><span class="lineCov">         13 :   r += tm-&gt;tm_hour * 60 * 60;</span>
+<span class="lineNum">      78 </span><span class="lineCov">         13 :   r += tm-&gt;tm_min * 60;</span>
+<span class="lineNum">      79 </span><span class="lineCov">         13 :   r += tm-&gt;tm_sec;</span>
+<span class="lineNum">      80 </span><span class="lineCov">         13 :   return r;</span>
+<span class="lineNum">      81 </span>            : }
+<span class="lineNum">      82 </span>            : #endif
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : /* Since we are limited to using ISO C89, this implementation is based
+<span class="lineNum">      85 </span>            : * on time_t. That means the resolution of time is only precise to the
+<span class="lineNum">      86 </span>            : * second level. Also, there are only 2 timezones, namely UTC and LOCAL.
+<span class="lineNum">      87 </span>            : */
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            : enum mrb_timezone {
+<span class="lineNum">      90 </span>            :   MRB_TIMEZONE_NONE   = 0,
+<span class="lineNum">      91 </span>            :   MRB_TIMEZONE_UTC    = 1,
+<span class="lineNum">      92 </span>            :   MRB_TIMEZONE_LOCAL  = 2,
+<span class="lineNum">      93 </span>            :   MRB_TIMEZONE_LAST   = 3
+<span class="lineNum">      94 </span>            : };
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : static const char *timezone_names[] = {
+<span class="lineNum">      97 </span>            :   &quot;none&quot;,
+<span class="lineNum">      98 </span>            :   &quot;UTC&quot;,
+<span class="lineNum">      99 </span>            :   &quot;LOCAL&quot;,
+<span class="lineNum">     100 </span>            :    NULL
+<span class="lineNum">     101 </span>            : };
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            : static const char *mon_names[] = {
+<span class="lineNum">     104 </span>            :   &quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;, &quot;Jul&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;, &quot;Dec&quot;,
+<span class="lineNum">     105 </span>            : };
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            : static const char *wday_names[] = {
+<span class="lineNum">     108 </span>            :   &quot;Sun&quot;, &quot;Mon&quot;, &quot;Tus&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;,
+<span class="lineNum">     109 </span>            : };
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : struct mrb_time {
+<span class="lineNum">     112 </span>            :   time_t              sec;
+<span class="lineNum">     113 </span>            :   time_t              usec;
+<span class="lineNum">     114 </span>            :   enum mrb_timezone   timezone;
+<span class="lineNum">     115 </span>            :   struct tm           datetime;
+<span class="lineNum">     116 </span>            : };
+<span class="lineNum">     117 </span>            : 
+<a name="118"><span class="lineNum">     118 </span>            : static void</a>
+<span class="lineNum">     119 </span>            : mrb_time_free(mrb_state *mrb, void *ptr)
+<span class="lineNum">     120 </span><span class="lineCov">         65 : {</span>
+<span class="lineNum">     121 </span><span class="lineCov">         65 :   mrb_free(mrb, ptr);</span>
+<span class="lineNum">     122 </span><span class="lineCov">         65 : }</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            : static struct mrb_data_type mrb_time_type = { &quot;Time&quot;, mrb_time_free };
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            : /** Updates the datetime of a mrb_time based on it's timezone and
+<span class="lineNum">     127 </span>            : seconds setting. Returns self on success, NULL of failure. */
+<a name="128"><span class="lineNum">     128 </span>            : static struct mrb_time*</a>
+<span class="lineNum">     129 </span>            : mrb_time_update_datetime(struct mrb_time *self)
+<span class="lineNum">     130 </span><span class="lineCov">         77 : {</span>
+<span class="lineNum">     131 </span>            :   struct tm *aid;
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">         77 :   if (self-&gt;timezone == MRB_TIMEZONE_UTC) {</span>
+<span class="lineNum">     134 </span><span class="lineCov">         27 :     aid = gmtime_r(&amp;self-&gt;sec, &amp;self-&gt;datetime);</span>
+<span class="lineNum">     135 </span>            :   }
+<span class="lineNum">     136 </span>            :   else {
+<span class="lineNum">     137 </span><span class="lineCov">         50 :     aid = localtime_r(&amp;self-&gt;sec, &amp;self-&gt;datetime);</span>
+<span class="lineNum">     138 </span>            :   }
+<span class="lineNum">     139 </span><span class="lineCov">         77 :   if (!aid) return NULL;</span>
+<span class="lineNum">     140 </span>            : #ifdef NO_GMTIME_R
+<span class="lineNum">     141 </span>            :   self-&gt;datetime = *aid; // copy data
+<span class="lineNum">     142 </span>            : #endif
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineCov">         77 :   return self;</span>
+<span class="lineNum">     145 </span>            : }
+<span class="lineNum">     146 </span>            : 
+<a name="147"><span class="lineNum">     147 </span>            : static mrb_value</a>
+<span class="lineNum">     148 </span>            : mrb_time_wrap(mrb_state *mrb, struct RClass *tc, struct mrb_time *tm)
+<span class="lineNum">     149 </span><span class="lineCov">         63 : {</span>
+<span class="lineNum">     150 </span><span class="lineCov">         63 :   return mrb_obj_value(Data_Wrap_Struct(mrb, tc, &amp;mrb_time_type, tm));</span>
+<span class="lineNum">     151 </span>            : }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            : /* Allocates a mrb_time object and initializes it. */
+<a name="155"><span class="lineNum">     155 </span>            : static struct mrb_time*</a>
+<span class="lineNum">     156 </span>            : mrb_time_alloc(mrb_state *mrb, double sec, double usec, enum mrb_timezone timezone)
+<span class="lineNum">     157 </span><span class="lineCov">         42 : {</span>
+<span class="lineNum">     158 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     159 </span>            : 
+<span class="lineNum">     160 </span><span class="lineCov">         42 :   tm = (struct mrb_time *)mrb_malloc(mrb, sizeof(struct mrb_time));</span>
+<span class="lineNum">     161 </span><span class="lineCov">         42 :   tm-&gt;sec  = (time_t)sec;</span>
+<span class="lineNum">     162 </span><span class="lineCov">         42 :   tm-&gt;usec = (sec - tm-&gt;sec) * 1.0e6 + usec;</span>
+<span class="lineNum">     163 </span><span class="lineCov">         84 :   while (tm-&gt;usec &lt; 0) {</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :     tm-&gt;sec--;</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :     tm-&gt;usec += 1.0e6;</span>
+<span class="lineNum">     166 </span>            :   }
+<span class="lineNum">     167 </span><span class="lineCov">         84 :   while (tm-&gt;usec &gt; 1.0e6) {</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :     tm-&gt;sec++;</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :     tm-&gt;usec -= 1.0e6;</span>
+<span class="lineNum">     170 </span>            :   }
+<span class="lineNum">     171 </span><span class="lineCov">         42 :   tm-&gt;timezone = timezone;</span>
+<span class="lineNum">     172 </span><span class="lineCov">         42 :   mrb_time_update_datetime(tm);</span>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineCov">         42 :   return tm;</span>
+<span class="lineNum">     175 </span>            : }
+<span class="lineNum">     176 </span>            : 
+<a name="177"><span class="lineNum">     177 </span>            : static mrb_value</a>
+<span class="lineNum">     178 </span>            : mrb_time_make(mrb_state *mrb, struct RClass *c, double sec, double usec, enum mrb_timezone timezone)
+<span class="lineNum">     179 </span><span class="lineCov">         27 : {</span>
+<span class="lineNum">     180 </span><span class="lineCov">         27 :   return mrb_time_wrap(mrb, c, mrb_time_alloc(mrb, sec, usec, timezone));</span>
+<span class="lineNum">     181 </span>            : }
+<span class="lineNum">     182 </span>            : 
+<a name="183"><span class="lineNum">     183 </span>            : static struct mrb_time*</a>
+<span class="lineNum">     184 </span>            : current_mrb_time(mrb_state *mrb)
+<span class="lineNum">     185 </span><span class="lineCov">         17 : {</span>
+<span class="lineNum">     186 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineCov">         17 :   tm = (struct mrb_time *)mrb_malloc(mrb, sizeof(*tm));</span>
+<span class="lineNum">     189 </span>            : #ifdef NO_GETTIMEOFDAY
+<span class="lineNum">     190 </span>            :   {
+<span class="lineNum">     191 </span>            :     static time_t last_sec = 0, last_usec = 0;
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            :     tm-&gt;sec  = time(NULL);
+<span class="lineNum">     194 </span>            :     if (tm-&gt;sec != last_sec) {
+<span class="lineNum">     195 </span>            :       last_sec = tm-&gt;sec;
+<span class="lineNum">     196 </span>            :       last_usec = 0;
+<span class="lineNum">     197 </span>            :     }
+<span class="lineNum">     198 </span>            :     else {
+<span class="lineNum">     199 </span>            :       /* add 1 usec to differentiate two times */
+<span class="lineNum">     200 </span>            :       last_usec += 1;
+<span class="lineNum">     201 </span>            :     }
+<span class="lineNum">     202 </span>            :     tm-&gt;usec = last_usec;
+<span class="lineNum">     203 </span>            :   }
+<span class="lineNum">     204 </span>            : #else
+<span class="lineNum">     205 </span>            :   {
+<span class="lineNum">     206 </span>            :     struct timeval tv;
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineCov">         17 :     gettimeofday(&amp;tv, NULL);</span>
+<span class="lineNum">     209 </span><span class="lineCov">         17 :     tm-&gt;sec = tv.tv_sec;</span>
+<span class="lineNum">     210 </span><span class="lineCov">         17 :     tm-&gt;usec = tv.tv_usec;</span>
+<span class="lineNum">     211 </span>            :   }
+<span class="lineNum">     212 </span>            : #endif
+<span class="lineNum">     213 </span><span class="lineCov">         17 :   tm-&gt;timezone = MRB_TIMEZONE_LOCAL;</span>
+<span class="lineNum">     214 </span><span class="lineCov">         17 :   mrb_time_update_datetime(tm);</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span><span class="lineCov">         17 :   return tm;</span>
+<span class="lineNum">     217 </span>            : }
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span>            : /* Allocates a new Time object with given millis value. */
+<a name="220"><span class="lineNum">     220 </span>            : static mrb_value</a>
+<span class="lineNum">     221 </span>            : mrb_time_now(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     222 </span><span class="lineCov">         16 : {</span>
+<span class="lineNum">     223 </span><span class="lineCov">         16 :   return mrb_time_wrap(mrb, mrb_class_ptr(self), current_mrb_time(mrb));</span>
+<span class="lineNum">     224 </span>            : }
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            : /* 15.2.19.6.1 */
+<span class="lineNum">     227 </span>            : /* Creates an instance of time at the given time in seconds, etc. */
+<a name="228"><span class="lineNum">     228 </span>            : static mrb_value</a>
+<span class="lineNum">     229 </span>            : mrb_time_at(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     230 </span><span class="lineCov">         25 : {</span>
+<span class="lineNum">     231 </span><span class="lineCov">         25 :   mrb_float f, f2 = 0;</span>
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span><span class="lineCov">         25 :   mrb_get_args(mrb, &quot;f|f&quot;, &amp;f, &amp;f2);</span>
+<span class="lineNum">     234 </span><span class="lineCov">         25 :   return mrb_time_make(mrb, mrb_class_ptr(self), f, f2, MRB_TIMEZONE_LOCAL);</span>
+<span class="lineNum">     235 </span>            : }
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span>            : static struct mrb_time*
+<span class="lineNum">     238 </span>            : time_mktime(mrb_state *mrb, mrb_int ayear, mrb_int amonth, mrb_int aday,
+<a name="239"><span class="lineNum">     239 </span>            :   mrb_int ahour, mrb_int amin, mrb_int asec, mrb_int ausec,</a>
+<span class="lineNum">     240 </span>            :   enum mrb_timezone timezone)
+<span class="lineNum">     241 </span><span class="lineCov">         15 : {</span>
+<span class="lineNum">     242 </span>            :   time_t nowsecs;
+<span class="lineNum">     243 </span><span class="lineCov">         15 :   struct tm nowtime = { 0 };</span>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineCov">         15 :   nowtime.tm_year  = (int)ayear  - 1900;</span>
+<span class="lineNum">     246 </span><span class="lineCov">         15 :   nowtime.tm_mon   = (int)amonth - 1;</span>
+<span class="lineNum">     247 </span><span class="lineCov">         15 :   nowtime.tm_mday  = (int)aday;</span>
+<span class="lineNum">     248 </span><span class="lineCov">         15 :   nowtime.tm_hour  = (int)ahour;</span>
+<span class="lineNum">     249 </span><span class="lineCov">         15 :   nowtime.tm_min   = (int)amin;</span>
+<span class="lineNum">     250 </span><span class="lineCov">         15 :   nowtime.tm_sec   = (int)asec;</span>
+<span class="lineNum">     251 </span><span class="lineCov">         15 :   nowtime.tm_isdst = -1;</span>
+<span class="lineNum">     252 </span><span class="lineCov">         15 :   if (timezone == MRB_TIMEZONE_UTC) {</span>
+<span class="lineNum">     253 </span><span class="lineCov">         13 :     nowsecs = timegm(&amp;nowtime);</span>
+<span class="lineNum">     254 </span>            :   }
+<span class="lineNum">     255 </span>            :   else {
+<span class="lineNum">     256 </span><span class="lineCov">          2 :     nowsecs = mktime(&amp;nowtime);</span>
+<span class="lineNum">     257 </span>            :   }
+<span class="lineNum">     258 </span><span class="lineCov">         15 :   if (nowsecs &lt; 0) {</span>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;Not a valid time.&quot;);</span>
+<span class="lineNum">     260 </span>            :   }
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineCov">         15 :   return mrb_time_alloc(mrb, nowsecs, ausec, timezone);</span>
+<span class="lineNum">     263 </span>            : }
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            : /* 15.2.19.6.2 */
+<span class="lineNum">     266 </span>            : /* Creates an instance of time at the given time in UTC. */
+<a name="267"><span class="lineNum">     267 </span>            : static mrb_value</a>
+<span class="lineNum">     268 </span>            : mrb_time_gm(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     269 </span><span class="lineCov">         13 : {</span>
+<span class="lineNum">     270 </span><span class="lineCov">         13 :   mrb_int ayear = 0, amonth = 1, aday = 1, ahour = 0, amin = 0, asec = 0, ausec = 0;</span>
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span><span class="lineCov">         13 :   mrb_get_args(mrb, &quot;i|iiiiii&quot;,</span>
+<span class="lineNum">     273 </span>            :                 &amp;ayear, &amp;amonth, &amp;aday, &amp;ahour, &amp;amin, &amp;asec, &amp;ausec);
+<span class="lineNum">     274 </span><span class="lineCov">         13 :   return mrb_time_wrap(mrb, mrb_class_ptr(self),</span>
+<span class="lineNum">     275 </span>            :           time_mktime(mrb, ayear, amonth, aday, ahour, amin, asec, ausec, MRB_TIMEZONE_UTC));
+<span class="lineNum">     276 </span>            : }
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span>            : /* 15.2.19.6.3 */
+<span class="lineNum">     280 </span>            : /* Creates an instance of time at the given time in local time zone. */
+<a name="281"><span class="lineNum">     281 </span>            : static mrb_value</a>
+<span class="lineNum">     282 </span>            : mrb_time_local(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     283 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     284 </span><span class="lineCov">          2 :   mrb_int ayear = 0, amonth = 1, aday = 1, ahour = 0, amin = 0, asec = 0, ausec = 0;</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;i|iiiiii&quot;,</span>
+<span class="lineNum">     287 </span>            :                 &amp;ayear, &amp;amonth, &amp;aday, &amp;ahour, &amp;amin, &amp;asec, &amp;ausec);
+<span class="lineNum">     288 </span><span class="lineCov">          2 :   return mrb_time_wrap(mrb, mrb_class_ptr(self),</span>
+<span class="lineNum">     289 </span>            :           time_mktime(mrb, ayear, amonth, aday, ahour, amin, asec, ausec, MRB_TIMEZONE_LOCAL));
+<span class="lineNum">     290 </span>            : }
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            : 
+<a name="293"><span class="lineNum">     293 </span>            : static mrb_value</a>
+<span class="lineNum">     294 </span>            : mrb_time_eq(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     295 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     296 </span>            :   mrb_value other;
+<span class="lineNum">     297 </span>            :   struct mrb_time *tm1, *tm2;
+<span class="lineNum">     298 </span>            :   mrb_bool eq_p;
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span><span class="lineCov">          4 :   mrb_get_args(mrb, &quot;o&quot;, &amp;other);</span>
+<span class="lineNum">     301 </span><span class="lineCov">          4 :   tm1 = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     302 </span><span class="lineCov">          4 :   tm2 = (struct mrb_time*)mrb_data_get_ptr(mrb, other, &amp;mrb_time_type);</span>
+<span class="lineNum">     303 </span><span class="lineCov">          4 :   eq_p = tm1 &amp;&amp; tm2 &amp;&amp; tm1-&gt;sec == tm2-&gt;sec &amp;&amp; tm1-&gt;usec == tm2-&gt;usec;</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">          4 :   return mrb_bool_value(eq_p);</span>
+<span class="lineNum">     306 </span>            : }
+<span class="lineNum">     307 </span>            : 
+<a name="308"><span class="lineNum">     308 </span>            : static mrb_value</a>
+<span class="lineNum">     309 </span>            : mrb_time_cmp(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     310 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">     311 </span>            :   mrb_value other;
+<span class="lineNum">     312 </span>            :   struct mrb_time *tm1, *tm2;
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span><span class="lineCov">          4 :   mrb_get_args(mrb, &quot;o&quot;, &amp;other);</span>
+<span class="lineNum">     315 </span><span class="lineCov">          4 :   tm1 = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     316 </span><span class="lineCov">          4 :   tm2 = (struct mrb_time*)mrb_data_get_ptr(mrb, other, &amp;mrb_time_type);</span>
+<span class="lineNum">     317 </span><span class="lineCov">          4 :   if (!tm1 || !tm2) return mrb_nil_value();</span>
+<span class="lineNum">     318 </span><span class="lineCov">          3 :   if (tm1-&gt;sec &gt; tm2-&gt;sec) {</span>
+<span class="lineNum">     319 </span><span class="lineCov">          1 :     return mrb_fixnum_value(1);</span>
+<span class="lineNum">     320 </span>            :   }
+<span class="lineNum">     321 </span><span class="lineCov">          2 :   else if (tm1-&gt;sec &lt; tm2-&gt;sec) {</span>
+<span class="lineNum">     322 </span><span class="lineCov">          1 :     return mrb_fixnum_value(-1);</span>
+<span class="lineNum">     323 </span>            :   }
+<span class="lineNum">     324 </span>            :   /* tm1-&gt;sec == tm2-&gt;sec */
+<span class="lineNum">     325 </span><span class="lineCov">          1 :   if (tm1-&gt;usec &gt; tm2-&gt;usec) {</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :     return mrb_fixnum_value(1);</span>
+<span class="lineNum">     327 </span>            :   }
+<span class="lineNum">     328 </span><span class="lineCov">          1 :   else if (tm1-&gt;usec &lt; tm2-&gt;usec) {</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :     return mrb_fixnum_value(-1);</span>
+<span class="lineNum">     330 </span>            :   }
+<span class="lineNum">     331 </span><span class="lineCov">          1 :   return mrb_fixnum_value(0);</span>
+<span class="lineNum">     332 </span>            : }
+<span class="lineNum">     333 </span>            : 
+<a name="334"><span class="lineNum">     334 </span>            : static mrb_value</a>
+<span class="lineNum">     335 </span>            : mrb_time_plus(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     336 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     337 </span>            :   mrb_float f;
+<span class="lineNum">     338 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;f&quot;, &amp;f);</span>
+<span class="lineNum">     341 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     342 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     343 </span><span class="lineCov">          1 :   return mrb_time_make(mrb, mrb_obj_class(mrb, self), (double)tm-&gt;sec+f, tm-&gt;usec, tm-&gt;timezone);</span>
+<span class="lineNum">     344 </span>            : }
+<span class="lineNum">     345 </span>            : 
+<a name="346"><span class="lineNum">     346 </span>            : static mrb_value</a>
+<span class="lineNum">     347 </span>            : mrb_time_minus(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     348 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     349 </span>            :   mrb_float f;
+<span class="lineNum">     350 </span>            :   mrb_value other;
+<span class="lineNum">     351 </span>            :   struct mrb_time *tm, *tm2;
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span><span class="lineCov">          2 :   mrb_get_args(mrb, &quot;o&quot;, &amp;other);</span>
+<span class="lineNum">     354 </span><span class="lineCov">          2 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     355 </span><span class="lineCov">          2 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span><span class="lineCov">          2 :   tm2 = (struct mrb_time*)mrb_data_get_ptr(mrb, other, &amp;mrb_time_type);</span>
+<span class="lineNum">     358 </span><span class="lineCov">          2 :   if (tm2) {</span>
+<span class="lineNum">     359 </span><span class="lineCov">          1 :     f = (mrb_float)(tm-&gt;sec - tm2-&gt;sec)</span>
+<span class="lineNum">     360 </span>            :       + (mrb_float)(tm-&gt;usec - tm2-&gt;usec) / 1.0e6;
+<span class="lineNum">     361 </span><span class="lineCov">          1 :     return mrb_float_value(f);</span>
+<span class="lineNum">     362 </span>            :   }
+<span class="lineNum">     363 </span>            :   else {
+<span class="lineNum">     364 </span><span class="lineCov">          1 :     mrb_get_args(mrb, &quot;f&quot;, &amp;f);</span>
+<span class="lineNum">     365 </span><span class="lineCov">          1 :     return mrb_time_make(mrb, mrb_obj_class(mrb, self), (double)tm-&gt;sec-f, tm-&gt;usec, tm-&gt;timezone);</span>
+<span class="lineNum">     366 </span>            :   }
+<span class="lineNum">     367 </span>            : }
+<span class="lineNum">     368 </span>            : 
+<span class="lineNum">     369 </span>            : /* 15.2.19.7.30 */
+<span class="lineNum">     370 </span>            : /* Returns week day number of time. */
+<a name="371"><span class="lineNum">     371 </span>            : static mrb_value</a>
+<span class="lineNum">     372 </span>            : mrb_time_wday(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     373 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     374 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     377 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     378 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;datetime.tm_wday);</span>
+<span class="lineNum">     379 </span>            : }
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span>            : /* 15.2.19.7.31 */
+<span class="lineNum">     382 </span>            : /* Returns year day number of time. */
+<a name="383"><span class="lineNum">     383 </span>            : static mrb_value</a>
+<span class="lineNum">     384 </span>            : mrb_time_yday(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     385 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     386 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     389 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     390 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;datetime.tm_yday + 1);</span>
+<span class="lineNum">     391 </span>            : }
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            : /* 15.2.19.7.32 */
+<span class="lineNum">     394 </span>            : /* Returns year of time. */
+<a name="395"><span class="lineNum">     395 </span>            : static mrb_value</a>
+<span class="lineNum">     396 </span>            : mrb_time_year(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     397 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     398 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     401 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     402 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;datetime.tm_year + 1900);</span>
+<span class="lineNum">     403 </span>            : }
+<span class="lineNum">     404 </span>            : 
+<span class="lineNum">     405 </span>            : /* 15.2.19.7.33 */
+<span class="lineNum">     406 </span>            : /* Returns name of time's timezone. */
+<a name="407"><span class="lineNum">     407 </span>            : static mrb_value</a>
+<span class="lineNum">     408 </span>            : mrb_time_zone(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     409 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     410 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     411 </span>            : 
+<span class="lineNum">     412 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     413 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     414 </span><span class="lineCov">          1 :   if (tm-&gt;timezone &lt;= MRB_TIMEZONE_NONE) return mrb_nil_value();</span>
+<span class="lineNum">     415 </span><span class="lineCov">          1 :   if (tm-&gt;timezone &gt;= MRB_TIMEZONE_LAST) return mrb_nil_value();</span>
+<span class="lineNum">     416 </span><span class="lineCov">          1 :   return mrb_str_new_cstr(mrb, timezone_names[tm-&gt;timezone]);</span>
+<span class="lineNum">     417 </span>            : }
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span>            : /* 15.2.19.7.4 */
+<span class="lineNum">     420 </span>            : /* Returns a string that describes the time. */
+<a name="421"><span class="lineNum">     421 </span>            : static mrb_value</a>
+<span class="lineNum">     422 </span>            : mrb_time_asctime(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     423 </span><span class="lineCov">          8 : {</span>
+<span class="lineNum">     424 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     425 </span>            :   struct tm *d;
+<span class="lineNum">     426 </span>            :   char buf[256];
+<span class="lineNum">     427 </span>            :   int len;
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineCov">          8 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     430 </span><span class="lineCov">          8 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     431 </span><span class="lineCov">          8 :   d = &amp;tm-&gt;datetime;</span>
+<span class="lineNum">     432 </span><span class="lineCov">          8 :   len = snprintf(buf, sizeof(buf), &quot;%s %s %02d %02d:%02d:%02d %s%d&quot;,</span>
+<span class="lineNum">     433 </span>            :   wday_names[d-&gt;tm_wday], mon_names[d-&gt;tm_mon], d-&gt;tm_mday,
+<span class="lineNum">     434 </span>            :   d-&gt;tm_hour, d-&gt;tm_min, d-&gt;tm_sec,
+<span class="lineNum">     435 </span>            :   tm-&gt;timezone == MRB_TIMEZONE_UTC ? &quot;UTC &quot; : &quot;&quot;,
+<span class="lineNum">     436 </span>            :   d-&gt;tm_year + 1900);
+<span class="lineNum">     437 </span><span class="lineCov">          8 :   return mrb_str_new(mrb, buf, len);</span>
+<span class="lineNum">     438 </span>            : }
+<span class="lineNum">     439 </span>            : 
+<span class="lineNum">     440 </span>            : /* 15.2.19.7.6 */
+<span class="lineNum">     441 </span>            : /* Returns the day in the month of the time. */
+<a name="442"><span class="lineNum">     442 </span>            : static mrb_value</a>
+<span class="lineNum">     443 </span>            : mrb_time_day(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     444 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     445 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     446 </span>            : 
+<span class="lineNum">     447 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     448 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     449 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;datetime.tm_mday);</span>
+<span class="lineNum">     450 </span>            : }
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            : /* 15.2.19.7.7 */
+<span class="lineNum">     454 </span>            : /* Returns true if daylight saving was applied for this time. */
+<a name="455"><span class="lineNum">     455 </span>            : static mrb_value</a>
+<span class="lineNum">     456 </span>            : mrb_time_dstp(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     457 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     458 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     461 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     462 </span><span class="lineCov">          1 :   return mrb_bool_value(tm-&gt;datetime.tm_isdst);</span>
+<span class="lineNum">     463 </span>            : }
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            : /* 15.2.19.7.8 */
+<span class="lineNum">     466 </span>            : /* 15.2.19.7.10 */
+<span class="lineNum">     467 </span>            : /* Returns the Time object of the UTC(GMT) timezone. */
+<a name="468"><span class="lineNum">     468 </span>            : static mrb_value</a>
+<span class="lineNum">     469 </span>            : mrb_time_getutc(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     470 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     471 </span>            :   struct mrb_time *tm, *tm2;
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span><span class="lineCov">          2 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     474 </span><span class="lineCov">          2 :   if (!tm) return self;</span>
+<span class="lineNum">     475 </span><span class="lineCov">          2 :   tm2 = (struct mrb_time *)mrb_malloc(mrb, sizeof(*tm));</span>
+<span class="lineNum">     476 </span><span class="lineCov">          2 :   *tm2 = *tm;</span>
+<span class="lineNum">     477 </span><span class="lineCov">          2 :   tm2-&gt;timezone = MRB_TIMEZONE_UTC;</span>
+<span class="lineNum">     478 </span><span class="lineCov">          2 :   mrb_time_update_datetime(tm2);</span>
+<span class="lineNum">     479 </span><span class="lineCov">          2 :   return mrb_time_wrap(mrb, mrb_obj_class(mrb, self), tm2);</span>
+<span class="lineNum">     480 </span>            : }
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span>            : /* 15.2.19.7.9 */
+<span class="lineNum">     483 </span>            : /* Returns the Time object of the LOCAL timezone. */
+<a name="484"><span class="lineNum">     484 </span>            : static mrb_value</a>
+<span class="lineNum">     485 </span>            : mrb_time_getlocal(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     486 </span><span class="lineCov">          3 : {</span>
+<span class="lineNum">     487 </span>            :   struct mrb_time *tm, *tm2;
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span><span class="lineCov">          3 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     490 </span><span class="lineCov">          3 :   if (!tm) return self;</span>
+<span class="lineNum">     491 </span><span class="lineCov">          3 :   tm2 = (struct mrb_time *)mrb_malloc(mrb, sizeof(*tm));</span>
+<span class="lineNum">     492 </span><span class="lineCov">          3 :   *tm2 = *tm;</span>
+<span class="lineNum">     493 </span><span class="lineCov">          3 :   tm2-&gt;timezone = MRB_TIMEZONE_LOCAL;</span>
+<span class="lineNum">     494 </span><span class="lineCov">          3 :   mrb_time_update_datetime(tm2);</span>
+<span class="lineNum">     495 </span><span class="lineCov">          3 :   return mrb_time_wrap(mrb, mrb_obj_class(mrb, self), tm2);</span>
+<span class="lineNum">     496 </span>            : }
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span>            : /* 15.2.19.7.15 */
+<span class="lineNum">     499 </span>            : /* Returns hour of time. */
+<a name="500"><span class="lineNum">     500 </span>            : static mrb_value</a>
+<span class="lineNum">     501 </span>            : mrb_time_hour(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     502 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     503 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     504 </span>            : 
+<span class="lineNum">     505 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     506 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     507 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;datetime.tm_hour);</span>
+<span class="lineNum">     508 </span>            : }
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            : /* 15.2.19.7.16 */
+<span class="lineNum">     511 </span>            : /* Initializes a time by setting the amount of milliseconds since the epoch.*/
+<a name="512"><span class="lineNum">     512 </span>            : static mrb_value</a>
+<span class="lineNum">     513 </span>            : mrb_time_initialize(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     514 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     515 </span><span class="lineCov">          1 :   mrb_int ayear = 0, amonth = 1, aday = 1, ahour = 0,</span>
+<span class="lineNum">     516 </span><span class="lineCov">          1 :   amin = 0, asec = 0, ausec = 0;</span>
+<span class="lineNum">     517 </span>            :   int n;
+<span class="lineNum">     518 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)DATA_PTR(self);</span>
+<span class="lineNum">     521 </span><span class="lineCov">          1 :   if (tm) {</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :     mrb_time_free(mrb, tm);</span>
+<span class="lineNum">     523 </span>            :   }
+<span class="lineNum">     524 </span><span class="lineCov">          1 :   DATA_TYPE(self) = &amp;mrb_time_type;</span>
+<span class="lineNum">     525 </span><span class="lineCov">          1 :   DATA_PTR(self) = NULL;</span>
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span><span class="lineCov">          1 :   n = mrb_get_args(mrb, &quot;|iiiiiii&quot;,</span>
+<span class="lineNum">     528 </span>            :        &amp;ayear, &amp;amonth, &amp;aday, &amp;ahour, &amp;amin, &amp;asec, &amp;ausec);
+<span class="lineNum">     529 </span><span class="lineCov">          1 :   if (n == 0) {</span>
+<span class="lineNum">     530 </span><span class="lineCov">          1 :     tm = current_mrb_time(mrb);</span>
+<span class="lineNum">     531 </span>            :   }
+<span class="lineNum">     532 </span>            :   else {
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :     tm = time_mktime(mrb, ayear, amonth, aday, ahour, amin, asec, ausec, MRB_TIMEZONE_LOCAL);</span>
+<span class="lineNum">     534 </span>            :   }
+<span class="lineNum">     535 </span><span class="lineCov">          1 :   DATA_PTR(self) = tm;</span>
+<span class="lineNum">     536 </span><span class="lineCov">          1 :   return self;</span>
+<span class="lineNum">     537 </span>            : }
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span>            : /* 15.2.19.7.17(x) */
+<span class="lineNum">     540 </span>            : /* Initializes a copy of this time object. */
+<a name="541"><span class="lineNum">     541 </span>            : static mrb_value</a>
+<span class="lineNum">     542 </span>            : mrb_time_initialize_copy(mrb_state *mrb, mrb_value copy)
+<span class="lineNum">     543 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     544 </span>            :   mrb_value src;
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span><span class="lineCov">          1 :   mrb_get_args(mrb, &quot;o&quot;, &amp;src);</span>
+<span class="lineNum">     547 </span><span class="lineCov">          1 :   if (mrb_obj_equal(mrb, copy, src)) return copy;</span>
+<span class="lineNum">     548 </span><span class="lineCov">          1 :   if (!mrb_obj_is_instance_of(mrb, src, mrb_obj_class(mrb, copy))) {</span>
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_TYPE_ERROR, &quot;wrong argument class&quot;);</span>
+<span class="lineNum">     550 </span>            :   }
+<span class="lineNum">     551 </span><span class="lineCov">          1 :   if (!DATA_PTR(copy)) {</span>
+<span class="lineNum">     552 </span><span class="lineCov">          1 :     DATA_PTR(copy) = mrb_malloc(mrb, sizeof(struct mrb_time));</span>
+<span class="lineNum">     553 </span><span class="lineCov">          1 :     DATA_TYPE(copy) = &amp;mrb_time_type;</span>
+<span class="lineNum">     554 </span>            :   }
+<span class="lineNum">     555 </span><span class="lineCov">          1 :   *(struct mrb_time *)DATA_PTR(copy) = *(struct mrb_time *)DATA_PTR(src);</span>
+<span class="lineNum">     556 </span><span class="lineCov">          1 :   return copy;</span>
+<span class="lineNum">     557 </span>            : }
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span>            : /* 15.2.19.7.18 */
+<span class="lineNum">     560 </span>            : /* Sets the timezone attribute of the Time object to LOCAL. */
+<a name="561"><span class="lineNum">     561 </span>            : static mrb_value</a>
+<span class="lineNum">     562 </span>            : mrb_time_localtime(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     563 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     564 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     565 </span>            : 
+<span class="lineNum">     566 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     567 </span><span class="lineCov">          1 :   if (!tm) return self;</span>
+<span class="lineNum">     568 </span><span class="lineCov">          1 :   tm-&gt;timezone = MRB_TIMEZONE_LOCAL;</span>
+<span class="lineNum">     569 </span><span class="lineCov">          1 :   mrb_time_update_datetime(tm);</span>
+<span class="lineNum">     570 </span><span class="lineCov">          1 :   return self;</span>
+<span class="lineNum">     571 </span>            : }
+<span class="lineNum">     572 </span>            : 
+<span class="lineNum">     573 </span>            : /* 15.2.19.7.19 */
+<span class="lineNum">     574 </span>            : /* Returns day of month of time. */
+<a name="575"><span class="lineNum">     575 </span>            : static mrb_value</a>
+<span class="lineNum">     576 </span>            : mrb_time_mday(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     577 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     578 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     579 </span>            : 
+<span class="lineNum">     580 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     581 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     582 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;datetime.tm_mday);</span>
+<span class="lineNum">     583 </span>            : }
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span>            : /* 15.2.19.7.20 */
+<span class="lineNum">     586 </span>            : /* Returns minutes of time. */
+<a name="587"><span class="lineNum">     587 </span>            : static mrb_value</a>
+<span class="lineNum">     588 </span>            : mrb_time_min(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     589 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     590 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     591 </span>            : 
+<span class="lineNum">     592 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     593 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     594 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;datetime.tm_min);</span>
+<span class="lineNum">     595 </span>            : }
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span>            : /* 15.2.19.7.21 and 15.2.19.7.22 */
+<span class="lineNum">     598 </span>            : /* Returns month of time. */
+<a name="599"><span class="lineNum">     599 </span>            : static mrb_value</a>
+<span class="lineNum">     600 </span>            : mrb_time_mon(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     601 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     602 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span><span class="lineCov">          2 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     605 </span><span class="lineCov">          2 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     606 </span><span class="lineCov">          2 :   return mrb_fixnum_value(tm-&gt;datetime.tm_mon + 1);</span>
+<span class="lineNum">     607 </span>            : }
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span>            : /* 15.2.19.7.23 */
+<span class="lineNum">     610 </span>            : /* Returns seconds in minute of time. */
+<a name="611"><span class="lineNum">     611 </span>            : static mrb_value</a>
+<span class="lineNum">     612 </span>            : mrb_time_sec(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     613 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     614 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     615 </span>            : 
+<span class="lineNum">     616 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     617 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     618 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;datetime.tm_sec);</span>
+<span class="lineNum">     619 </span>            : }
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span>            : /* 15.2.19.7.24 */
+<span class="lineNum">     623 </span>            : /* Returns a Float with the time since the epoch in seconds. */
+<a name="624"><span class="lineNum">     624 </span>            : static mrb_value</a>
+<span class="lineNum">     625 </span>            : mrb_time_to_f(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     626 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     627 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     630 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     631 </span><span class="lineCov">          1 :   return mrb_float_value((mrb_float)tm-&gt;sec + (mrb_float)tm-&gt;usec/1.0e6);</span>
+<span class="lineNum">     632 </span>            : }
+<span class="lineNum">     633 </span>            : 
+<span class="lineNum">     634 </span>            : /* 15.2.19.7.25 */
+<span class="lineNum">     635 </span>            : /* Returns a Fixnum with the time since the epoch in seconds. */
+<a name="636"><span class="lineNum">     636 </span>            : static mrb_value</a>
+<span class="lineNum">     637 </span>            : mrb_time_to_i(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     638 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     639 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     640 </span>            : 
+<span class="lineNum">     641 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     642 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     643 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;sec);</span>
+<span class="lineNum">     644 </span>            : }
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span>            : /* 15.2.19.7.26 */
+<span class="lineNum">     647 </span>            : /* Returns a Float with the time since the epoch in microseconds. */
+<a name="648"><span class="lineNum">     648 </span>            : static mrb_value</a>
+<span class="lineNum">     649 </span>            : mrb_time_usec(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     650 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     651 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span><span class="lineCov">          1 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     654 </span><span class="lineCov">          1 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     655 </span><span class="lineCov">          1 :   return mrb_fixnum_value(tm-&gt;usec);</span>
+<span class="lineNum">     656 </span>            : }
+<span class="lineNum">     657 </span>            : 
+<span class="lineNum">     658 </span>            : /* 15.2.19.7.27 */
+<span class="lineNum">     659 </span>            : /* Sets the timezone attribute of the Time object to UTC. */
+<a name="660"><span class="lineNum">     660 </span>            : static mrb_value</a>
+<span class="lineNum">     661 </span>            : mrb_time_utc(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     662 </span><span class="lineCov">         12 : {</span>
+<span class="lineNum">     663 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     664 </span>            : 
+<span class="lineNum">     665 </span><span class="lineCov">         12 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     666 </span><span class="lineCov">         12 :   if (tm) {</span>
+<span class="lineNum">     667 </span><span class="lineCov">         12 :     tm-&gt;timezone = MRB_TIMEZONE_UTC;</span>
+<span class="lineNum">     668 </span><span class="lineCov">         12 :     mrb_time_update_datetime(tm);</span>
+<span class="lineNum">     669 </span>            :   }
+<span class="lineNum">     670 </span><span class="lineCov">         12 :   return self;</span>
+<span class="lineNum">     671 </span>            : }
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span>            : /* 15.2.19.7.28 */
+<span class="lineNum">     674 </span>            : /* Returns true if this time is in the UTC timezone false if not. */
+<a name="675"><span class="lineNum">     675 </span>            : static mrb_value</a>
+<span class="lineNum">     676 </span>            : mrb_time_utcp(mrb_state *mrb, mrb_value self)
+<span class="lineNum">     677 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">     678 </span>            :   struct mrb_time *tm;
+<span class="lineNum">     679 </span><span class="lineCov">          2 :   tm = (struct mrb_time*)mrb_data_get_ptr(mrb, self, &amp;mrb_time_type);</span>
+<span class="lineNum">     680 </span><span class="lineCov">          2 :   if (!tm) return mrb_nil_value();</span>
+<span class="lineNum">     681 </span><span class="lineCov">          2 :   return mrb_bool_value(tm-&gt;timezone == MRB_TIMEZONE_UTC);</span>
+<span class="lineNum">     682 </span>            : }
+<span class="lineNum">     683 </span>            : 
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span>            : 
+<a name="686"><span class="lineNum">     686 </span>            : void</a>
+<span class="lineNum">     687 </span>            : mrb_mruby_time_gem_init(mrb_state* mrb)
+<span class="lineNum">     688 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     689 </span>            :   struct RClass *tc;
+<span class="lineNum">     690 </span>            :   /* ISO 15.2.19.2 */
+<span class="lineNum">     691 </span><span class="lineCov">         14 :   tc = mrb_define_class(mrb, &quot;Time&quot;, mrb-&gt;object_class);</span>
+<span class="lineNum">     692 </span><span class="lineCov">         14 :   MRB_SET_INSTANCE_TT(tc, MRB_TT_DATA);</span>
+<span class="lineNum">     693 </span><span class="lineCov">         14 :   mrb_include_module(mrb, tc, mrb_class_get(mrb, &quot;Comparable&quot;));</span>
+<span class="lineNum">     694 </span><span class="lineCov">         14 :   mrb_define_class_method(mrb, tc, &quot;at&quot;, mrb_time_at, MRB_ARGS_ANY());          /* 15.2.19.6.1 */</span>
+<span class="lineNum">     695 </span><span class="lineCov">         14 :   mrb_define_class_method(mrb, tc, &quot;gm&quot;, mrb_time_gm, MRB_ARGS_ARG(1,6));       /* 15.2.19.6.2 */</span>
+<span class="lineNum">     696 </span><span class="lineCov">         14 :   mrb_define_class_method(mrb, tc, &quot;local&quot;, mrb_time_local, MRB_ARGS_ARG(1,6)); /* 15.2.19.6.3 */</span>
+<span class="lineNum">     697 </span><span class="lineCov">         14 :   mrb_define_class_method(mrb, tc, &quot;mktime&quot;, mrb_time_local, MRB_ARGS_ARG(1,6));/* 15.2.19.6.4 */</span>
+<span class="lineNum">     698 </span><span class="lineCov">         14 :   mrb_define_class_method(mrb, tc, &quot;now&quot;, mrb_time_now, MRB_ARGS_NONE());       /* 15.2.19.6.5 */</span>
+<span class="lineNum">     699 </span><span class="lineCov">         14 :   mrb_define_class_method(mrb, tc, &quot;utc&quot;, mrb_time_gm, MRB_ARGS_ARG(1,6));      /* 15.2.19.6.6 */</span>
+<span class="lineNum">     700 </span>            : 
+<span class="lineNum">     701 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;==&quot;     , mrb_time_eq     , MRB_ARGS_REQ(1));</span>
+<span class="lineNum">     702 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;&lt;=&gt;&quot;    , mrb_time_cmp    , MRB_ARGS_REQ(1)); /* 15.2.19.7.1 */</span>
+<span class="lineNum">     703 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;+&quot;      , mrb_time_plus   , MRB_ARGS_REQ(1)); /* 15.2.19.7.2 */</span>
+<span class="lineNum">     704 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;-&quot;      , mrb_time_minus  , MRB_ARGS_REQ(1)); /* 15.2.19.7.3 */</span>
+<span class="lineNum">     705 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;to_s&quot;   , mrb_time_asctime, MRB_ARGS_NONE());</span>
+<span class="lineNum">     706 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;inspect&quot;, mrb_time_asctime, MRB_ARGS_NONE());</span>
+<span class="lineNum">     707 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;asctime&quot;, mrb_time_asctime, MRB_ARGS_NONE()); /* 15.2.19.7.4 */</span>
+<span class="lineNum">     708 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;ctime&quot;  , mrb_time_asctime, MRB_ARGS_NONE()); /* 15.2.19.7.5 */</span>
+<span class="lineNum">     709 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;day&quot;    , mrb_time_day    , MRB_ARGS_NONE()); /* 15.2.19.7.6 */</span>
+<span class="lineNum">     710 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;dst?&quot;   , mrb_time_dstp   , MRB_ARGS_NONE()); /* 15.2.19.7.7 */</span>
+<span class="lineNum">     711 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;getgm&quot;  , mrb_time_getutc , MRB_ARGS_NONE()); /* 15.2.19.7.8 */</span>
+<span class="lineNum">     712 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;getlocal&quot;,mrb_time_getlocal,MRB_ARGS_NONE()); /* 15.2.19.7.9 */</span>
+<span class="lineNum">     713 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;getutc&quot; , mrb_time_getutc , MRB_ARGS_NONE()); /* 15.2.19.7.10 */</span>
+<span class="lineNum">     714 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;gmt?&quot;   , mrb_time_utcp   , MRB_ARGS_NONE()); /* 15.2.19.7.11 */</span>
+<span class="lineNum">     715 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;gmtime&quot; , mrb_time_utc    , MRB_ARGS_NONE()); /* 15.2.19.7.13 */</span>
+<span class="lineNum">     716 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;hour&quot;   , mrb_time_hour, MRB_ARGS_NONE());    /* 15.2.19.7.15 */</span>
+<span class="lineNum">     717 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;localtime&quot;, mrb_time_localtime, MRB_ARGS_NONE()); /* 15.2.19.7.18 */</span>
+<span class="lineNum">     718 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;mday&quot;   , mrb_time_mday, MRB_ARGS_NONE());    /* 15.2.19.7.19 */</span>
+<span class="lineNum">     719 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;min&quot;    , mrb_time_min, MRB_ARGS_NONE());     /* 15.2.19.7.20 */</span>
+<span class="lineNum">     720 </span>            : 
+<span class="lineNum">     721 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;mon&quot;  , mrb_time_mon, MRB_ARGS_NONE());       /* 15.2.19.7.21 */</span>
+<span class="lineNum">     722 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;month&quot;, mrb_time_mon, MRB_ARGS_NONE());       /* 15.2.19.7.22 */</span>
+<span class="lineNum">     723 </span>            : 
+<span class="lineNum">     724 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;sec&quot; , mrb_time_sec, MRB_ARGS_NONE());        /* 15.2.19.7.23 */</span>
+<span class="lineNum">     725 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;to_i&quot;, mrb_time_to_i, MRB_ARGS_NONE());       /* 15.2.19.7.25 */</span>
+<span class="lineNum">     726 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;to_f&quot;, mrb_time_to_f, MRB_ARGS_NONE());       /* 15.2.19.7.24 */</span>
+<span class="lineNum">     727 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;usec&quot;, mrb_time_usec, MRB_ARGS_NONE());       /* 15.2.19.7.26 */</span>
+<span class="lineNum">     728 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;utc&quot; , mrb_time_utc, MRB_ARGS_NONE());        /* 15.2.19.7.27 */</span>
+<span class="lineNum">     729 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;utc?&quot;, mrb_time_utcp, MRB_ARGS_NONE());       /* 15.2.19.7.28 */</span>
+<span class="lineNum">     730 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;wday&quot;, mrb_time_wday, MRB_ARGS_NONE());       /* 15.2.19.7.30 */</span>
+<span class="lineNum">     731 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;yday&quot;, mrb_time_yday, MRB_ARGS_NONE());       /* 15.2.19.7.31 */</span>
+<span class="lineNum">     732 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;year&quot;, mrb_time_year, MRB_ARGS_NONE());       /* 15.2.19.7.32 */</span>
+<span class="lineNum">     733 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;zone&quot;, mrb_time_zone, MRB_ARGS_NONE());       /* 15.2.19.7.33 */</span>
+<span class="lineNum">     734 </span>            : 
+<span class="lineNum">     735 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;initialize&quot;, mrb_time_initialize, MRB_ARGS_REQ(1)); /* 15.2.19.7.16 */</span>
+<span class="lineNum">     736 </span><span class="lineCov">         14 :   mrb_define_method(mrb, tc, &quot;initialize_copy&quot;, mrb_time_initialize_copy, MRB_ARGS_REQ(1)); /* 15.2.19.7.17 */</span>
+<span class="lineNum">     737 </span>            : 
+<span class="lineNum">     738 </span>            :   /*
+<span class="lineNum">     739 </span>            :     methods not available:
+<span class="lineNum">     740 </span>            :       gmt_offset(15.2.19.7.12)
+<span class="lineNum">     741 </span>            :       gmtoff(15.2.19.7.14)
+<span class="lineNum">     742 </span>            :       utc_offset(15.2.19.7.29)
+<span class="lineNum">     743 </span>            :   */
+<span class="lineNum">     744 </span><span class="lineCov">         14 : }</span>
+<span class="lineNum">     745 </span>            : 
+<a name="746"><span class="lineNum">     746 </span>            : void</a>
+<span class="lineNum">     747 </span>            : mrb_mruby_time_gem_final(mrb_state* mrb)
+<span class="lineNum">     748 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">     749 </span><span class="lineCov">         14 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,2082 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/vm.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - vm.c<span style="font-size: 80%;"> (source / <a href="vm.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">794</td>
+            <td class="headerCovTableEntry">1027</td>
+            <td class="headerCovTableEntryMed">77.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntryHi">90.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** vm.c - virtual machine for mruby
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;setjmp.h&gt;
+<span class="lineNum">       9 </span>            : #include &lt;stddef.h&gt;
+<span class="lineNum">      10 </span>            : #include &lt;stdarg.h&gt;
+<span class="lineNum">      11 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      12 </span>            : #include &quot;mruby/array.h&quot;
+<span class="lineNum">      13 </span>            : #include &quot;mruby/class.h&quot;
+<span class="lineNum">      14 </span>            : #include &quot;mruby/hash.h&quot;
+<span class="lineNum">      15 </span>            : #include &quot;mruby/irep.h&quot;
+<span class="lineNum">      16 </span>            : #include &quot;mruby/numeric.h&quot;
+<span class="lineNum">      17 </span>            : #include &quot;mruby/proc.h&quot;
+<span class="lineNum">      18 </span>            : #include &quot;mruby/range.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;mruby/string.h&quot;
+<span class="lineNum">      20 </span>            : #include &quot;mruby/variable.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;error.h&quot;
+<span class="lineNum">      22 </span>            : #include &quot;ritevm/opcode.h&quot;
+<span class="lineNum">      23 </span>            : #include &quot;value_array.h&quot;
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : #ifndef ENABLE_STDIO
+<span class="lineNum">      26 </span>            : #if defined(__cplusplus)
+<span class="lineNum">      27 </span>            : extern &quot;C&quot; {
+<span class="lineNum">      28 </span>            : #endif
+<span class="lineNum">      29 </span>            : void abort(void);
+<span class="lineNum">      30 </span>            : #if defined(__cplusplus)
+<span class="lineNum">      31 </span>            : }  /* extern &quot;C&quot; { */
+<span class="lineNum">      32 </span>            : #endif
+<span class="lineNum">      33 </span>            : #endif
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #define SET_TRUE_VALUE(r) MRB_SET_VALUE(r, MRB_TT_TRUE, value.i, 1)
+<span class="lineNum">      36 </span>            : #define SET_FALSE_VALUE(r) MRB_SET_VALUE(r, MRB_TT_FALSE, value.i, 1)
+<span class="lineNum">      37 </span>            : #define SET_NIL_VALUE(r) MRB_SET_VALUE(r, MRB_TT_FALSE, value.i, 0)
+<span class="lineNum">      38 </span>            : #define SET_INT_VALUE(r,n) MRB_SET_VALUE(r, MRB_TT_FIXNUM, value.i, (n))
+<span class="lineNum">      39 </span>            : #define SET_SYM_VALUE(r,v) MRB_SET_VALUE(r, MRB_TT_SYMBOL, value.sym, (v))
+<span class="lineNum">      40 </span>            : #define SET_OBJ_VALUE(r,v) MRB_SET_VALUE(r, (((struct RObject*)(v))-&gt;tt), value.p, (v))
+<span class="lineNum">      41 </span>            : #ifdef MRB_NAN_BOXING
+<span class="lineNum">      42 </span>            : #define SET_FLT_VALUE(r,v) r.f = (v)
+<span class="lineNum">      43 </span>            : #else
+<span class="lineNum">      44 </span>            : #define SET_FLT_VALUE(r,v) MRB_SET_VALUE(r, MRB_TT_FLOAT, value.f, (v))
+<span class="lineNum">      45 </span>            : #endif
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : #define STACK_INIT_SIZE 128
+<span class="lineNum">      48 </span>            : #define CALLINFO_INIT_SIZE 32
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span>            : /* Define amount of linear stack growth. */
+<span class="lineNum">      51 </span>            : #ifndef MRB_STACK_GROWTH
+<span class="lineNum">      52 </span>            : #define MRB_STACK_GROWTH 128
+<span class="lineNum">      53 </span>            : #endif
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : /* Maximum stack depth. Should be set lower on memory constrained systems.
+<span class="lineNum">      56 </span>            : The value below allows about 60000 recursive calls in the simplest case. */
+<span class="lineNum">      57 </span>            : #ifndef MRB_STACK_MAX
+<span class="lineNum">      58 </span>            : #define MRB_STACK_MAX (0x40000 - MRB_STACK_GROWTH)
+<span class="lineNum">      59 </span>            : #endif
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : #ifdef VM_DEBUG
+<span class="lineNum">      62 </span>            : # define DEBUG(x) (x)
+<span class="lineNum">      63 </span>            : #else
+<span class="lineNum">      64 </span>            : # define DEBUG(x)
+<span class="lineNum">      65 </span>            : #endif
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : #define TO_STR(x) TO_STR_(x)
+<span class="lineNum">      68 </span>            : #define TO_STR_(x) #x
+<span class="lineNum">      69 </span>            : 
+<a name="70"><span class="lineNum">      70 </span>            : static inline void</a>
+<span class="lineNum">      71 </span>            : stack_clear(mrb_value *from, size_t count)
+<span class="lineNum">      72 </span><span class="lineCov">     137919 : {</span>
+<span class="lineNum">      73 </span><span class="lineCov">     137919 :   const mrb_value mrb_value_zero = { { 0 } };</span>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">     560365 :   while (count-- &gt; 0) {</span>
+<span class="lineNum">      76 </span><span class="lineCov">     284527 :     *from++ = mrb_value_zero;</span>
+<span class="lineNum">      77 </span>            :   }
+<span class="lineNum">      78 </span><span class="lineCov">     137919 : }</span>
+<span class="lineNum">      79 </span>            : 
+<a name="80"><span class="lineNum">      80 </span>            : static inline void</a>
+<span class="lineNum">      81 </span>            : stack_copy(mrb_value *dst, const mrb_value *src, size_t size)
+<span class="lineNum">      82 </span><span class="lineCov">       1940 : {</span>
+<span class="lineNum">      83 </span><span class="lineCov">       9308 :   while (size-- &gt; 0) {</span>
+<span class="lineNum">      84 </span><span class="lineCov">       5428 :     *dst++ = *src++;</span>
+<span class="lineNum">      85 </span>            :   }
+<span class="lineNum">      86 </span><span class="lineCov">       1940 : }</span>
+<span class="lineNum">      87 </span>            : 
+<a name="88"><span class="lineNum">      88 </span>            : static void</a>
+<span class="lineNum">      89 </span>            : stack_init(mrb_state *mrb)
+<span class="lineNum">      90 </span><span class="lineCov">         14 : {</span>
+<span class="lineNum">      91 </span>            :   /* assert(mrb-&gt;stack == NULL); */
+<span class="lineNum">      92 </span><span class="lineCov">         14 :   mrb-&gt;stbase = (mrb_value *)mrb_calloc(mrb, STACK_INIT_SIZE,   sizeof(mrb_value));</span>
+<span class="lineNum">      93 </span><span class="lineCov">         14 :   mrb-&gt;stend = mrb-&gt;stbase + STACK_INIT_SIZE;</span>
+<span class="lineNum">      94 </span><span class="lineCov">         14 :   mrb-&gt;stack = mrb-&gt;stbase;</span>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            :   /* assert(mrb-&gt;ci == NULL); */
+<span class="lineNum">      97 </span><span class="lineCov">         14 :   mrb-&gt;cibase = (mrb_callinfo *)mrb_calloc(mrb, CALLINFO_INIT_SIZE, sizeof(mrb_callinfo));</span>
+<span class="lineNum">      98 </span><span class="lineCov">         14 :   mrb-&gt;ciend = mrb-&gt;cibase + CALLINFO_INIT_SIZE;</span>
+<span class="lineNum">      99 </span><span class="lineCov">         14 :   mrb-&gt;ci = mrb-&gt;cibase;</span>
+<span class="lineNum">     100 </span><span class="lineCov">         14 :   mrb-&gt;ci-&gt;target_class = mrb-&gt;object_class;</span>
+<span class="lineNum">     101 </span><span class="lineCov">         14 : }</span>
+<span class="lineNum">     102 </span>            : 
+<a name="103"><span class="lineNum">     103 </span>            : static inline void</a>
+<span class="lineNum">     104 </span>            : envadjust(mrb_state *mrb, mrb_value *oldbase, mrb_value *newbase)
+<span class="lineNum">     105 </span><span class="lineCov">       2047 : {</span>
+<span class="lineNum">     106 </span><span class="lineCov">       2047 :   mrb_callinfo *ci = mrb-&gt;cibase;</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">  134152192 :   while (ci &lt;= mrb-&gt;ci) {</span>
+<span class="lineNum">     109 </span><span class="lineCov">  134148098 :     struct REnv *e = ci-&gt;env;</span>
+<span class="lineNum">     110 </span><span class="lineCov">  134148098 :     if (e &amp;&amp; e-&gt;cioff &gt;= 0) {</span>
+<span class="lineNum">     111 </span><span class="lineCov">       4094 :       ptrdiff_t off = e-&gt;stack - oldbase;</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">       4094 :       e-&gt;stack = newbase + off;</span>
+<span class="lineNum">     114 </span>            :     }
+<span class="lineNum">     115 </span><span class="lineCov">  134148098 :     ci++;</span>
+<span class="lineNum">     116 </span>            :   }
+<span class="lineNum">     117 </span><span class="lineCov">       2047 : }</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            : /** def rec ; $deep =+ 1 ; if $deep &gt; 1000 ; return 0 ; end ; rec ; end  */
+<span class="lineNum">     120 </span>            : 
+<a name="121"><span class="lineNum">     121 </span>            : static void</a>
+<span class="lineNum">     122 </span>            : stack_extend(mrb_state *mrb, int room, int keep)
+<span class="lineNum">     123 </span><span class="lineCov">     141347 : {</span>
+<span class="lineNum">     124 </span><span class="lineCov">     141347 :   if (mrb-&gt;stack + room &gt;= mrb-&gt;stend) {</span>
+<span class="lineNum">     125 </span>            :     int size, off;
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">       2047 :     mrb_value *oldbase = mrb-&gt;stbase;</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">       2047 :     size = mrb-&gt;stend - mrb-&gt;stbase;</span>
+<span class="lineNum">     130 </span><span class="lineCov">       2047 :     off = mrb-&gt;stack - mrb-&gt;stbase;</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            :     /* do not leave uninitialized malloc region */
+<span class="lineNum">     133 </span><span class="lineCov">       2047 :     if (keep &gt; size) keep = size;</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :     /* Use linear stack growth.
+<span class="lineNum">     136 </span>            :        It is slightly slower than doubling thestack space,
+<span class="lineNum">     137 </span>            :        but it saves memory on small devices. */
+<span class="lineNum">     138 </span><span class="lineCov">       2047 :     if (room &lt;= size)</span>
+<span class="lineNum">     139 </span><span class="lineCov">       2047 :       size += MRB_STACK_GROWTH;</span>
+<span class="lineNum">     140 </span>            :     else
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :       size += room;</span>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">       2047 :     mrb-&gt;stbase = (mrb_value *)mrb_realloc(mrb, mrb-&gt;stbase, sizeof(mrb_value) * size);</span>
+<span class="lineNum">     144 </span><span class="lineCov">       2047 :     mrb-&gt;stack = mrb-&gt;stbase + off;</span>
+<span class="lineNum">     145 </span><span class="lineCov">       2047 :     mrb-&gt;stend = mrb-&gt;stbase + size;</span>
+<span class="lineNum">     146 </span><span class="lineCov">       2047 :     envadjust(mrb, oldbase, mrb-&gt;stbase);</span>
+<span class="lineNum">     147 </span>            :     /* Raise an exception if the new stack size will be too large,
+<span class="lineNum">     148 </span>            :     to prevent infinite recursion. However, do this only after resizing the stack, so mrb_raise has stack space to work with. */
+<span class="lineNum">     149 </span><span class="lineCov">       2047 :     if (size &gt; MRB_STACK_MAX) {</span>
+<span class="lineNum">     150 </span><span class="lineCov">          1 :       mrb_raise(mrb, E_RUNTIME_ERROR, &quot;stack level too deep. (limit=&quot; TO_STR(MRB_STACK_MAX) &quot;)&quot;);</span>
+<span class="lineNum">     151 </span>            :     }
+<span class="lineNum">     152 </span>            :   }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">     141346 :   if (room &gt; keep) {</span>
+<span class="lineNum">     155 </span>            : #ifndef MRB_NAN_BOXING
+<span class="lineNum">     156 </span><span class="lineCov">     137919 :     stack_clear(&amp;(mrb-&gt;stack[keep]), room - keep);</span>
+<span class="lineNum">     157 </span>            : #else
+<span class="lineNum">     158 </span>            :     int i;
+<span class="lineNum">     159 </span>            :     for (i=keep; i&lt;room; i++) {
+<span class="lineNum">     160 </span>            :       SET_NIL_VALUE(mrb-&gt;stack[i]);
+<span class="lineNum">     161 </span>            :     }
+<span class="lineNum">     162 </span>            : #endif
+<span class="lineNum">     163 </span>            :   }
+<span class="lineNum">     164 </span><span class="lineCov">     141346 : }</span>
+<span class="lineNum">     165 </span>            : 
+<a name="166"><span class="lineNum">     166 </span>            : static inline struct REnv*</a>
+<span class="lineNum">     167 </span>            : uvenv(mrb_state *mrb, int up)
+<span class="lineNum">     168 </span><span class="lineCov">       2534 : {</span>
+<span class="lineNum">     169 </span><span class="lineCov">       2534 :   struct REnv *e = mrb-&gt;ci-&gt;proc-&gt;env;</span>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineCov">       5177 :   while (up--) {</span>
+<span class="lineNum">     172 </span><span class="lineCov">        111 :     if (!e) return 0;</span>
+<span class="lineNum">     173 </span><span class="lineCov">        109 :     e = (struct REnv*)e-&gt;c;</span>
+<span class="lineNum">     174 </span>            :   }
+<span class="lineNum">     175 </span><span class="lineCov">       2532 :   return e;</span>
+<span class="lineNum">     176 </span>            : }
+<span class="lineNum">     177 </span>            : 
+<a name="178"><span class="lineNum">     178 </span>            : static inline int</a>
+<span class="lineNum">     179 </span>            : is_strict(mrb_state *mrb, struct REnv *e)
+<span class="lineNum">     180 </span><span class="lineCov">          6 : {</span>
+<span class="lineNum">     181 </span><span class="lineCov">          6 :   int cioff = e-&gt;cioff;</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">          6 :   if (cioff &gt;= 0 &amp;&amp; mrb-&gt;cibase[cioff].proc &amp;&amp;</span>
+<span class="lineNum">     184 </span>            :       MRB_PROC_STRICT_P(mrb-&gt;cibase[cioff].proc)) {
+<span class="lineNum">     185 </span><span class="lineCov">          5 :     return 1;</span>
+<span class="lineNum">     186 </span>            :   }
+<span class="lineNum">     187 </span><span class="lineCov">          1 :   return 0;</span>
+<span class="lineNum">     188 </span>            : }
+<span class="lineNum">     189 </span>            : 
+<a name="190"><span class="lineNum">     190 </span>            : static inline struct REnv*</a>
+<span class="lineNum">     191 </span>            : top_env(mrb_state *mrb, struct RProc *proc)
+<span class="lineNum">     192 </span><span class="lineCov">          5 : {</span>
+<span class="lineNum">     193 </span><span class="lineCov">          5 :   struct REnv *e = proc-&gt;env;</span>
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span><span class="lineCov">          5 :   if (is_strict(mrb, e)) return e;</span>
+<span class="lineNum">     196 </span><span class="lineCov">          2 :   while (e-&gt;c) {</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     e = (struct REnv*)e-&gt;c;</span>
+<span class="lineNum">     198 </span><span class="lineCov">          1 :     if (is_strict(mrb, e)) return e;</span>
+<span class="lineNum">     199 </span>            :   }
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :   return e;</span>
+<span class="lineNum">     201 </span>            : }
+<span class="lineNum">     202 </span>            : 
+<a name="203"><span class="lineNum">     203 </span>            : static mrb_callinfo*</a>
+<span class="lineNum">     204 </span>            : cipush(mrb_state *mrb)
+<span class="lineNum">     205 </span><span class="lineCov">     150563 : {</span>
+<span class="lineNum">     206 </span><span class="lineCov">     150563 :   int eidx = mrb-&gt;ci-&gt;eidx;</span>
+<span class="lineNum">     207 </span><span class="lineCov">     150563 :   int ridx = mrb-&gt;ci-&gt;ridx;</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">     150563 :   if (mrb-&gt;ci + 1 == mrb-&gt;ciend) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">         13 :     size_t size = mrb-&gt;ci - mrb-&gt;cibase;</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">         13 :     mrb-&gt;cibase = (mrb_callinfo *)mrb_realloc(mrb, mrb-&gt;cibase, sizeof(mrb_callinfo)*size*2);</span>
+<span class="lineNum">     213 </span><span class="lineCov">         13 :     mrb-&gt;ci = mrb-&gt;cibase + size;</span>
+<span class="lineNum">     214 </span><span class="lineCov">         13 :     mrb-&gt;ciend = mrb-&gt;cibase + size * 2;</span>
+<span class="lineNum">     215 </span>            :   }
+<span class="lineNum">     216 </span><span class="lineCov">     150563 :   mrb-&gt;ci++;</span>
+<span class="lineNum">     217 </span><span class="lineCov">     150563 :   mrb-&gt;ci-&gt;nregs = 2;   /* protect method_missing arg and block */</span>
+<span class="lineNum">     218 </span><span class="lineCov">     150563 :   mrb-&gt;ci-&gt;eidx = eidx;</span>
+<span class="lineNum">     219 </span><span class="lineCov">     150563 :   mrb-&gt;ci-&gt;ridx = ridx;</span>
+<span class="lineNum">     220 </span><span class="lineCov">     150563 :   mrb-&gt;ci-&gt;env = 0;</span>
+<span class="lineNum">     221 </span><span class="lineCov">     150563 :   return mrb-&gt;ci;</span>
+<span class="lineNum">     222 </span>            : }
+<span class="lineNum">     223 </span>            : 
+<a name="224"><span class="lineNum">     224 </span>            : static void</a>
+<span class="lineNum">     225 </span>            : cipop(mrb_state *mrb)
+<span class="lineNum">     226 </span><span class="lineCov">     150523 : {</span>
+<span class="lineNum">     227 </span><span class="lineCov">     150523 :   if (mrb-&gt;ci-&gt;env) {</span>
+<span class="lineNum">     228 </span><span class="lineCov">       1055 :     struct REnv *e = mrb-&gt;ci-&gt;env;</span>
+<span class="lineNum">     229 </span><span class="lineCov">       1055 :     size_t len = (size_t)e-&gt;flags;</span>
+<span class="lineNum">     230 </span><span class="lineCov">       1055 :     mrb_value *p = (mrb_value *)mrb_malloc(mrb, sizeof(mrb_value)*len);</span>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineCov">       1055 :     e-&gt;cioff = -1;</span>
+<span class="lineNum">     233 </span><span class="lineCov">       1055 :     stack_copy(p, e-&gt;stack, len);</span>
+<span class="lineNum">     234 </span><span class="lineCov">       1055 :     e-&gt;stack = p;</span>
+<span class="lineNum">     235 </span>            :   }
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineCov">     150523 :   mrb-&gt;ci--;</span>
+<span class="lineNum">     238 </span><span class="lineCov">     150523 : }</span>
+<span class="lineNum">     239 </span>            : 
+<a name="240"><span class="lineNum">     240 </span>            : static void</a>
+<span class="lineNum">     241 </span>            : ecall(mrb_state *mrb, int i)
+<span class="lineNum">     242 </span><span class="lineCov">        625 : {</span>
+<span class="lineNum">     243 </span>            :   struct RProc *p;
+<span class="lineNum">     244 </span>            :   mrb_callinfo *ci;
+<span class="lineNum">     245 </span><span class="lineCov">        625 :   mrb_value *self = mrb-&gt;stack;</span>
+<span class="lineNum">     246 </span>            :   struct RObject *exc;
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineCov">        625 :   p = mrb-&gt;ensure[i];</span>
+<span class="lineNum">     249 </span><span class="lineCov">        625 :   if (!p) return;</span>
+<span class="lineNum">     250 </span><span class="lineCov">        625 :   ci = cipush(mrb);</span>
+<span class="lineNum">     251 </span><span class="lineCov">        625 :   ci-&gt;stackidx = mrb-&gt;stack - mrb-&gt;stbase;</span>
+<span class="lineNum">     252 </span><span class="lineCov">        625 :   ci-&gt;mid = ci[-1].mid;</span>
+<span class="lineNum">     253 </span><span class="lineCov">        625 :   ci-&gt;acc = -1;</span>
+<span class="lineNum">     254 </span><span class="lineCov">        625 :   ci-&gt;argc = 0;</span>
+<span class="lineNum">     255 </span><span class="lineCov">        625 :   ci-&gt;proc = p;</span>
+<span class="lineNum">     256 </span><span class="lineCov">        625 :   ci-&gt;nregs = p-&gt;body.irep-&gt;nregs;</span>
+<span class="lineNum">     257 </span><span class="lineCov">        625 :   ci-&gt;target_class = p-&gt;target_class;</span>
+<span class="lineNum">     258 </span><span class="lineCov">        625 :   mrb-&gt;stack = mrb-&gt;stack + ci[-1].nregs;</span>
+<span class="lineNum">     259 </span><span class="lineCov">        625 :   exc = mrb-&gt;exc; mrb-&gt;exc = 0;</span>
+<span class="lineNum">     260 </span><span class="lineCov">        625 :   mrb_run(mrb, p, *self);</span>
+<span class="lineNum">     261 </span><span class="lineCov">        625 :   mrb-&gt;ensure[i] = NULL;</span>
+<span class="lineNum">     262 </span><span class="lineCov">        625 :   if (!mrb-&gt;exc) mrb-&gt;exc = exc;</span>
+<span class="lineNum">     263 </span>            : }
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            : #ifndef MRB_FUNCALL_ARGC_MAX
+<span class="lineNum">     266 </span>            : #define MRB_FUNCALL_ARGC_MAX 16
+<span class="lineNum">     267 </span>            : #endif
+<span class="lineNum">     268 </span>            : 
+<a name="269"><span class="lineNum">     269 </span>            : mrb_value</a>
+<span class="lineNum">     270 </span>            : mrb_funcall(mrb_state *mrb, mrb_value self, const char *name, int argc, ...)
+<span class="lineNum">     271 </span><span class="lineCov">       1287 : {</span>
+<span class="lineNum">     272 </span><span class="lineCov">       1287 :   mrb_sym mid = mrb_intern(mrb, name);</span>
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineCov">       1287 :   if (argc == 0) {</span>
+<span class="lineNum">     275 </span><span class="lineCov">        499 :     return mrb_funcall_argv(mrb, self, mid, 0, 0);</span>
+<span class="lineNum">     276 </span>            :   }
+<span class="lineNum">     277 </span><span class="lineCov">        788 :   else if (argc == 1) {</span>
+<span class="lineNum">     278 </span>            :     mrb_value v;
+<span class="lineNum">     279 </span>            :     va_list ap;
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineCov">        787 :     va_start(ap, argc);</span>
+<span class="lineNum">     282 </span><span class="lineCov">        787 :     v = va_arg(ap, mrb_value);</span>
+<span class="lineNum">     283 </span><span class="lineCov">        787 :     va_end(ap);</span>
+<span class="lineNum">     284 </span><span class="lineCov">        787 :     return mrb_funcall_argv(mrb, self, mid, 1, &amp;v);</span>
+<span class="lineNum">     285 </span>            :   }
+<span class="lineNum">     286 </span>            :   else {
+<span class="lineNum">     287 </span>            :     mrb_value argv[MRB_FUNCALL_ARGC_MAX];
+<span class="lineNum">     288 </span>            :     va_list ap;
+<span class="lineNum">     289 </span>            :     int i;
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineCov">          1 :     if (argc &gt; MRB_FUNCALL_ARGC_MAX) {</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :       mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;Too long arguments. (limit=&quot; TO_STR(MRB_FUNCALL_ARGC_MAX) &quot;)&quot;);</span>
+<span class="lineNum">     293 </span>            :     }
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span><span class="lineCov">          1 :     va_start(ap, argc);</span>
+<span class="lineNum">     296 </span><span class="lineCov">          3 :     for (i = 0; i &lt; argc; i++) {</span>
+<span class="lineNum">     297 </span><span class="lineCov">          2 :       argv[i] = va_arg(ap, mrb_value);</span>
+<span class="lineNum">     298 </span>            :     }
+<span class="lineNum">     299 </span><span class="lineCov">          1 :     va_end(ap);</span>
+<span class="lineNum">     300 </span><span class="lineCov">          1 :     return mrb_funcall_argv(mrb, self, mid, argc, argv);</span>
+<span class="lineNum">     301 </span>            :   }
+<span class="lineNum">     302 </span>            : }
+<span class="lineNum">     303 </span>            : 
+<a name="304"><span class="lineNum">     304 </span>            : mrb_value</a>
+<span class="lineNum">     305 </span>            : mrb_funcall_with_block(mrb_state *mrb, mrb_value self, mrb_sym mid, int argc, mrb_value *argv, mrb_value blk)
+<span class="lineNum">     306 </span><span class="lineCov">       1527 : {</span>
+<span class="lineNum">     307 </span>            :   mrb_value val;
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span><span class="lineCov">       1527 :   if (!mrb-&gt;jmp) {</span>
+<span class="lineNum">     310 </span>            :     jmp_buf c_jmp;
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :     mrb_callinfo *old_ci = mrb-&gt;ci;</span>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :     if (setjmp(c_jmp) != 0) { /* error */</span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :       while (old_ci != mrb-&gt;ci) {</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :         mrb-&gt;stack = mrb-&gt;stbase + mrb-&gt;ci-&gt;stackidx;</span>
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :         cipop(mrb);</span>
+<span class="lineNum">     317 </span>            :       }
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :       mrb-&gt;jmp = 0;</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :       val = mrb_obj_value(mrb-&gt;exc);</span>
+<span class="lineNum">     320 </span>            :     }
+<span class="lineNum">     321 </span>            :     else {
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :       mrb-&gt;jmp = &amp;c_jmp;</span>
+<span class="lineNum">     323 </span>            :       /* recursive call */
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :       val = mrb_funcall_with_block(mrb, self, mid, argc, argv, blk);</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :       mrb-&gt;jmp = 0;</span>
+<span class="lineNum">     326 </span>            :     }
+<span class="lineNum">     327 </span>            :   }
+<span class="lineNum">     328 </span>            :   else {
+<span class="lineNum">     329 </span>            :     struct RProc *p;
+<span class="lineNum">     330 </span>            :     struct RClass *c;
+<span class="lineNum">     331 </span><span class="lineCov">       1527 :     mrb_sym undef = 0;</span>
+<span class="lineNum">     332 </span>            :     mrb_callinfo *ci;
+<span class="lineNum">     333 </span>            :     int n;
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineCov">       1527 :     if (!mrb-&gt;stack) {</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :       stack_init(mrb);</span>
+<span class="lineNum">     337 </span>            :     }
+<span class="lineNum">     338 </span><span class="lineCov">       1527 :     n = mrb-&gt;ci-&gt;nregs;</span>
+<span class="lineNum">     339 </span><span class="lineCov">       1527 :     if (argc &lt; 0) {</span>
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :       mrb_raisef(mrb, E_ARGUMENT_ERROR, &quot;negative argc for funcall (%S)&quot;, mrb_fixnum_value(argc));</span>
+<span class="lineNum">     341 </span>            :     }
+<span class="lineNum">     342 </span><span class="lineCov">       1527 :     c = mrb_class(mrb, self);</span>
+<span class="lineNum">     343 </span><span class="lineCov">       1527 :     p = mrb_method_search_vm(mrb, &amp;c, mid);</span>
+<span class="lineNum">     344 </span><span class="lineCov">       1527 :     if (!p) {</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :       undef = mid;</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :       mid = mrb_intern2(mrb, &quot;method_missing&quot;, 14);</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :       p = mrb_method_search_vm(mrb, &amp;c, mid);</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :       n++; argc++;</span>
+<span class="lineNum">     349 </span>            :     }
+<span class="lineNum">     350 </span><span class="lineCov">       1527 :     ci = cipush(mrb);</span>
+<span class="lineNum">     351 </span><span class="lineCov">       1527 :     ci-&gt;mid = mid;</span>
+<span class="lineNum">     352 </span><span class="lineCov">       1527 :     ci-&gt;proc = p;</span>
+<span class="lineNum">     353 </span><span class="lineCov">       1527 :     ci-&gt;stackidx = mrb-&gt;stack - mrb-&gt;stbase;</span>
+<span class="lineNum">     354 </span><span class="lineCov">       1527 :     ci-&gt;argc = argc;</span>
+<span class="lineNum">     355 </span><span class="lineCov">       1527 :     ci-&gt;target_class = p-&gt;target_class;</span>
+<span class="lineNum">     356 </span><span class="lineCov">       1527 :     if (MRB_PROC_CFUNC_P(p)) {</span>
+<span class="lineNum">     357 </span><span class="lineCov">       1464 :       ci-&gt;nregs = argc + 2;</span>
+<span class="lineNum">     358 </span>            :     }
+<span class="lineNum">     359 </span>            :     else {
+<span class="lineNum">     360 </span><span class="lineCov">         63 :       ci-&gt;nregs = p-&gt;body.irep-&gt;nregs + n;</span>
+<span class="lineNum">     361 </span>            :     }
+<span class="lineNum">     362 </span><span class="lineCov">       1527 :     ci-&gt;acc = -1;</span>
+<span class="lineNum">     363 </span><span class="lineCov">       1527 :     mrb-&gt;stack = mrb-&gt;stack + n;</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span><span class="lineCov">       1527 :     stack_extend(mrb, ci-&gt;nregs, 0);</span>
+<span class="lineNum">     366 </span><span class="lineCov">       1527 :     mrb-&gt;stack[0] = self;</span>
+<span class="lineNum">     367 </span><span class="lineCov">       1527 :     if (undef) {</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :       mrb-&gt;stack[1] = mrb_symbol_value(undef);</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :       stack_copy(mrb-&gt;stack+2, argv, argc-1);</span>
+<span class="lineNum">     370 </span>            :     }
+<span class="lineNum">     371 </span><span class="lineCov">       1527 :     else if (argc &gt; 0) {</span>
+<span class="lineNum">     372 </span><span class="lineCov">        885 :       stack_copy(mrb-&gt;stack+1, argv, argc);</span>
+<span class="lineNum">     373 </span>            :     }
+<span class="lineNum">     374 </span><span class="lineCov">       1527 :     mrb-&gt;stack[argc+1] = blk;</span>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineCov">       1527 :     if (MRB_PROC_CFUNC_P(p)) {</span>
+<span class="lineNum">     377 </span><span class="lineCov">       1464 :       int ai = mrb_gc_arena_save(mrb);</span>
+<span class="lineNum">     378 </span><span class="lineCov">       1464 :       val = p-&gt;body.func(mrb, self);</span>
+<span class="lineNum">     379 </span><span class="lineCov">       1463 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">     380 </span><span class="lineCov">       1463 :       mrb_gc_protect(mrb, val);</span>
+<span class="lineNum">     381 </span><span class="lineCov">       1463 :       mrb-&gt;stack = mrb-&gt;stbase + mrb-&gt;ci-&gt;stackidx;</span>
+<span class="lineNum">     382 </span><span class="lineCov">       1463 :       cipop(mrb);</span>
+<span class="lineNum">     383 </span>            :     }
+<span class="lineNum">     384 </span>            :     else {
+<span class="lineNum">     385 </span><span class="lineCov">         63 :       val = mrb_run(mrb, p, self);</span>
+<span class="lineNum">     386 </span>            :     }
+<span class="lineNum">     387 </span>            :   }
+<span class="lineNum">     388 </span><span class="lineCov">       1525 :   return val;</span>
+<span class="lineNum">     389 </span>            : }
+<span class="lineNum">     390 </span>            : 
+<a name="391"><span class="lineNum">     391 </span>            : mrb_value</a>
+<span class="lineNum">     392 </span>            : mrb_funcall_argv(mrb_state *mrb, mrb_value self, mrb_sym mid, int argc, mrb_value *argv)
+<span class="lineNum">     393 </span><span class="lineCov">       1351 : {</span>
+<span class="lineNum">     394 </span><span class="lineCov">       1351 :   return mrb_funcall_with_block(mrb, self, mid, argc, argv, mrb_nil_value());</span>
+<span class="lineNum">     395 </span>            : }
+<span class="lineNum">     396 </span>            : 
+<a name="397"><span class="lineNum">     397 </span>            : mrb_value</a>
+<span class="lineNum">     398 </span>            : mrb_yield_internal(mrb_state *mrb, mrb_value b, int argc, mrb_value *argv, mrb_value self, struct RClass *c)
+<span class="lineNum">     399 </span><span class="lineCov">         10 : {</span>
+<span class="lineNum">     400 </span>            :   struct RProc *p;
+<span class="lineNum">     401 </span><span class="lineCov">         10 :   mrb_sym mid = mrb-&gt;ci-&gt;mid;</span>
+<span class="lineNum">     402 </span>            :   mrb_callinfo *ci;
+<span class="lineNum">     403 </span><span class="lineCov">         10 :   int n = mrb-&gt;ci-&gt;nregs;</span>
+<span class="lineNum">     404 </span>            :   mrb_value val;
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span><span class="lineCov">         10 :   if (mrb_nil_p(b)) {</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :     mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;no block given&quot;);</span>
+<span class="lineNum">     408 </span>            :   }
+<span class="lineNum">     409 </span><span class="lineCov">         10 :   p = mrb_proc_ptr(b);</span>
+<span class="lineNum">     410 </span><span class="lineCov">         10 :   ci = cipush(mrb);</span>
+<span class="lineNum">     411 </span><span class="lineCov">         10 :   ci-&gt;mid = mid;</span>
+<span class="lineNum">     412 </span><span class="lineCov">         10 :   ci-&gt;proc = p;</span>
+<span class="lineNum">     413 </span><span class="lineCov">         10 :   ci-&gt;stackidx = mrb-&gt;stack - mrb-&gt;stbase;</span>
+<span class="lineNum">     414 </span><span class="lineCov">         10 :   ci-&gt;argc = argc;</span>
+<span class="lineNum">     415 </span><span class="lineCov">         10 :   ci-&gt;target_class = c;</span>
+<span class="lineNum">     416 </span><span class="lineCov">         10 :   if (MRB_PROC_CFUNC_P(p)) {</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :     ci-&gt;nregs = argc + 2;</span>
+<span class="lineNum">     418 </span>            :   }
+<span class="lineNum">     419 </span>            :   else {
+<span class="lineNum">     420 </span><span class="lineCov">         10 :     ci-&gt;nregs = p-&gt;body.irep-&gt;nregs + 1;</span>
+<span class="lineNum">     421 </span>            :   }
+<span class="lineNum">     422 </span><span class="lineCov">         10 :   ci-&gt;acc = -1;</span>
+<span class="lineNum">     423 </span><span class="lineCov">         10 :   mrb-&gt;stack = mrb-&gt;stack + n;</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span><span class="lineCov">         10 :   stack_extend(mrb, ci-&gt;nregs, 0);</span>
+<span class="lineNum">     426 </span><span class="lineCov">         10 :   mrb-&gt;stack[0] = self;</span>
+<span class="lineNum">     427 </span><span class="lineCov">         10 :   if (argc &gt; 0) {</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :     stack_copy(mrb-&gt;stack+1, argv, argc);</span>
+<span class="lineNum">     429 </span>            :   }
+<span class="lineNum">     430 </span><span class="lineCov">         10 :   mrb-&gt;stack[argc+1] = mrb_nil_value();</span>
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span><span class="lineCov">         10 :   if (MRB_PROC_CFUNC_P(p)) {</span>
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :     val = p-&gt;body.func(mrb, self);</span>
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :     mrb-&gt;stack = mrb-&gt;stbase + mrb-&gt;ci-&gt;stackidx;</span>
+<span class="lineNum">     435 </span><span class="lineNoCov">          0 :     cipop(mrb);</span>
+<span class="lineNum">     436 </span>            :   }
+<span class="lineNum">     437 </span>            :   else {
+<span class="lineNum">     438 </span><span class="lineCov">         10 :     val = mrb_run(mrb, p, self);</span>
+<span class="lineNum">     439 </span>            :   }
+<span class="lineNum">     440 </span><span class="lineCov">          9 :   return val;</span>
+<span class="lineNum">     441 </span>            : }
+<span class="lineNum">     442 </span>            : 
+<a name="443"><span class="lineNum">     443 </span>            : mrb_value</a>
+<span class="lineNum">     444 </span>            : mrb_yield_argv(mrb_state *mrb, mrb_value b, int argc, mrb_value *argv)
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :   struct RProc *p = mrb_proc_ptr(b);</span>
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :   return mrb_yield_internal(mrb, b, argc, argv, mrb-&gt;stack[0], p-&gt;target_class);</span>
+<span class="lineNum">     449 </span>            : }
+<span class="lineNum">     450 </span>            : 
+<a name="451"><span class="lineNum">     451 </span>            : mrb_value</a>
+<span class="lineNum">     452 </span>            : mrb_yield(mrb_state *mrb, mrb_value b, mrb_value v)
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :   struct RProc *p = mrb_proc_ptr(b);</span>
+<span class="lineNum">     455 </span>            : 
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :   return mrb_yield_internal(mrb, b, 1, &amp;v, mrb-&gt;stack[0], p-&gt;target_class);</span>
+<span class="lineNum">     457 </span>            : }
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span>            : typedef enum {
+<span class="lineNum">     460 </span>            :   LOCALJUMP_ERROR_RETURN = 0,
+<span class="lineNum">     461 </span>            :   LOCALJUMP_ERROR_BREAK = 1,
+<span class="lineNum">     462 </span>            :   LOCALJUMP_ERROR_YIELD = 2
+<span class="lineNum">     463 </span>            : } localjump_error_kind;
+<span class="lineNum">     464 </span>            : 
+<a name="465"><span class="lineNum">     465 </span>            : static void</a>
+<span class="lineNum">     466 </span>            : localjump_error(mrb_state *mrb, localjump_error_kind kind)
+<span class="lineNum">     467 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     468 </span><span class="lineCov">          1 :   char kind_str[3][7] = { &quot;return&quot;, &quot;break&quot;, &quot;yield&quot; };</span>
+<span class="lineNum">     469 </span><span class="lineCov">          1 :   char kind_str_len[] = { 6, 5, 5 };</span>
+<span class="lineNum">     470 </span>            :   static const char lead[] = &quot;unexpected &quot;;
+<span class="lineNum">     471 </span>            :   mrb_value msg;
+<span class="lineNum">     472 </span>            :   mrb_value exc;
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineCov">          1 :   msg = mrb_str_buf_new(mrb, sizeof(lead) + 7);</span>
+<span class="lineNum">     475 </span><span class="lineCov">          1 :   mrb_str_buf_cat(mrb, msg, lead, sizeof(lead) - 1);</span>
+<span class="lineNum">     476 </span><span class="lineCov">          1 :   mrb_str_buf_cat(mrb, msg, kind_str[kind], kind_str_len[kind]);</span>
+<span class="lineNum">     477 </span><span class="lineCov">          1 :   exc = mrb_exc_new3(mrb, E_LOCALJUMP_ERROR, msg);</span>
+<span class="lineNum">     478 </span><span class="lineCov">          1 :   mrb-&gt;exc = mrb_obj_ptr(exc);</span>
+<span class="lineNum">     479 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     480 </span>            : 
+<a name="481"><span class="lineNum">     481 </span>            : static void</a>
+<span class="lineNum">     482 </span>            : argnum_error(mrb_state *mrb, int num)
+<span class="lineNum">     483 </span><span class="lineCov">          1 : {</span>
+<span class="lineNum">     484 </span>            :   mrb_value exc;
+<span class="lineNum">     485 </span>            :   mrb_value str;
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span><span class="lineCov">          1 :   if (mrb-&gt;ci-&gt;mid) {</span>
+<span class="lineNum">     488 </span><span class="lineCov">          1 :     str = mrb_format(mrb, &quot;'%S': wrong number of arguments (%S for %S)&quot;,</span>
+<span class="lineNum">     489 </span>            :                   mrb_sym2str(mrb, mrb-&gt;ci-&gt;mid),
+<span class="lineNum">     490 </span>            :                   mrb_fixnum_value(mrb-&gt;ci-&gt;argc), mrb_fixnum_value(num));
+<span class="lineNum">     491 </span>            :   }
+<span class="lineNum">     492 </span>            :   else {
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :     str = mrb_format(mrb, &quot;wrong number of arguments (%S for %S)&quot;,</span>
+<span class="lineNum">     494 </span>            :                   mrb_fixnum_value(mrb-&gt;ci-&gt;argc), mrb_fixnum_value(num));
+<span class="lineNum">     495 </span>            :   }
+<span class="lineNum">     496 </span><span class="lineCov">          1 :   exc = mrb_exc_new3(mrb, E_ARGUMENT_ERROR, str);</span>
+<span class="lineNum">     497 </span><span class="lineCov">          1 :   mrb-&gt;exc = mrb_obj_ptr(exc);</span>
+<span class="lineNum">     498 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span>            : #ifdef ENABLE_DEBUG
+<span class="lineNum">     501 </span>            : #define CODE_FETCH_HOOK(mrb, irep, pc, regs) ((mrb)-&gt;code_fetch_hook ? (mrb)-&gt;code_fetch_hook((mrb), (irep), (pc), (regs)) : NULL)
+<span class="lineNum">     502 </span>            : #else
+<span class="lineNum">     503 </span>            : #define CODE_FETCH_HOOK(mrb, irep, pc, regs)
+<span class="lineNum">     504 </span>            : #endif
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span>            : #ifdef __GNUC__
+<span class="lineNum">     507 </span>            : #define DIRECT_THREADED
+<span class="lineNum">     508 </span>            : #endif
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span>            : #ifndef DIRECT_THREADED
+<span class="lineNum">     511 </span>            : 
+<span class="lineNum">     512 </span>            : #define INIT_DISPATCH for (;;) { i = *pc; CODE_FETCH_HOOK(mrb, irep, pc, regs); switch (GET_OPCODE(i)) {
+<span class="lineNum">     513 </span>            : #define CASE(op) case op:
+<span class="lineNum">     514 </span>            : #define NEXT pc++; break
+<span class="lineNum">     515 </span>            : #define JUMP break
+<span class="lineNum">     516 </span>            : #define END_DISPATCH }}
+<span class="lineNum">     517 </span>            : 
+<span class="lineNum">     518 </span>            : #else
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span>            : #define INIT_DISPATCH JUMP; return mrb_nil_value();
+<span class="lineNum">     521 </span>            : #define CASE(op) L_ ## op:
+<span class="lineNum">     522 </span>            : #define NEXT i=*++pc; CODE_FETCH_HOOK(mrb, irep, pc, regs); goto *optable[GET_OPCODE(i)]
+<span class="lineNum">     523 </span>            : #define JUMP i=*pc; CODE_FETCH_HOOK(mrb, irep, pc, regs); goto *optable[GET_OPCODE(i)]
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span>            : #define END_DISPATCH
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span>            : #endif
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span>            : mrb_value mrb_gv_val_get(mrb_state *mrb, mrb_sym sym);
+<span class="lineNum">     530 </span>            : void mrb_gv_val_set(mrb_state *mrb, mrb_sym sym, mrb_value val);
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span>            : #define CALL_MAXARGS 127
+<span class="lineNum">     533 </span>            : 
+<a name="534"><span class="lineNum">     534 </span>            : mrb_value</a>
+<span class="lineNum">     535 </span>            : mrb_run(mrb_state *mrb, struct RProc *proc, mrb_value self)
+<span class="lineNum">     536 </span><span class="lineCov">        852 : {</span>
+<span class="lineNum">     537 </span>            :   /* assert(mrb_proc_cfunc_p(proc)) */
+<span class="lineNum">     538 </span><span class="lineCov">        852 :   mrb_irep *irep = proc-&gt;body.irep;</span>
+<span class="lineNum">     539 </span><span class="lineCov">        852 :   mrb_code *pc = irep-&gt;iseq;</span>
+<span class="lineNum">     540 </span><span class="lineCov">        852 :   mrb_value *pool = irep-&gt;pool;</span>
+<span class="lineNum">     541 </span><span class="lineCov">        852 :   mrb_sym *syms = irep-&gt;syms;</span>
+<span class="lineNum">     542 </span><span class="lineCov">        852 :   mrb_value *regs = NULL;</span>
+<span class="lineNum">     543 </span>            :   mrb_code i;
+<span class="lineNum">     544 </span><span class="lineCov">        852 :   int ai = mrb_gc_arena_save(mrb);</span>
+<span class="lineNum">     545 </span><span class="lineCov">        852 :   jmp_buf *prev_jmp = (jmp_buf *)mrb-&gt;jmp;</span>
+<span class="lineNum">     546 </span>            :   jmp_buf c_jmp;
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span>            : #ifdef DIRECT_THREADED
+<span class="lineNum">     549 </span>            :   static void *optable[] = {
+<span class="lineNum">     550 </span>            :     &amp;&amp;L_OP_NOP, &amp;&amp;L_OP_MOVE,
+<span class="lineNum">     551 </span>            :     &amp;&amp;L_OP_LOADL, &amp;&amp;L_OP_LOADI, &amp;&amp;L_OP_LOADSYM, &amp;&amp;L_OP_LOADNIL,
+<span class="lineNum">     552 </span>            :     &amp;&amp;L_OP_LOADSELF, &amp;&amp;L_OP_LOADT, &amp;&amp;L_OP_LOADF,
+<span class="lineNum">     553 </span>            :     &amp;&amp;L_OP_GETGLOBAL, &amp;&amp;L_OP_SETGLOBAL, &amp;&amp;L_OP_GETSPECIAL, &amp;&amp;L_OP_SETSPECIAL,
+<span class="lineNum">     554 </span>            :     &amp;&amp;L_OP_GETIV, &amp;&amp;L_OP_SETIV, &amp;&amp;L_OP_GETCV, &amp;&amp;L_OP_SETCV,
+<span class="lineNum">     555 </span>            :     &amp;&amp;L_OP_GETCONST, &amp;&amp;L_OP_SETCONST, &amp;&amp;L_OP_GETMCNST, &amp;&amp;L_OP_SETMCNST,
+<span class="lineNum">     556 </span>            :     &amp;&amp;L_OP_GETUPVAR, &amp;&amp;L_OP_SETUPVAR,
+<span class="lineNum">     557 </span>            :     &amp;&amp;L_OP_JMP, &amp;&amp;L_OP_JMPIF, &amp;&amp;L_OP_JMPNOT,
+<span class="lineNum">     558 </span>            :     &amp;&amp;L_OP_ONERR, &amp;&amp;L_OP_RESCUE, &amp;&amp;L_OP_POPERR, &amp;&amp;L_OP_RAISE, &amp;&amp;L_OP_EPUSH, &amp;&amp;L_OP_EPOP,
+<span class="lineNum">     559 </span>            :     &amp;&amp;L_OP_SEND, &amp;&amp;L_OP_SENDB, &amp;&amp;L_OP_FSEND,
+<span class="lineNum">     560 </span>            :     &amp;&amp;L_OP_CALL, &amp;&amp;L_OP_SUPER, &amp;&amp;L_OP_ARGARY, &amp;&amp;L_OP_ENTER,
+<span class="lineNum">     561 </span>            :     &amp;&amp;L_OP_KARG, &amp;&amp;L_OP_KDICT, &amp;&amp;L_OP_RETURN, &amp;&amp;L_OP_TAILCALL, &amp;&amp;L_OP_BLKPUSH,
+<span class="lineNum">     562 </span>            :     &amp;&amp;L_OP_ADD, &amp;&amp;L_OP_ADDI, &amp;&amp;L_OP_SUB, &amp;&amp;L_OP_SUBI, &amp;&amp;L_OP_MUL, &amp;&amp;L_OP_DIV,
+<span class="lineNum">     563 </span>            :     &amp;&amp;L_OP_EQ, &amp;&amp;L_OP_LT, &amp;&amp;L_OP_LE, &amp;&amp;L_OP_GT, &amp;&amp;L_OP_GE,
+<span class="lineNum">     564 </span>            :     &amp;&amp;L_OP_ARRAY, &amp;&amp;L_OP_ARYCAT, &amp;&amp;L_OP_ARYPUSH, &amp;&amp;L_OP_AREF, &amp;&amp;L_OP_ASET, &amp;&amp;L_OP_APOST,
+<span class="lineNum">     565 </span>            :     &amp;&amp;L_OP_STRING, &amp;&amp;L_OP_STRCAT, &amp;&amp;L_OP_HASH,
+<span class="lineNum">     566 </span>            :     &amp;&amp;L_OP_LAMBDA, &amp;&amp;L_OP_RANGE, &amp;&amp;L_OP_OCLASS,
+<span class="lineNum">     567 </span>            :     &amp;&amp;L_OP_CLASS, &amp;&amp;L_OP_MODULE, &amp;&amp;L_OP_EXEC,
+<span class="lineNum">     568 </span>            :     &amp;&amp;L_OP_METHOD, &amp;&amp;L_OP_SCLASS, &amp;&amp;L_OP_TCLASS,
+<span class="lineNum">     569 </span>            :     &amp;&amp;L_OP_DEBUG, &amp;&amp;L_OP_STOP, &amp;&amp;L_OP_ERR,
+<span class="lineNum">     570 </span>            :   };
+<span class="lineNum">     571 </span>            : #endif
+<span class="lineNum">     572 </span>            : 
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span><span class="lineCov">        852 :   if (setjmp(c_jmp) == 0) {</span>
+<span class="lineNum">     575 </span><span class="lineCov">        852 :     mrb-&gt;jmp = &amp;c_jmp;</span>
+<span class="lineNum">     576 </span>            :   }
+<span class="lineNum">     577 </span>            :   else {
+<span class="lineNum">     578 </span><span class="lineCov">         56 :     goto L_RAISE;</span>
+<span class="lineNum">     579 </span>            :   }
+<span class="lineNum">     580 </span><span class="lineCov">        852 :   if (!mrb-&gt;stack) {</span>
+<span class="lineNum">     581 </span><span class="lineCov">         14 :     stack_init(mrb);</span>
+<span class="lineNum">     582 </span>            :   }
+<span class="lineNum">     583 </span><span class="lineCov">        852 :   stack_extend(mrb, irep-&gt;nregs, irep-&gt;nregs);</span>
+<span class="lineNum">     584 </span><span class="lineCov">        852 :   mrb-&gt;ci-&gt;proc = proc;</span>
+<span class="lineNum">     585 </span><span class="lineCov">        852 :   mrb-&gt;ci-&gt;nregs = irep-&gt;nregs + 1;</span>
+<span class="lineNum">     586 </span><span class="lineCov">        852 :   regs = mrb-&gt;stack;</span>
+<span class="lineNum">     587 </span><span class="lineCov">        852 :   regs[0] = self;</span>
+<span class="lineNum">     588 </span>            : 
+<span class="lineNum">     589 </span><span class="lineCov">        852 :   INIT_DISPATCH {</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :     CASE(OP_NOP) {</span>
+<span class="lineNum">     591 </span>            :       /* do nothing */
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">     593 </span>            :     }
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span><span class="lineCov">      23419 :     CASE(OP_MOVE) {</span>
+<span class="lineNum">     596 </span>            :       /* A B    R(A) := R(B) */
+<span class="lineNum">     597 </span><span class="lineCov">      23419 :       regs[GETARG_A(i)] = regs[GETARG_B(i)];</span>
+<span class="lineNum">     598 </span><span class="lineCov">      23419 :       NEXT;</span>
+<span class="lineNum">     599 </span>            :     }
+<span class="lineNum">     600 </span>            : 
+<span class="lineNum">     601 </span><span class="lineCov">     139491 :     CASE(OP_LOADL) {</span>
+<span class="lineNum">     602 </span>            :       /* A Bx   R(A) := Pool(Bx) */
+<span class="lineNum">     603 </span><span class="lineCov">     139491 :       regs[GETARG_A(i)] = pool[GETARG_Bx(i)];</span>
+<span class="lineNum">     604 </span><span class="lineCov">     139491 :       NEXT;</span>
+<span class="lineNum">     605 </span>            :     }
+<span class="lineNum">     606 </span>            : 
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :     CASE(OP_LOADI) {</span>
+<span class="lineNum">     608 </span>            :       /* A Bx   R(A) := sBx */
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :       SET_INT_VALUE(regs[GETARG_A(i)], GETARG_sBx(i));</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">     611 </span>            :     }
+<span class="lineNum">     612 </span>            : 
+<span class="lineNum">     613 </span><span class="lineCov">        525 :     CASE(OP_LOADSYM) {</span>
+<span class="lineNum">     614 </span>            :       /* A B    R(A) := Sym(B) */
+<span class="lineNum">     615 </span><span class="lineCov">        525 :       SET_SYM_VALUE(regs[GETARG_A(i)], syms[GETARG_Bx(i)]);</span>
+<span class="lineNum">     616 </span><span class="lineCov">        525 :       NEXT;</span>
+<span class="lineNum">     617 </span>            :     }
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span><span class="lineCov">     137169 :     CASE(OP_LOADSELF) {</span>
+<span class="lineNum">     620 </span>            :       /* A      R(A) := self */
+<span class="lineNum">     621 </span><span class="lineCov">     137169 :       regs[GETARG_A(i)] = regs[0];</span>
+<span class="lineNum">     622 </span><span class="lineCov">     137169 :       NEXT;</span>
+<span class="lineNum">     623 </span>            :     }
+<span class="lineNum">     624 </span>            : 
+<span class="lineNum">     625 </span><span class="lineCov">        329 :     CASE(OP_LOADT) {</span>
+<span class="lineNum">     626 </span>            :       /* A      R(A) := true */
+<span class="lineNum">     627 </span><span class="lineCov">        329 :       SET_TRUE_VALUE(regs[GETARG_A(i)]);</span>
+<span class="lineNum">     628 </span><span class="lineCov">        329 :       NEXT;</span>
+<span class="lineNum">     629 </span>            :     }
+<span class="lineNum">     630 </span>            : 
+<span class="lineNum">     631 </span><span class="lineCov">        131 :     CASE(OP_LOADF) {</span>
+<span class="lineNum">     632 </span>            :       /* A      R(A) := false */
+<span class="lineNum">     633 </span><span class="lineCov">        131 :       SET_FALSE_VALUE(regs[GETARG_A(i)]);</span>
+<span class="lineNum">     634 </span><span class="lineCov">        131 :       NEXT;</span>
+<span class="lineNum">     635 </span>            :     }
+<span class="lineNum">     636 </span>            : 
+<span class="lineNum">     637 </span><span class="lineCov">     264570 :     CASE(OP_GETGLOBAL) {</span>
+<span class="lineNum">     638 </span>            :       /* A B    R(A) := getglobal(Sym(B)) */
+<span class="lineNum">     639 </span><span class="lineCov">     264570 :       regs[GETARG_A(i)] = mrb_gv_get(mrb, syms[GETARG_Bx(i)]);</span>
+<span class="lineNum">     640 </span><span class="lineCov">     264570 :       NEXT;</span>
+<span class="lineNum">     641 </span>            :     }
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span><span class="lineCov">     133567 :     CASE(OP_SETGLOBAL) {</span>
+<span class="lineNum">     644 </span>            :       /* setglobal(Sym(b), R(A)) */
+<span class="lineNum">     645 </span><span class="lineCov">     133567 :       mrb_gv_set(mrb, syms[GETARG_Bx(i)], regs[GETARG_A(i)]);</span>
+<span class="lineNum">     646 </span><span class="lineCov">     133567 :       NEXT;</span>
+<span class="lineNum">     647 </span>            :     }
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :     CASE(OP_GETSPECIAL) {</span>
+<span class="lineNum">     650 </span>            :       /* A Bx   R(A) := Special[Bx] */
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :       regs[GETARG_A(i)] = mrb_vm_special_get(mrb, GETARG_Bx(i));</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">     653 </span>            :     }
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :     CASE(OP_SETSPECIAL) {</span>
+<span class="lineNum">     656 </span>            :       /* A Bx   Special[Bx] := R(A) */
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :       mrb_vm_special_set(mrb, GETARG_Bx(i), regs[GETARG_A(i)]);</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">     659 </span>            :     }
+<span class="lineNum">     660 </span>            : 
+<span class="lineNum">     661 </span><span class="lineCov">         14 :     CASE(OP_GETIV) {</span>
+<span class="lineNum">     662 </span>            :       /* A Bx   R(A) := ivget(Bx) */
+<span class="lineNum">     663 </span><span class="lineCov">         14 :       regs[GETARG_A(i)] = mrb_vm_iv_get(mrb, syms[GETARG_Bx(i)]);</span>
+<span class="lineNum">     664 </span><span class="lineCov">         14 :       NEXT;</span>
+<span class="lineNum">     665 </span>            :     }
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span><span class="lineCov">         30 :     CASE(OP_SETIV) {</span>
+<span class="lineNum">     668 </span>            :       /* ivset(Sym(B),R(A)) */
+<span class="lineNum">     669 </span><span class="lineCov">         30 :       mrb_vm_iv_set(mrb, syms[GETARG_Bx(i)], regs[GETARG_A(i)]);</span>
+<span class="lineNum">     670 </span><span class="lineCov">         30 :       NEXT;</span>
+<span class="lineNum">     671 </span>            :     }
+<span class="lineNum">     672 </span>            : 
+<span class="lineNum">     673 </span><span class="lineCov">          1 :     CASE(OP_GETCV) {</span>
+<span class="lineNum">     674 </span>            :       /* A B    R(A) := ivget(Sym(B)) */
+<span class="lineNum">     675 </span><span class="lineCov">          1 :       regs[GETARG_A(i)] = mrb_vm_cv_get(mrb, syms[GETARG_Bx(i)]);</span>
+<span class="lineNum">     676 </span><span class="lineCov">          1 :       NEXT;</span>
+<span class="lineNum">     677 </span>            :     }
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span><span class="lineCov">          6 :     CASE(OP_SETCV) {</span>
+<span class="lineNum">     680 </span>            :       /* ivset(Sym(B),R(A)) */
+<span class="lineNum">     681 </span><span class="lineCov">          6 :       mrb_vm_cv_set(mrb, syms[GETARG_Bx(i)], regs[GETARG_A(i)]);</span>
+<span class="lineNum">     682 </span><span class="lineCov">          6 :       NEXT;</span>
+<span class="lineNum">     683 </span>            :     }
+<span class="lineNum">     684 </span>            : 
+<span class="lineNum">     685 </span><span class="lineCov">     132256 :     CASE(OP_GETCONST) {</span>
+<span class="lineNum">     686 </span>            :       /* A B    R(A) := constget(Sym(B)) */
+<span class="lineNum">     687 </span><span class="lineCov">     132256 :       regs[GETARG_A(i)] = mrb_vm_const_get(mrb, syms[GETARG_Bx(i)]);</span>
+<span class="lineNum">     688 </span><span class="lineCov">     132256 :       NEXT;</span>
+<span class="lineNum">     689 </span>            :     }
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span><span class="lineCov">         12 :     CASE(OP_SETCONST) {</span>
+<span class="lineNum">     692 </span>            :       /* A B    constset(Sym(B),R(A)) */
+<span class="lineNum">     693 </span><span class="lineCov">         12 :       mrb_vm_const_set(mrb, syms[GETARG_Bx(i)], regs[GETARG_A(i)]);</span>
+<span class="lineNum">     694 </span><span class="lineCov">         12 :       NEXT;</span>
+<span class="lineNum">     695 </span>            :     }
+<span class="lineNum">     696 </span>            : 
+<span class="lineNum">     697 </span><span class="lineCov">        168 :     CASE(OP_GETMCNST) {</span>
+<span class="lineNum">     698 </span>            :       /* A B C  R(A) := R(C)::Sym(B) */
+<span class="lineNum">     699 </span><span class="lineCov">        168 :       int a = GETARG_A(i);</span>
+<span class="lineNum">     700 </span>            : 
+<span class="lineNum">     701 </span><span class="lineCov">        168 :       regs[a] = mrb_const_get(mrb, regs[a], syms[GETARG_Bx(i)]);</span>
+<span class="lineNum">     702 </span><span class="lineCov">        168 :       NEXT;</span>
+<span class="lineNum">     703 </span>            :     }
+<span class="lineNum">     704 </span>            : 
+<span class="lineNum">     705 </span><span class="lineCov">          1 :     CASE(OP_SETMCNST) {</span>
+<span class="lineNum">     706 </span>            :       /* A B C  R(A+1)::Sym(B) := R(A) */
+<span class="lineNum">     707 </span><span class="lineCov">          1 :       int a = GETARG_A(i);</span>
+<span class="lineNum">     708 </span>            : 
+<span class="lineNum">     709 </span><span class="lineCov">          1 :       mrb_const_set(mrb, regs[a+1], syms[GETARG_Bx(i)], regs[a]);</span>
+<span class="lineNum">     710 </span><span class="lineCov">          1 :       NEXT;</span>
+<span class="lineNum">     711 </span>            :     }
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span><span class="lineCov">       2041 :     CASE(OP_GETUPVAR) {</span>
+<span class="lineNum">     714 </span>            :       /* A B C  R(A) := uvget(B,C) */
+<span class="lineNum">     715 </span><span class="lineCov">       2041 :       mrb_value *regs_a = regs + GETARG_A(i);</span>
+<span class="lineNum">     716 </span><span class="lineCov">       2041 :       int up = GETARG_C(i);</span>
+<span class="lineNum">     717 </span>            : 
+<span class="lineNum">     718 </span><span class="lineCov">       2041 :       struct REnv *e = uvenv(mrb, up);</span>
+<span class="lineNum">     719 </span>            : 
+<span class="lineNum">     720 </span><span class="lineCov">       2041 :       if (!e) {</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :         *regs_a = mrb_nil_value();</span>
+<span class="lineNum">     722 </span>            :       }
+<span class="lineNum">     723 </span>            :       else {
+<span class="lineNum">     724 </span><span class="lineCov">       2041 :         int idx = GETARG_B(i);</span>
+<span class="lineNum">     725 </span><span class="lineCov">       2041 :         *regs_a = e-&gt;stack[idx];</span>
+<span class="lineNum">     726 </span>            :       }
+<span class="lineNum">     727 </span><span class="lineCov">       2041 :       NEXT;</span>
+<span class="lineNum">     728 </span>            :     }
+<span class="lineNum">     729 </span>            : 
+<span class="lineNum">     730 </span><span class="lineCov">        487 :     CASE(OP_SETUPVAR) {</span>
+<span class="lineNum">     731 </span>            :       /* A B C  uvset(B,C,R(A)) */
+<span class="lineNum">     732 </span>            :       /* A B C  R(A) := uvget(B,C) */
+<span class="lineNum">     733 </span><span class="lineCov">        487 :       int up = GETARG_C(i);</span>
+<span class="lineNum">     734 </span>            : 
+<span class="lineNum">     735 </span><span class="lineCov">        487 :       struct REnv *e = uvenv(mrb, up);</span>
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span><span class="lineCov">        487 :       if (e) {</span>
+<span class="lineNum">     738 </span><span class="lineCov">        487 :         mrb_value *regs_a = regs + GETARG_A(i);</span>
+<span class="lineNum">     739 </span><span class="lineCov">        487 :         int idx = GETARG_B(i);</span>
+<span class="lineNum">     740 </span><span class="lineCov">        487 :         e-&gt;stack[idx] = *regs_a;</span>
+<span class="lineNum">     741 </span><span class="lineCov">        487 :         mrb_write_barrier(mrb, (struct RBasic*)e);</span>
+<span class="lineNum">     742 </span>            :       }
+<span class="lineNum">     743 </span><span class="lineCov">        487 :       NEXT;</span>
+<span class="lineNum">     744 </span>            :     }
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span><span class="lineCov">       3607 :     CASE(OP_JMP) {</span>
+<span class="lineNum">     747 </span>            :       /* sBx    pc+=sBx */
+<span class="lineNum">     748 </span><span class="lineCov">       3607 :       pc += GETARG_sBx(i);</span>
+<span class="lineNum">     749 </span><span class="lineCov">       3607 :       JUMP;</span>
+<span class="lineNum">     750 </span>            :     }
+<span class="lineNum">     751 </span>            : 
+<span class="lineNum">     752 </span><span class="lineCov">       3493 :     CASE(OP_JMPIF) {</span>
+<span class="lineNum">     753 </span>            :       /* A sBx  if R(A) pc+=sBx */
+<span class="lineNum">     754 </span><span class="lineCov">       3493 :       if (mrb_test(regs[GETARG_A(i)])) {</span>
+<span class="lineNum">     755 </span><span class="lineCov">       1974 :         pc += GETARG_sBx(i);</span>
+<span class="lineNum">     756 </span><span class="lineCov">       1974 :         JUMP;</span>
+<span class="lineNum">     757 </span>            :       }
+<span class="lineNum">     758 </span><span class="lineCov">       1519 :       NEXT;</span>
+<span class="lineNum">     759 </span>            :     }
+<span class="lineNum">     760 </span>            : 
+<span class="lineNum">     761 </span><span class="lineCov">     138143 :     CASE(OP_JMPNOT) {</span>
+<span class="lineNum">     762 </span>            :       /* A sBx  if R(A) pc+=sBx */
+<span class="lineNum">     763 </span><span class="lineCov">     138143 :       if (!mrb_test(regs[GETARG_A(i)])) {</span>
+<span class="lineNum">     764 </span><span class="lineCov">     134433 :         pc += GETARG_sBx(i);</span>
+<span class="lineNum">     765 </span><span class="lineCov">     134433 :         JUMP;</span>
+<span class="lineNum">     766 </span>            :       }
+<span class="lineNum">     767 </span><span class="lineCov">       3710 :       NEXT;</span>
+<span class="lineNum">     768 </span>            :     }
+<span class="lineNum">     769 </span>            : 
+<span class="lineNum">     770 </span><span class="lineCov">        671 :     CASE(OP_ONERR) {</span>
+<span class="lineNum">     771 </span>            :       /* sBx    pc+=sBx on exception */
+<span class="lineNum">     772 </span><span class="lineCov">        671 :       if (mrb-&gt;rsize &lt;= mrb-&gt;ci-&gt;ridx) {</span>
+<span class="lineNum">     773 </span><span class="lineCov">         13 :         if (mrb-&gt;rsize == 0) mrb-&gt;rsize = 16;</span>
+<span class="lineNum">     774 </span><span class="lineNoCov">          0 :         else mrb-&gt;rsize *= 2;</span>
+<span class="lineNum">     775 </span><span class="lineCov">         13 :         mrb-&gt;rescue = (mrb_code **)mrb_realloc(mrb, mrb-&gt;rescue, sizeof(mrb_code*) * mrb-&gt;rsize);</span>
+<span class="lineNum">     776 </span>            :       }
+<span class="lineNum">     777 </span><span class="lineCov">        671 :       mrb-&gt;rescue[mrb-&gt;ci-&gt;ridx++] = pc + GETARG_sBx(i);</span>
+<span class="lineNum">     778 </span><span class="lineCov">        671 :       NEXT;</span>
+<span class="lineNum">     779 </span>            :     }
+<span class="lineNum">     780 </span>            : 
+<span class="lineNum">     781 </span><span class="lineCov">         60 :     CASE(OP_RESCUE) {</span>
+<span class="lineNum">     782 </span>            :       /* A      R(A) := exc; clear(exc) */
+<span class="lineNum">     783 </span><span class="lineCov">         60 :       SET_OBJ_VALUE(regs[GETARG_A(i)], mrb-&gt;exc);</span>
+<span class="lineNum">     784 </span><span class="lineCov">         60 :       mrb-&gt;exc = 0;</span>
+<span class="lineNum">     785 </span><span class="lineCov">         60 :       NEXT;</span>
+<span class="lineNum">     786 </span>            :     }
+<span class="lineNum">     787 </span>            : 
+<span class="lineNum">     788 </span><span class="lineCov">        611 :     CASE(OP_POPERR) {</span>
+<span class="lineNum">     789 </span><span class="lineCov">        611 :       int a = GETARG_A(i);</span>
+<span class="lineNum">     790 </span>            : 
+<span class="lineNum">     791 </span><span class="lineCov">       1833 :       while (a--) {</span>
+<span class="lineNum">     792 </span><span class="lineCov">        611 :         mrb-&gt;ci-&gt;ridx--;</span>
+<span class="lineNum">     793 </span>            :       }
+<span class="lineNum">     794 </span><span class="lineCov">        611 :       NEXT;</span>
+<span class="lineNum">     795 </span>            :     }
+<span class="lineNum">     796 </span>            : 
+<span class="lineNum">     797 </span><span class="lineCov">          2 :     CASE(OP_RAISE) {</span>
+<span class="lineNum">     798 </span>            :       /* A      raise(R(A)) */
+<span class="lineNum">     799 </span><span class="lineCov">          2 :       mrb-&gt;exc = mrb_obj_ptr(regs[GETARG_A(i)]);</span>
+<span class="lineNum">     800 </span><span class="lineCov">          2 :       goto L_RAISE;</span>
+<span class="lineNum">     801 </span>            :     }
+<span class="lineNum">     802 </span>            : 
+<span class="lineNum">     803 </span><span class="lineCov">        625 :     CASE(OP_EPUSH) {</span>
+<span class="lineNum">     804 </span>            :       /* Bx     ensure_push(SEQ[Bx]) */
+<span class="lineNum">     805 </span>            :       struct RProc *p;
+<span class="lineNum">     806 </span>            : 
+<span class="lineNum">     807 </span><span class="lineCov">        625 :       p = mrb_closure_new(mrb, mrb-&gt;irep[irep-&gt;idx+GETARG_Bx(i)]);</span>
+<span class="lineNum">     808 </span>            :       /* push ensure_stack */
+<span class="lineNum">     809 </span><span class="lineCov">        625 :       if (mrb-&gt;esize &lt;= mrb-&gt;ci-&gt;eidx) {</span>
+<span class="lineNum">     810 </span><span class="lineCov">         13 :         if (mrb-&gt;esize == 0) mrb-&gt;esize = 16;</span>
+<span class="lineNum">     811 </span><span class="lineNoCov">          0 :         else mrb-&gt;esize *= 2;</span>
+<span class="lineNum">     812 </span><span class="lineCov">         13 :         mrb-&gt;ensure = (struct RProc **)mrb_realloc(mrb, mrb-&gt;ensure, sizeof(struct RProc*) * mrb-&gt;esize);</span>
+<span class="lineNum">     813 </span>            :       }
+<span class="lineNum">     814 </span><span class="lineCov">        625 :       mrb-&gt;ensure[mrb-&gt;ci-&gt;eidx++] = p;</span>
+<span class="lineNum">     815 </span><span class="lineCov">        625 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">     816 </span><span class="lineCov">        625 :       NEXT;</span>
+<span class="lineNum">     817 </span>            :     }
+<span class="lineNum">     818 </span>            : 
+<span class="lineNum">     819 </span><span class="lineCov">        617 :     CASE(OP_EPOP) {</span>
+<span class="lineNum">     820 </span>            :       /* A      A.times{ensure_pop().call} */
+<span class="lineNum">     821 </span>            :       int n;
+<span class="lineNum">     822 </span><span class="lineCov">        617 :       int a = GETARG_A(i);</span>
+<span class="lineNum">     823 </span>            : 
+<span class="lineNum">     824 </span><span class="lineCov">       1236 :       for (n=0; n&lt;a; n++) {</span>
+<span class="lineNum">     825 </span><span class="lineCov">        619 :         ecall(mrb, --mrb-&gt;ci-&gt;eidx);</span>
+<span class="lineNum">     826 </span>            :       }
+<span class="lineNum">     827 </span><span class="lineCov">        617 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">     828 </span><span class="lineCov">        617 :       NEXT;</span>
+<span class="lineNum">     829 </span>            :     }
+<span class="lineNum">     830 </span>            : 
+<span class="lineNum">     831 </span><span class="lineCov">       4561 :     CASE(OP_LOADNIL) {</span>
+<span class="lineNum">     832 </span>            :       /* A B    R(A) := nil */
+<span class="lineNum">     833 </span><span class="lineCov">       4561 :       int a = GETARG_A(i);</span>
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span><span class="lineCov">       4561 :       SET_NIL_VALUE(regs[a]);</span>
+<span class="lineNum">     836 </span><span class="lineCov">       4561 :       NEXT;</span>
+<span class="lineNum">     837 </span>            :     }
+<span class="lineNum">     838 </span>            : 
+<span class="lineNum">     839 </span><span class="lineCov">       1616 :     CASE(OP_SENDB) {</span>
+<span class="lineNum">     840 </span>            :       /* fall through */
+<span class="lineNum">     841 </span>            :     };
+<span class="lineNum">     842 </span>            : 
+<span class="lineNum">     843 </span><span class="lineCov">       1616 :   L_SEND:</span>
+<span class="lineNum">     844 </span><span class="lineCov">     147679 :     CASE(OP_SEND) {</span>
+<span class="lineNum">     845 </span>            :       /* A B C  R(A) := call(R(A),Sym(B),R(A+1),... ,R(A+C-1)) */
+<span class="lineNum">     846 </span><span class="lineCov">     147679 :       int a = GETARG_A(i);</span>
+<span class="lineNum">     847 </span><span class="lineCov">     147679 :       int n = GETARG_C(i);</span>
+<span class="lineNum">     848 </span>            :       struct RProc *m;
+<span class="lineNum">     849 </span>            :       struct RClass *c;
+<span class="lineNum">     850 </span>            :       mrb_callinfo *ci;
+<span class="lineNum">     851 </span>            :       mrb_value recv, result;
+<span class="lineNum">     852 </span><span class="lineCov">     147679 :       mrb_sym mid = syms[GETARG_B(i)];</span>
+<span class="lineNum">     853 </span>            : 
+<span class="lineNum">     854 </span><span class="lineCov">     147679 :       recv = regs[a];</span>
+<span class="lineNum">     855 </span><span class="lineCov">     147679 :       if (GET_OPCODE(i) != OP_SENDB) {</span>
+<span class="lineNum">     856 </span><span class="lineCov">     146558 :         if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">     857 </span><span class="lineCov">         88 :           SET_NIL_VALUE(regs[a+2]);</span>
+<span class="lineNum">     858 </span>            :         }
+<span class="lineNum">     859 </span>            :         else {
+<span class="lineNum">     860 </span><span class="lineCov">     146470 :           SET_NIL_VALUE(regs[a+n+1]);</span>
+<span class="lineNum">     861 </span>            :         }
+<span class="lineNum">     862 </span>            :       }
+<span class="lineNum">     863 </span><span class="lineCov">     147679 :       c = mrb_class(mrb, recv);</span>
+<span class="lineNum">     864 </span><span class="lineCov">     147679 :       m = mrb_method_search_vm(mrb, &amp;c, mid);</span>
+<span class="lineNum">     865 </span><span class="lineCov">     147679 :       if (!m) {</span>
+<span class="lineNum">     866 </span><span class="lineCov">          6 :         mrb_value sym = mrb_symbol_value(mid);</span>
+<span class="lineNum">     867 </span>            : 
+<span class="lineNum">     868 </span><span class="lineCov">          6 :         mid = mrb_intern2(mrb, &quot;method_missing&quot;, 14);</span>
+<span class="lineNum">     869 </span><span class="lineCov">          6 :         m = mrb_method_search_vm(mrb, &amp;c, mid);</span>
+<span class="lineNum">     870 </span><span class="lineCov">          6 :         if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">     871 </span><span class="lineNoCov">          0 :           mrb_ary_unshift(mrb, regs[a+1], sym);</span>
+<span class="lineNum">     872 </span>            :         }
+<span class="lineNum">     873 </span>            :         else {
+<span class="lineNum">     874 </span><span class="lineCov">          6 :           value_move(regs+a+2, regs+a+1, ++n);</span>
+<span class="lineNum">     875 </span><span class="lineCov">          6 :           regs[a+1] = sym;</span>
+<span class="lineNum">     876 </span>            :         }
+<span class="lineNum">     877 </span>            :       }
+<span class="lineNum">     878 </span>            : 
+<span class="lineNum">     879 </span>            :       /* push callinfo */
+<span class="lineNum">     880 </span><span class="lineCov">     147679 :       ci = cipush(mrb);</span>
+<span class="lineNum">     881 </span><span class="lineCov">     147679 :       ci-&gt;mid = mid;</span>
+<span class="lineNum">     882 </span><span class="lineCov">     147679 :       ci-&gt;proc = m;</span>
+<span class="lineNum">     883 </span><span class="lineCov">     147679 :       ci-&gt;stackidx = mrb-&gt;stack - mrb-&gt;stbase;</span>
+<span class="lineNum">     884 </span><span class="lineCov">     147679 :       if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">     885 </span><span class="lineCov">        109 :         ci-&gt;argc = -1;</span>
+<span class="lineNum">     886 </span>            :       }
+<span class="lineNum">     887 </span>            :       else {
+<span class="lineNum">     888 </span><span class="lineCov">     147570 :         ci-&gt;argc = n;</span>
+<span class="lineNum">     889 </span>            :       }
+<span class="lineNum">     890 </span><span class="lineCov">     147679 :       if (c-&gt;tt == MRB_TT_ICLASS) {</span>
+<span class="lineNum">     891 </span><span class="lineCov">       1843 :         ci-&gt;target_class = c-&gt;c;</span>
+<span class="lineNum">     892 </span>            :       }
+<span class="lineNum">     893 </span>            :       else {
+<span class="lineNum">     894 </span><span class="lineCov">     145836 :         ci-&gt;target_class = c;</span>
+<span class="lineNum">     895 </span>            :       }
+<span class="lineNum">     896 </span>            : 
+<span class="lineNum">     897 </span><span class="lineCov">     147679 :       ci-&gt;pc = pc + 1;</span>
+<span class="lineNum">     898 </span><span class="lineCov">     147679 :       ci-&gt;acc = a;</span>
+<span class="lineNum">     899 </span>            : 
+<span class="lineNum">     900 </span>            :       /* prepare stack */
+<span class="lineNum">     901 </span><span class="lineCov">     147679 :       mrb-&gt;stack += a;</span>
+<span class="lineNum">     902 </span>            : 
+<span class="lineNum">     903 </span><span class="lineCov">     147679 :       if (MRB_PROC_CFUNC_P(m)) {</span>
+<span class="lineNum">     904 </span><span class="lineCov">      11957 :         if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">     905 </span><span class="lineCov">         37 :           ci-&gt;nregs = 3;</span>
+<span class="lineNum">     906 </span>            :         }
+<span class="lineNum">     907 </span>            :         else {
+<span class="lineNum">     908 </span><span class="lineCov">      11920 :           ci-&gt;nregs = n + 2;</span>
+<span class="lineNum">     909 </span>            :         }
+<span class="lineNum">     910 </span><span class="lineCov">      11957 :         result = m-&gt;body.func(mrb, recv);</span>
+<span class="lineNum">     911 </span><span class="lineCov">      11906 :         mrb-&gt;stack[0] = result;</span>
+<span class="lineNum">     912 </span><span class="lineCov">      11906 :         mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">     913 </span><span class="lineCov">      11906 :         if (mrb-&gt;exc) goto L_RAISE;</span>
+<span class="lineNum">     914 </span>            :         /* pop stackpos */
+<span class="lineNum">     915 </span><span class="lineCov">      11906 :         regs = mrb-&gt;stack = mrb-&gt;stbase + mrb-&gt;ci-&gt;stackidx;</span>
+<span class="lineNum">     916 </span><span class="lineCov">      11906 :         cipop(mrb);</span>
+<span class="lineNum">     917 </span><span class="lineCov">      11906 :         NEXT;</span>
+<span class="lineNum">     918 </span>            :       }
+<span class="lineNum">     919 </span>            :       else {
+<span class="lineNum">     920 </span>            :         /* setup environment for calling method */
+<span class="lineNum">     921 </span><span class="lineCov">     135722 :         proc = mrb-&gt;ci-&gt;proc = m;</span>
+<span class="lineNum">     922 </span><span class="lineCov">     135722 :         irep = m-&gt;body.irep;</span>
+<span class="lineNum">     923 </span><span class="lineCov">     135722 :         pool = irep-&gt;pool;</span>
+<span class="lineNum">     924 </span><span class="lineCov">     135722 :         syms = irep-&gt;syms;</span>
+<span class="lineNum">     925 </span><span class="lineCov">     135722 :         ci-&gt;nregs = irep-&gt;nregs;</span>
+<span class="lineNum">     926 </span><span class="lineCov">     135722 :         if (ci-&gt;argc &lt; 0) {</span>
+<span class="lineNum">     927 </span><span class="lineCov">         72 :           stack_extend(mrb, (irep-&gt;nregs &lt; 3) ? 3 : irep-&gt;nregs, 3);</span>
+<span class="lineNum">     928 </span>            :         }
+<span class="lineNum">     929 </span>            :         else {
+<span class="lineNum">     930 </span><span class="lineCov">     135650 :           stack_extend(mrb, irep-&gt;nregs,  ci-&gt;argc+2);</span>
+<span class="lineNum">     931 </span>            :         }
+<span class="lineNum">     932 </span><span class="lineCov">     135721 :         regs = mrb-&gt;stack;</span>
+<span class="lineNum">     933 </span><span class="lineCov">     135721 :         pc = irep-&gt;iseq;</span>
+<span class="lineNum">     934 </span><span class="lineCov">     135721 :         JUMP;</span>
+<span class="lineNum">     935 </span>            :       }
+<span class="lineNum">     936 </span>            :     }
+<span class="lineNum">     937 </span>            : 
+<span class="lineNum">     938 </span><span class="lineNoCov">          0 :     CASE(OP_FSEND) {</span>
+<span class="lineNum">     939 </span>            :       /* A B C  R(A) := fcall(R(A),Sym(B),R(A+1),... ,R(A+C)) */
+<span class="lineNum">     940 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">     941 </span>            :     }
+<span class="lineNum">     942 </span>            : 
+<span class="lineNum">     943 </span><span class="lineCov">       2524 :     CASE(OP_CALL) {</span>
+<span class="lineNum">     944 </span>            :       /* A      R(A) := self.call(frame.argc, frame.argv) */
+<span class="lineNum">     945 </span>            :       mrb_callinfo *ci;
+<span class="lineNum">     946 </span><span class="lineCov">       2524 :       mrb_value recv = mrb-&gt;stack[0];</span>
+<span class="lineNum">     947 </span><span class="lineCov">       2524 :       struct RProc *m = mrb_proc_ptr(recv);</span>
+<span class="lineNum">     948 </span>            : 
+<span class="lineNum">     949 </span>            :       /* replace callinfo */
+<span class="lineNum">     950 </span><span class="lineCov">       2524 :       ci = mrb-&gt;ci;</span>
+<span class="lineNum">     951 </span><span class="lineCov">       2524 :       ci-&gt;target_class = m-&gt;target_class;</span>
+<span class="lineNum">     952 </span><span class="lineCov">       2524 :       ci-&gt;proc = m;</span>
+<span class="lineNum">     953 </span><span class="lineCov">       2524 :       if (m-&gt;env) {</span>
+<span class="lineNum">     954 </span><span class="lineCov">       2524 :         if (m-&gt;env-&gt;mid) {</span>
+<span class="lineNum">     955 </span><span class="lineCov">       1920 :           ci-&gt;mid = m-&gt;env-&gt;mid;</span>
+<span class="lineNum">     956 </span>            :         }
+<span class="lineNum">     957 </span><span class="lineCov">       2524 :         if (!m-&gt;env-&gt;stack) {</span>
+<span class="lineNum">     958 </span><span class="lineNoCov">          0 :           m-&gt;env-&gt;stack = mrb-&gt;stack;</span>
+<span class="lineNum">     959 </span>            :         }
+<span class="lineNum">     960 </span>            :       }
+<span class="lineNum">     961 </span>            : 
+<span class="lineNum">     962 </span>            :       /* prepare stack */
+<span class="lineNum">     963 </span><span class="lineCov">       2524 :       if (MRB_PROC_CFUNC_P(m)) {</span>
+<span class="lineNum">     964 </span><span class="lineNoCov">          0 :         recv = m-&gt;body.func(mrb, recv);</span>
+<span class="lineNum">     965 </span><span class="lineNoCov">          0 :         mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">     966 </span><span class="lineNoCov">          0 :         if (mrb-&gt;exc) goto L_RAISE;</span>
+<span class="lineNum">     967 </span>            :         /* pop stackpos */
+<span class="lineNum">     968 </span><span class="lineNoCov">          0 :         ci = mrb-&gt;ci;</span>
+<span class="lineNum">     969 </span><span class="lineNoCov">          0 :         regs = mrb-&gt;stack = mrb-&gt;stbase + ci-&gt;stackidx;</span>
+<span class="lineNum">     970 </span><span class="lineNoCov">          0 :         regs[ci-&gt;acc] = recv;</span>
+<span class="lineNum">     971 </span><span class="lineNoCov">          0 :         pc = ci-&gt;pc;</span>
+<span class="lineNum">     972 </span><span class="lineNoCov">          0 :         cipop(mrb);</span>
+<span class="lineNum">     973 </span><span class="lineNoCov">          0 :         irep = mrb-&gt;ci-&gt;proc-&gt;body.irep;</span>
+<span class="lineNum">     974 </span><span class="lineNoCov">          0 :         pool = irep-&gt;pool;</span>
+<span class="lineNum">     975 </span><span class="lineNoCov">          0 :         syms = irep-&gt;syms;</span>
+<span class="lineNum">     976 </span><span class="lineNoCov">          0 :         JUMP;</span>
+<span class="lineNum">     977 </span>            :       }
+<span class="lineNum">     978 </span>            :       else {
+<span class="lineNum">     979 </span>            :         /* setup environment for calling method */
+<span class="lineNum">     980 </span><span class="lineCov">       2524 :         proc = m;</span>
+<span class="lineNum">     981 </span><span class="lineCov">       2524 :         irep = m-&gt;body.irep;</span>
+<span class="lineNum">     982 </span><span class="lineCov">       2524 :         if (!irep) {</span>
+<span class="lineNum">     983 </span><span class="lineNoCov">          0 :           mrb-&gt;stack[0] = mrb_nil_value();</span>
+<span class="lineNum">     984 </span><span class="lineNoCov">          0 :           goto L_RETURN;</span>
+<span class="lineNum">     985 </span>            :         }
+<span class="lineNum">     986 </span><span class="lineCov">       2524 :         pool = irep-&gt;pool;</span>
+<span class="lineNum">     987 </span><span class="lineCov">       2524 :         syms = irep-&gt;syms;</span>
+<span class="lineNum">     988 </span><span class="lineCov">       2524 :         ci-&gt;nregs = irep-&gt;nregs;</span>
+<span class="lineNum">     989 </span><span class="lineCov">       2524 :         if (ci-&gt;argc &lt; 0) {</span>
+<span class="lineNum">     990 </span><span class="lineCov">          9 :           stack_extend(mrb, (irep-&gt;nregs &lt; 3) ? 3 : irep-&gt;nregs, 3);</span>
+<span class="lineNum">     991 </span>            :         }
+<span class="lineNum">     992 </span>            :         else {
+<span class="lineNum">     993 </span><span class="lineCov">       2515 :           stack_extend(mrb, irep-&gt;nregs,  ci-&gt;argc+2);</span>
+<span class="lineNum">     994 </span>            :         }
+<span class="lineNum">     995 </span><span class="lineCov">       2524 :         regs = mrb-&gt;stack;</span>
+<span class="lineNum">     996 </span><span class="lineCov">       2524 :         regs[0] = m-&gt;env-&gt;stack[0];</span>
+<span class="lineNum">     997 </span><span class="lineCov">       2524 :         pc = m-&gt;body.irep-&gt;iseq;</span>
+<span class="lineNum">     998 </span><span class="lineCov">       2524 :         JUMP;</span>
+<span class="lineNum">     999 </span>            :       }
+<span class="lineNum">    1000 </span>            :     }
+<span class="lineNum">    1001 </span>            : 
+<span class="lineNum">    1002 </span><span class="lineCov">         12 :     CASE(OP_SUPER) {</span>
+<span class="lineNum">    1003 </span>            :       /* A B C  R(A) := super(R(A+1),... ,R(A+C-1)) */
+<span class="lineNum">    1004 </span>            :       mrb_value recv;
+<span class="lineNum">    1005 </span><span class="lineCov">         12 :       mrb_callinfo *ci = mrb-&gt;ci;</span>
+<span class="lineNum">    1006 </span>            :       struct RProc *m;
+<span class="lineNum">    1007 </span>            :       struct RClass *c;
+<span class="lineNum">    1008 </span><span class="lineCov">         12 :       mrb_sym mid = ci-&gt;mid;</span>
+<span class="lineNum">    1009 </span><span class="lineCov">         12 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1010 </span><span class="lineCov">         12 :       int n = GETARG_C(i);</span>
+<span class="lineNum">    1011 </span>            : 
+<span class="lineNum">    1012 </span><span class="lineCov">         12 :       recv = regs[0];</span>
+<span class="lineNum">    1013 </span><span class="lineCov">         12 :       c = mrb-&gt;ci-&gt;target_class-&gt;super;</span>
+<span class="lineNum">    1014 </span><span class="lineCov">         12 :       m = mrb_method_search_vm(mrb, &amp;c, mid);</span>
+<span class="lineNum">    1015 </span><span class="lineCov">         12 :       if (!m) {</span>
+<span class="lineNum">    1016 </span><span class="lineNoCov">          0 :         mid = mrb_intern2(mrb, &quot;method_missing&quot;, 14);</span>
+<span class="lineNum">    1017 </span><span class="lineNoCov">          0 :         m = mrb_method_search_vm(mrb, &amp;c, mid);</span>
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :         if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :           mrb_ary_unshift(mrb, regs[a+1], mrb_symbol_value(ci-&gt;mid));</span>
+<span class="lineNum">    1020 </span>            :         }
+<span class="lineNum">    1021 </span>            :         else {
+<span class="lineNum">    1022 </span><span class="lineNoCov">          0 :           value_move(regs+a+2, regs+a+1, ++n);</span>
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :           SET_SYM_VALUE(regs[a+1], ci-&gt;mid);</span>
+<span class="lineNum">    1024 </span>            :         }
+<span class="lineNum">    1025 </span>            :       }
+<span class="lineNum">    1026 </span>            : 
+<span class="lineNum">    1027 </span>            :       /* push callinfo */
+<span class="lineNum">    1028 </span><span class="lineCov">         12 :       ci = cipush(mrb);</span>
+<span class="lineNum">    1029 </span><span class="lineCov">         12 :       ci-&gt;mid = mid;</span>
+<span class="lineNum">    1030 </span><span class="lineCov">         12 :       ci-&gt;proc = m;</span>
+<span class="lineNum">    1031 </span><span class="lineCov">         12 :       ci-&gt;stackidx = mrb-&gt;stack - mrb-&gt;stbase;</span>
+<span class="lineNum">    1032 </span><span class="lineCov">         12 :       if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">    1033 </span><span class="lineCov">          2 :         ci-&gt;argc = -1;</span>
+<span class="lineNum">    1034 </span>            :       }
+<span class="lineNum">    1035 </span>            :       else {
+<span class="lineNum">    1036 </span><span class="lineCov">         10 :         ci-&gt;argc = n;</span>
+<span class="lineNum">    1037 </span>            :       }
+<span class="lineNum">    1038 </span><span class="lineCov">         12 :       ci-&gt;target_class = m-&gt;target_class;</span>
+<span class="lineNum">    1039 </span><span class="lineCov">         12 :       ci-&gt;pc = pc + 1;</span>
+<span class="lineNum">    1040 </span>            : 
+<span class="lineNum">    1041 </span>            :       /* prepare stack */
+<span class="lineNum">    1042 </span><span class="lineCov">         12 :       mrb-&gt;stack += a;</span>
+<span class="lineNum">    1043 </span><span class="lineCov">         12 :       mrb-&gt;stack[0] = recv;</span>
+<span class="lineNum">    1044 </span>            : 
+<span class="lineNum">    1045 </span><span class="lineCov">         12 :       if (MRB_PROC_CFUNC_P(m)) {</span>
+<span class="lineNum">    1046 </span><span class="lineCov">         10 :         mrb-&gt;stack[0] = m-&gt;body.func(mrb, recv);</span>
+<span class="lineNum">    1047 </span><span class="lineCov">         10 :         mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1048 </span><span class="lineCov">         10 :         if (mrb-&gt;exc) goto L_RAISE;</span>
+<span class="lineNum">    1049 </span>            :         /* pop stackpos */
+<span class="lineNum">    1050 </span><span class="lineCov">         10 :         regs = mrb-&gt;stack = mrb-&gt;stbase + mrb-&gt;ci-&gt;stackidx;</span>
+<span class="lineNum">    1051 </span><span class="lineCov">         10 :         cipop(mrb);</span>
+<span class="lineNum">    1052 </span><span class="lineCov">         10 :         NEXT;</span>
+<span class="lineNum">    1053 </span>            :       }
+<span class="lineNum">    1054 </span>            :       else {
+<span class="lineNum">    1055 </span>            :         /* fill callinfo */
+<span class="lineNum">    1056 </span><span class="lineCov">          2 :         ci-&gt;acc = a;</span>
+<span class="lineNum">    1057 </span>            : 
+<span class="lineNum">    1058 </span>            :         /* setup environment for calling method */
+<span class="lineNum">    1059 </span><span class="lineCov">          2 :         ci-&gt;proc = m;</span>
+<span class="lineNum">    1060 </span><span class="lineCov">          2 :         irep = m-&gt;body.irep;</span>
+<span class="lineNum">    1061 </span><span class="lineCov">          2 :         pool = irep-&gt;pool;</span>
+<span class="lineNum">    1062 </span><span class="lineCov">          2 :         syms = irep-&gt;syms;</span>
+<span class="lineNum">    1063 </span><span class="lineCov">          2 :         ci-&gt;nregs = irep-&gt;nregs;</span>
+<span class="lineNum">    1064 </span><span class="lineCov">          2 :         if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">    1065 </span><span class="lineCov">          2 :           stack_extend(mrb, (irep-&gt;nregs &lt; 3) ? 3 : irep-&gt;nregs, 3);</span>
+<span class="lineNum">    1066 </span>            :         }
+<span class="lineNum">    1067 </span>            :         else {
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 :           stack_extend(mrb, irep-&gt;nregs,  ci-&gt;argc+2);</span>
+<span class="lineNum">    1069 </span>            :         }
+<span class="lineNum">    1070 </span><span class="lineCov">          2 :         regs = mrb-&gt;stack;</span>
+<span class="lineNum">    1071 </span><span class="lineCov">          2 :         pc = irep-&gt;iseq;</span>
+<span class="lineNum">    1072 </span><span class="lineCov">          2 :         JUMP;</span>
+<span class="lineNum">    1073 </span>            :       }
+<span class="lineNum">    1074 </span>            :     }
+<span class="lineNum">    1075 </span>            : 
+<span class="lineNum">    1076 </span><span class="lineCov">          2 :     CASE(OP_ARGARY) {</span>
+<span class="lineNum">    1077 </span>            :       /* A Bx   R(A) := argument array (16=6:1:5:4) */
+<span class="lineNum">    1078 </span><span class="lineCov">          2 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1079 </span><span class="lineCov">          2 :       int bx = GETARG_Bx(i);</span>
+<span class="lineNum">    1080 </span><span class="lineCov">          2 :       int m1 = (bx&gt;&gt;10)&amp;0x3f;</span>
+<span class="lineNum">    1081 </span><span class="lineCov">          2 :       int r  = (bx&gt;&gt;9)&amp;0x1;</span>
+<span class="lineNum">    1082 </span><span class="lineCov">          2 :       int m2 = (bx&gt;&gt;4)&amp;0x1f;</span>
+<span class="lineNum">    1083 </span><span class="lineCov">          2 :       int lv = (bx&gt;&gt;0)&amp;0xf;</span>
+<span class="lineNum">    1084 </span>            :       mrb_value *stack;
+<span class="lineNum">    1085 </span>            : 
+<span class="lineNum">    1086 </span><span class="lineCov">          2 :       if (lv == 0) stack = regs + 1;</span>
+<span class="lineNum">    1087 </span>            :       else {
+<span class="lineNum">    1088 </span><span class="lineCov">          1 :         struct REnv *e = uvenv(mrb, lv-1);</span>
+<span class="lineNum">    1089 </span><span class="lineCov">          1 :         if (!e) {</span>
+<span class="lineNum">    1090 </span>            :           mrb_value exc;
+<span class="lineNum">    1091 </span>            :           static const char m[] = &quot;super called outside of method&quot;;
+<span class="lineNum">    1092 </span><span class="lineCov">          1 :           exc = mrb_exc_new(mrb, E_NOMETHOD_ERROR, m, sizeof(m) - 1);</span>
+<span class="lineNum">    1093 </span><span class="lineCov">          1 :           mrb-&gt;exc = mrb_obj_ptr(exc);</span>
+<span class="lineNum">    1094 </span><span class="lineCov">          1 :           goto L_RAISE;</span>
+<span class="lineNum">    1095 </span>            :         }
+<span class="lineNum">    1096 </span><span class="lineNoCov">          0 :         stack = e-&gt;stack + 1;</span>
+<span class="lineNum">    1097 </span>            :       }
+<span class="lineNum">    1098 </span><span class="lineCov">          1 :       if (r == 0) {</span>
+<span class="lineNum">    1099 </span><span class="lineCov">          1 :         regs[a] = mrb_ary_new_from_values(mrb, m1+m2, stack);</span>
+<span class="lineNum">    1100 </span>            :       }
+<span class="lineNum">    1101 </span>            :       else {
+<span class="lineNum">    1102 </span><span class="lineNoCov">          0 :         mrb_value *pp = NULL;</span>
+<span class="lineNum">    1103 </span>            :         struct RArray *rest;
+<span class="lineNum">    1104 </span><span class="lineNoCov">          0 :         int len = 0;</span>
+<span class="lineNum">    1105 </span>            : 
+<span class="lineNum">    1106 </span><span class="lineNoCov">          0 :         if (mrb_array_p(stack[m1])) {</span>
+<span class="lineNum">    1107 </span><span class="lineNoCov">          0 :           struct RArray *ary = mrb_ary_ptr(stack[m1]);</span>
+<span class="lineNum">    1108 </span>            : 
+<span class="lineNum">    1109 </span><span class="lineNoCov">          0 :           pp = ary-&gt;ptr;</span>
+<span class="lineNum">    1110 </span><span class="lineNoCov">          0 :           len = ary-&gt;len;</span>
+<span class="lineNum">    1111 </span>            :         }
+<span class="lineNum">    1112 </span><span class="lineNoCov">          0 :         regs[a] = mrb_ary_new_capa(mrb, m1+len+m2);</span>
+<span class="lineNum">    1113 </span><span class="lineNoCov">          0 :         rest = mrb_ary_ptr(regs[a]);</span>
+<span class="lineNum">    1114 </span><span class="lineNoCov">          0 :         stack_copy(rest-&gt;ptr, stack, m1);</span>
+<span class="lineNum">    1115 </span><span class="lineNoCov">          0 :         if (len &gt; 0) {</span>
+<span class="lineNum">    1116 </span><span class="lineNoCov">          0 :           stack_copy(rest-&gt;ptr+m1, pp, len);</span>
+<span class="lineNum">    1117 </span>            :         }
+<span class="lineNum">    1118 </span><span class="lineNoCov">          0 :         if (m2 &gt; 0) {</span>
+<span class="lineNum">    1119 </span><span class="lineNoCov">          0 :           stack_copy(rest-&gt;ptr+m1+len, stack+m1+1, m2);</span>
+<span class="lineNum">    1120 </span>            :         }
+<span class="lineNum">    1121 </span><span class="lineNoCov">          0 :         rest-&gt;len = m1+len+m2;</span>
+<span class="lineNum">    1122 </span>            :       }
+<span class="lineNum">    1123 </span><span class="lineCov">          1 :       regs[a+1] = stack[m1+r+m2];</span>
+<span class="lineNum">    1124 </span><span class="lineCov">          1 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1125 </span><span class="lineCov">          1 :       NEXT;</span>
+<span class="lineNum">    1126 </span>            :     }
+<span class="lineNum">    1127 </span>            : 
+<span class="lineNum">    1128 </span><span class="lineCov">     134926 :     CASE(OP_ENTER) {</span>
+<span class="lineNum">    1129 </span>            :       /* Ax             arg setup according to flags (24=5:5:1:5:5:1:1) */
+<span class="lineNum">    1130 </span>            :       /* number of optional arguments times OP_JMP should follow */
+<span class="lineNum">    1131 </span><span class="lineCov">     134926 :       mrb_aspec ax = GETARG_Ax(i);</span>
+<span class="lineNum">    1132 </span><span class="lineCov">     134926 :       int m1 = (ax&gt;&gt;18)&amp;0x1f;</span>
+<span class="lineNum">    1133 </span><span class="lineCov">     134926 :       int o  = (ax&gt;&gt;13)&amp;0x1f;</span>
+<span class="lineNum">    1134 </span><span class="lineCov">     134926 :       int r  = (ax&gt;&gt;12)&amp;0x1;</span>
+<span class="lineNum">    1135 </span><span class="lineCov">     134926 :       int m2 = (ax&gt;&gt;7)&amp;0x1f;</span>
+<span class="lineNum">    1136 </span>            :       /* unused
+<span class="lineNum">    1137 </span>            :       int k  = (ax&gt;&gt;2)&amp;0x1f;
+<span class="lineNum">    1138 </span>            :       int kd = (ax&gt;&gt;1)&amp;0x1;
+<span class="lineNum">    1139 </span>            :       int b  = (ax&gt;&gt;0)&amp; 0x1;
+<span class="lineNum">    1140 </span>            :       */
+<span class="lineNum">    1141 </span><span class="lineCov">     134926 :       int argc = mrb-&gt;ci-&gt;argc;</span>
+<span class="lineNum">    1142 </span><span class="lineCov">     134926 :       mrb_value *argv = regs+1;</span>
+<span class="lineNum">    1143 </span><span class="lineCov">     134926 :       mrb_value *argv0 = argv;</span>
+<span class="lineNum">    1144 </span><span class="lineCov">     134926 :       int len = m1 + o + r + m2;</span>
+<span class="lineNum">    1145 </span><span class="lineCov">     134926 :       mrb_value *blk = &amp;argv[argc &lt; 0 ? 1 : argc];</span>
+<span class="lineNum">    1146 </span>            : 
+<span class="lineNum">    1147 </span><span class="lineCov">     134926 :       if (argc &lt; 0) {</span>
+<span class="lineNum">    1148 </span><span class="lineCov">         74 :         struct RArray *ary = mrb_ary_ptr(regs[1]);</span>
+<span class="lineNum">    1149 </span><span class="lineCov">         74 :         argv = ary-&gt;ptr;</span>
+<span class="lineNum">    1150 </span><span class="lineCov">         74 :         argc = ary-&gt;len;</span>
+<span class="lineNum">    1151 </span><span class="lineCov">         74 :         mrb_gc_protect(mrb, regs[1]);</span>
+<span class="lineNum">    1152 </span>            :       }
+<span class="lineNum">    1153 </span><span class="lineCov">     268193 :       if (mrb-&gt;ci-&gt;proc &amp;&amp; MRB_PROC_STRICT_P(mrb-&gt;ci-&gt;proc)) {</span>
+<span class="lineNum">    1154 </span><span class="lineCov">     133268 :         if (argc &gt;= 0) {</span>
+<span class="lineNum">    1155 </span><span class="lineCov">     133268 :           if (argc &lt; m1 + m2 || (r == 0 &amp;&amp; argc &gt; len)) {</span>
+<span class="lineNum">    1156 </span><span class="lineCov">          1 :             argnum_error(mrb, m1+m2);</span>
+<span class="lineNum">    1157 </span><span class="lineCov">          1 :             goto L_RAISE;</span>
+<span class="lineNum">    1158 </span>            :           }
+<span class="lineNum">    1159 </span>            :         }
+<span class="lineNum">    1160 </span>            :       }
+<span class="lineNum">    1161 </span><span class="lineCov">       1658 :       else if (len &gt; 1 &amp;&amp; argc == 1 &amp;&amp; mrb_array_p(argv[0])) {</span>
+<span class="lineNum">    1162 </span><span class="lineCov">          1 :         argc = mrb_ary_ptr(argv[0])-&gt;len;</span>
+<span class="lineNum">    1163 </span><span class="lineCov">          1 :         argv = mrb_ary_ptr(argv[0])-&gt;ptr;</span>
+<span class="lineNum">    1164 </span>            :       }
+<span class="lineNum">    1165 </span><span class="lineCov">     134925 :       mrb-&gt;ci-&gt;argc = len;</span>
+<span class="lineNum">    1166 </span><span class="lineCov">     134925 :       if (argc &lt; len) {</span>
+<span class="lineNum">    1167 </span><span class="lineCov">        337 :         regs[len+1] = *blk; /* move block */</span>
+<span class="lineNum">    1168 </span><span class="lineCov">        337 :         if (argv0 != argv) {</span>
+<span class="lineNum">    1169 </span><span class="lineCov">          1 :           value_move(&amp;regs[1], argv, argc-m2); /* m1 + o */</span>
+<span class="lineNum">    1170 </span>            :         }
+<span class="lineNum">    1171 </span><span class="lineCov">        337 :         if (m2) {</span>
+<span class="lineNum">    1172 </span><span class="lineNoCov">          0 :           value_move(&amp;regs[len-m2+1], &amp;argv[argc-m2], m2); /* m2 */</span>
+<span class="lineNum">    1173 </span>            :         }
+<span class="lineNum">    1174 </span><span class="lineCov">        337 :         if (r) {                  /* r */</span>
+<span class="lineNum">    1175 </span><span class="lineCov">         26 :           regs[m1+o+1] = mrb_ary_new_capa(mrb, 0);</span>
+<span class="lineNum">    1176 </span>            :         }
+<span class="lineNum">    1177 </span><span class="lineCov">        337 :         if (o == 0) pc++;</span>
+<span class="lineNum">    1178 </span>            :         else
+<span class="lineNum">    1179 </span><span class="lineCov">        307 :           pc += argc - m1 - m2 + 1;</span>
+<span class="lineNum">    1180 </span>            :       }
+<span class="lineNum">    1181 </span>            :       else {
+<span class="lineNum">    1182 </span><span class="lineCov">     134588 :         if (argv0 != argv) {</span>
+<span class="lineNum">    1183 </span><span class="lineCov">         73 :           regs[len+1] = *blk; /* move block */</span>
+<span class="lineNum">    1184 </span><span class="lineCov">         73 :           value_move(&amp;regs[1], argv, m1+o); /* m1 + o */</span>
+<span class="lineNum">    1185 </span>            :         }
+<span class="lineNum">    1186 </span><span class="lineCov">     134588 :         if (r) {                  /* r */</span>
+<span class="lineNum">    1187 </span><span class="lineCov">        770 :           regs[m1+o+1] = mrb_ary_new_from_values(mrb, argc-m1-o-m2, argv+m1+o);</span>
+<span class="lineNum">    1188 </span>            :         }
+<span class="lineNum">    1189 </span><span class="lineCov">     134588 :         if (m2) {</span>
+<span class="lineNum">    1190 </span><span class="lineNoCov">          0 :           value_move(&amp;regs[m1+o+r+1], &amp;argv[argc-m2], m2);</span>
+<span class="lineNum">    1191 </span>            :         }
+<span class="lineNum">    1192 </span><span class="lineCov">     134588 :         if (argv0 == argv) {</span>
+<span class="lineNum">    1193 </span><span class="lineCov">     134515 :           regs[len+1] = *blk; /* move block */</span>
+<span class="lineNum">    1194 </span>            :         }
+<span class="lineNum">    1195 </span><span class="lineCov">     134588 :         pc += o + 1;</span>
+<span class="lineNum">    1196 </span>            :       }
+<span class="lineNum">    1197 </span><span class="lineCov">     134925 :       JUMP;</span>
+<span class="lineNum">    1198 </span>            :     }
+<span class="lineNum">    1199 </span>            : 
+<span class="lineNum">    1200 </span><span class="lineNoCov">          0 :     CASE(OP_KARG) {</span>
+<span class="lineNum">    1201 </span>            :       /* A B C          R(A) := kdict[Sym(B)]; if C kdict.rm(Sym(B)) */
+<span class="lineNum">    1202 </span>            :       /* if C == 2; raise unless kdict.empty? */
+<span class="lineNum">    1203 </span>            :       /* OP_JMP should follow to skip init code */
+<span class="lineNum">    1204 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">    1205 </span>            :     }
+<span class="lineNum">    1206 </span>            : 
+<span class="lineNum">    1207 </span><span class="lineNoCov">          0 :     CASE(OP_KDICT) {</span>
+<span class="lineNum">    1208 </span>            :       /* A C            R(A) := kdict */
+<span class="lineNum">    1209 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">    1210 </span>            :     }
+<span class="lineNum">    1211 </span>            : 
+<span class="lineNum">    1212 </span><span class="lineNoCov">          0 :     L_RETURN:</span>
+<span class="lineNum">    1213 </span><span class="lineNoCov">          0 :       i = MKOP_AB(OP_RETURN, GETARG_A(i), OP_R_NORMAL);</span>
+<span class="lineNum">    1214 </span>            :       /* fall through */
+<span class="lineNum">    1215 </span><span class="lineCov">       6075 :     CASE(OP_RETURN) {</span>
+<span class="lineNum">    1216 </span>            :       /* A      return R(A) */
+<span class="lineNum">    1217 </span><span class="lineCov">       6075 :       if (mrb-&gt;exc) {</span>
+<span class="lineNum">    1218 </span>            :         mrb_callinfo *ci;
+<span class="lineNum">    1219 </span>            :         int eidx;
+<span class="lineNum">    1220 </span>            : 
+<span class="lineNum">    1221 </span><span class="lineCov">         62 :       L_RAISE:</span>
+<span class="lineNum">    1222 </span><span class="lineCov">         62 :         ci = mrb-&gt;ci;</span>
+<span class="lineNum">    1223 </span><span class="lineCov">         62 :         mrb_obj_iv_ifnone(mrb, mrb-&gt;exc, mrb_intern2(mrb, &quot;lastpc&quot;, 6), mrb_voidp_value(pc));</span>
+<span class="lineNum">    1224 </span><span class="lineCov">         62 :         mrb_obj_iv_ifnone(mrb, mrb-&gt;exc, mrb_intern2(mrb, &quot;ciidx&quot;, 5), mrb_fixnum_value(ci - mrb-&gt;cibase));</span>
+<span class="lineNum">    1225 </span><span class="lineCov">         62 :         eidx = ci-&gt;eidx;</span>
+<span class="lineNum">    1226 </span><span class="lineCov">         62 :         if (ci == mrb-&gt;cibase) {</span>
+<span class="lineNum">    1227 </span><span class="lineNoCov">          0 :           if (ci-&gt;ridx == 0) goto L_STOP;</span>
+<span class="lineNum">    1228 </span><span class="lineNoCov">          0 :           goto L_RESCUE;</span>
+<span class="lineNum">    1229 </span>            :         }
+<span class="lineNum">    1230 </span><span class="lineCov">        124 :         while (eidx &gt; ci[-1].eidx) {</span>
+<span class="lineNum">    1231 </span><span class="lineNoCov">          0 :           ecall(mrb, --eidx);</span>
+<span class="lineNum">    1232 </span>            :         }
+<span class="lineNum">    1233 </span><span class="lineCov">     131191 :         while (ci[0].ridx == ci[-1].ridx) {</span>
+<span class="lineNum">    1234 </span><span class="lineCov">     131069 :           cipop(mrb);</span>
+<span class="lineNum">    1235 </span><span class="lineCov">     131069 :           ci = mrb-&gt;ci;</span>
+<span class="lineNum">    1236 </span><span class="lineCov">     131069 :           mrb-&gt;stack = mrb-&gt;stbase + ci[1].stackidx;</span>
+<span class="lineNum">    1237 </span><span class="lineCov">     131069 :           if (ci[1].acc &lt; 0 &amp;&amp; prev_jmp) {</span>
+<span class="lineNum">    1238 </span><span class="lineCov">          2 :             mrb-&gt;jmp = prev_jmp;</span>
+<span class="lineNum">    1239 </span><span class="lineCov">          2 :             longjmp(*(jmp_buf*)mrb-&gt;jmp, 1);</span>
+<span class="lineNum">    1240 </span>            :           }
+<span class="lineNum">    1241 </span><span class="lineCov">     262135 :           while (eidx &gt; ci-&gt;eidx) {</span>
+<span class="lineNum">    1242 </span><span class="lineCov">          1 :             ecall(mrb, --eidx);</span>
+<span class="lineNum">    1243 </span>            :           }
+<span class="lineNum">    1244 </span><span class="lineCov">     131067 :           if (ci == mrb-&gt;cibase) {</span>
+<span class="lineNum">    1245 </span><span class="lineNoCov">          0 :             if (ci-&gt;ridx == 0) {</span>
+<span class="lineNum">    1246 </span><span class="lineNoCov">          0 :               regs = mrb-&gt;stack = mrb-&gt;stbase;</span>
+<span class="lineNum">    1247 </span><span class="lineNoCov">          0 :               goto L_STOP;</span>
+<span class="lineNum">    1248 </span>            :             }
+<span class="lineNum">    1249 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1250 </span>            :           }
+<span class="lineNum">    1251 </span>            :         }
+<span class="lineNum">    1252 </span><span class="lineCov">         60 :       L_RESCUE:</span>
+<span class="lineNum">    1253 </span><span class="lineCov">         60 :         irep = ci-&gt;proc-&gt;body.irep;</span>
+<span class="lineNum">    1254 </span><span class="lineCov">         60 :         pool = irep-&gt;pool;</span>
+<span class="lineNum">    1255 </span><span class="lineCov">         60 :         syms = irep-&gt;syms;</span>
+<span class="lineNum">    1256 </span><span class="lineCov">         60 :         regs = mrb-&gt;stack = mrb-&gt;stbase + ci[1].stackidx;</span>
+<span class="lineNum">    1257 </span><span class="lineCov">         60 :         pc = mrb-&gt;rescue[--ci-&gt;ridx];</span>
+<span class="lineNum">    1258 </span>            :       }
+<span class="lineNum">    1259 </span>            :       else {
+<span class="lineNum">    1260 </span><span class="lineCov">       6075 :         mrb_callinfo *ci = mrb-&gt;ci;</span>
+<span class="lineNum">    1261 </span><span class="lineCov">       6075 :         int acc, eidx = mrb-&gt;ci-&gt;eidx;</span>
+<span class="lineNum">    1262 </span><span class="lineCov">       6075 :         mrb_value v = regs[GETARG_A(i)];</span>
+<span class="lineNum">    1263 </span>            : 
+<span class="lineNum">    1264 </span><span class="lineCov">       6075 :         switch (GETARG_B(i)) {</span>
+<span class="lineNum">    1265 </span>            :         case OP_R_RETURN:
+<span class="lineNum">    1266 </span>            :           // Fall through to OP_R_NORMAL otherwise
+<span class="lineNum">    1267 </span><span class="lineCov">          5 :           if (proc-&gt;env &amp;&amp; !MRB_PROC_STRICT_P(proc)) {</span>
+<span class="lineNum">    1268 </span><span class="lineCov">          5 :             struct REnv *e = top_env(mrb, proc);</span>
+<span class="lineNum">    1269 </span>            : 
+<span class="lineNum">    1270 </span><span class="lineCov">          5 :             if (e-&gt;cioff &lt; 0) {</span>
+<span class="lineNum">    1271 </span><span class="lineNoCov">          0 :               localjump_error(mrb, LOCALJUMP_ERROR_RETURN);</span>
+<span class="lineNum">    1272 </span><span class="lineNoCov">          0 :               goto L_RAISE;</span>
+<span class="lineNum">    1273 </span>            :             }
+<span class="lineNum">    1274 </span><span class="lineCov">          5 :             ci = mrb-&gt;cibase + e-&gt;cioff;</span>
+<span class="lineNum">    1275 </span><span class="lineCov">          5 :             if (ci == mrb-&gt;cibase) {</span>
+<span class="lineNum">    1276 </span><span class="lineNoCov">          0 :               localjump_error(mrb, LOCALJUMP_ERROR_RETURN);</span>
+<span class="lineNum">    1277 </span><span class="lineNoCov">          0 :               goto L_RAISE;</span>
+<span class="lineNum">    1278 </span>            :             }
+<span class="lineNum">    1279 </span><span class="lineCov">          5 :             mrb-&gt;ci = ci;</span>
+<span class="lineNum">    1280 </span><span class="lineCov">          5 :             break;</span>
+<span class="lineNum">    1281 </span>            :           }
+<span class="lineNum">    1282 </span>            :         case OP_R_NORMAL:
+<span class="lineNum">    1283 </span><span class="lineCov">       6043 :           if (ci == mrb-&gt;cibase) {</span>
+<span class="lineNum">    1284 </span><span class="lineNoCov">          0 :             localjump_error(mrb, LOCALJUMP_ERROR_RETURN);</span>
+<span class="lineNum">    1285 </span><span class="lineNoCov">          0 :             goto L_RAISE;</span>
+<span class="lineNum">    1286 </span>            :           }
+<span class="lineNum">    1287 </span><span class="lineCov">       6043 :           ci = mrb-&gt;ci;</span>
+<span class="lineNum">    1288 </span><span class="lineCov">       6043 :           break;</span>
+<span class="lineNum">    1289 </span>            :         case OP_R_BREAK:
+<span class="lineNum">    1290 </span><span class="lineCov">         27 :           if (proc-&gt;env-&gt;cioff &lt; 0) {</span>
+<span class="lineNum">    1291 </span><span class="lineNoCov">          0 :             localjump_error(mrb, LOCALJUMP_ERROR_BREAK);</span>
+<span class="lineNum">    1292 </span><span class="lineNoCov">          0 :             goto L_RAISE;</span>
+<span class="lineNum">    1293 </span>            :           }
+<span class="lineNum">    1294 </span><span class="lineCov">         27 :           ci = mrb-&gt;ci = mrb-&gt;cibase + proc-&gt;env-&gt;cioff + 1;</span>
+<span class="lineNum">    1295 </span>            :           break;
+<span class="lineNum">    1296 </span>            :         default:
+<span class="lineNum">    1297 </span>            :           /* cannot happen */
+<span class="lineNum">    1298 </span>            :           break;
+<span class="lineNum">    1299 </span>            :         }
+<span class="lineNum">    1300 </span><span class="lineCov">      12155 :         while (eidx &gt; mrb-&gt;ci[-1].eidx) {</span>
+<span class="lineNum">    1301 </span><span class="lineCov">          5 :           ecall(mrb, --eidx);</span>
+<span class="lineNum">    1302 </span>            :         }
+<span class="lineNum">    1303 </span><span class="lineCov">       6075 :         cipop(mrb);</span>
+<span class="lineNum">    1304 </span><span class="lineCov">       6075 :         acc = ci-&gt;acc;</span>
+<span class="lineNum">    1305 </span><span class="lineCov">       6075 :         pc = ci-&gt;pc;</span>
+<span class="lineNum">    1306 </span><span class="lineCov">       6075 :         regs = mrb-&gt;stack = mrb-&gt;stbase + ci-&gt;stackidx;</span>
+<span class="lineNum">    1307 </span><span class="lineCov">       6075 :         if (acc &lt; 0) {</span>
+<span class="lineNum">    1308 </span><span class="lineCov">        696 :           mrb-&gt;jmp = prev_jmp;</span>
+<span class="lineNum">    1309 </span><span class="lineCov">        696 :           return v;</span>
+<span class="lineNum">    1310 </span>            :         }
+<span class="lineNum">    1311 </span>            :         DEBUG(printf(&quot;from :%s\n&quot;, mrb_sym2name(mrb, ci-&gt;mid)));
+<span class="lineNum">    1312 </span><span class="lineCov">       5379 :         proc = mrb-&gt;ci-&gt;proc;</span>
+<span class="lineNum">    1313 </span><span class="lineCov">       5379 :         irep = proc-&gt;body.irep;</span>
+<span class="lineNum">    1314 </span><span class="lineCov">       5379 :         pool = irep-&gt;pool;</span>
+<span class="lineNum">    1315 </span><span class="lineCov">       5379 :         syms = irep-&gt;syms;</span>
+<span class="lineNum">    1316 </span>            : 
+<span class="lineNum">    1317 </span><span class="lineCov">       5379 :         regs[acc] = v;</span>
+<span class="lineNum">    1318 </span>            :       }
+<span class="lineNum">    1319 </span><span class="lineCov">       5439 :       JUMP;</span>
+<span class="lineNum">    1320 </span>            :     }
+<span class="lineNum">    1321 </span>            : 
+<span class="lineNum">    1322 </span><span class="lineNoCov">          0 :     CASE(OP_TAILCALL) {</span>
+<span class="lineNum">    1323 </span>            :       /* A B C  return call(R(A),Sym(B),R(A+1),... ,R(A+C-1)) */
+<span class="lineNum">    1324 </span><span class="lineNoCov">          0 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1325 </span><span class="lineNoCov">          0 :       int n = GETARG_C(i);</span>
+<span class="lineNum">    1326 </span>            :       struct RProc *m;
+<span class="lineNum">    1327 </span>            :       struct RClass *c;
+<span class="lineNum">    1328 </span>            :       mrb_callinfo *ci;
+<span class="lineNum">    1329 </span>            :       mrb_value recv;
+<span class="lineNum">    1330 </span><span class="lineNoCov">          0 :       mrb_sym mid = syms[GETARG_B(i)];</span>
+<span class="lineNum">    1331 </span>            : 
+<span class="lineNum">    1332 </span><span class="lineNoCov">          0 :       recv = regs[a];</span>
+<span class="lineNum">    1333 </span><span class="lineNoCov">          0 :       c = mrb_class(mrb, recv);</span>
+<span class="lineNum">    1334 </span><span class="lineNoCov">          0 :       m = mrb_method_search_vm(mrb, &amp;c, mid);</span>
+<span class="lineNum">    1335 </span><span class="lineNoCov">          0 :       if (!m) {</span>
+<span class="lineNum">    1336 </span><span class="lineNoCov">          0 :         mrb_value sym = mrb_symbol_value(mid);</span>
+<span class="lineNum">    1337 </span>            : 
+<span class="lineNum">    1338 </span><span class="lineNoCov">          0 :         mid = mrb_intern2(mrb, &quot;method_missing&quot;, 14);</span>
+<span class="lineNum">    1339 </span><span class="lineNoCov">          0 :         m = mrb_method_search_vm(mrb, &amp;c, mid);</span>
+<span class="lineNum">    1340 </span><span class="lineNoCov">          0 :         if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">    1341 </span><span class="lineNoCov">          0 :           mrb_ary_unshift(mrb, regs[a+1], sym);</span>
+<span class="lineNum">    1342 </span>            :         }
+<span class="lineNum">    1343 </span>            :         else {
+<span class="lineNum">    1344 </span><span class="lineNoCov">          0 :           value_move(regs+a+2, regs+a+1, ++n);</span>
+<span class="lineNum">    1345 </span><span class="lineNoCov">          0 :           regs[a+1] = sym;</span>
+<span class="lineNum">    1346 </span>            :         }
+<span class="lineNum">    1347 </span>            :       }
+<span class="lineNum">    1348 </span>            : 
+<span class="lineNum">    1349 </span>            :       /* replace callinfo */
+<span class="lineNum">    1350 </span><span class="lineNoCov">          0 :       ci = mrb-&gt;ci;</span>
+<span class="lineNum">    1351 </span><span class="lineNoCov">          0 :       ci-&gt;mid = mid;</span>
+<span class="lineNum">    1352 </span><span class="lineNoCov">          0 :       ci-&gt;target_class = m-&gt;target_class;</span>
+<span class="lineNum">    1353 </span><span class="lineNoCov">          0 :       if (n == CALL_MAXARGS) {</span>
+<span class="lineNum">    1354 </span><span class="lineNoCov">          0 :         ci-&gt;argc = -1;</span>
+<span class="lineNum">    1355 </span>            :       }
+<span class="lineNum">    1356 </span>            :       else {
+<span class="lineNum">    1357 </span><span class="lineNoCov">          0 :         ci-&gt;argc = n;</span>
+<span class="lineNum">    1358 </span>            :       }
+<span class="lineNum">    1359 </span>            : 
+<span class="lineNum">    1360 </span>            :       /* move stack */
+<span class="lineNum">    1361 </span><span class="lineNoCov">          0 :       value_move(mrb-&gt;stack, &amp;regs[a], ci-&gt;argc+1);</span>
+<span class="lineNum">    1362 </span>            : 
+<span class="lineNum">    1363 </span><span class="lineNoCov">          0 :       if (MRB_PROC_CFUNC_P(m)) {</span>
+<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :         mrb-&gt;stack[0] = m-&gt;body.func(mrb, recv);</span>
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :         mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1366 </span><span class="lineNoCov">          0 :         goto L_RETURN;</span>
+<span class="lineNum">    1367 </span>            :       }
+<span class="lineNum">    1368 </span>            :       else {
+<span class="lineNum">    1369 </span>            :         /* setup environment for calling method */
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :         irep = m-&gt;body.irep;</span>
+<span class="lineNum">    1371 </span><span class="lineNoCov">          0 :         pool = irep-&gt;pool;</span>
+<span class="lineNum">    1372 </span><span class="lineNoCov">          0 :         syms = irep-&gt;syms;</span>
+<span class="lineNum">    1373 </span><span class="lineNoCov">          0 :         if (ci-&gt;argc &lt; 0) {</span>
+<span class="lineNum">    1374 </span><span class="lineNoCov">          0 :           stack_extend(mrb, (irep-&gt;nregs &lt; 3) ? 3 : irep-&gt;nregs, 3);</span>
+<span class="lineNum">    1375 </span>            :         }
+<span class="lineNum">    1376 </span>            :         else {
+<span class="lineNum">    1377 </span><span class="lineNoCov">          0 :           stack_extend(mrb, irep-&gt;nregs,  ci-&gt;argc+2);</span>
+<span class="lineNum">    1378 </span>            :         }
+<span class="lineNum">    1379 </span><span class="lineNoCov">          0 :         regs = mrb-&gt;stack;</span>
+<span class="lineNum">    1380 </span><span class="lineNoCov">          0 :         pc = irep-&gt;iseq;</span>
+<span class="lineNum">    1381 </span>            :       }
+<span class="lineNum">    1382 </span><span class="lineNoCov">          0 :       JUMP;</span>
+<span class="lineNum">    1383 </span>            :     }
+<span class="lineNum">    1384 </span>            : 
+<span class="lineNum">    1385 </span><span class="lineCov">        850 :     CASE(OP_BLKPUSH) {</span>
+<span class="lineNum">    1386 </span>            :       /* A Bx   R(A) := block (16=6:1:5:4) */
+<span class="lineNum">    1387 </span><span class="lineCov">        850 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1388 </span><span class="lineCov">        850 :       int bx = GETARG_Bx(i);</span>
+<span class="lineNum">    1389 </span><span class="lineCov">        850 :       int m1 = (bx&gt;&gt;10)&amp;0x3f;</span>
+<span class="lineNum">    1390 </span><span class="lineCov">        850 :       int r  = (bx&gt;&gt;9)&amp;0x1;</span>
+<span class="lineNum">    1391 </span><span class="lineCov">        850 :       int m2 = (bx&gt;&gt;4)&amp;0x1f;</span>
+<span class="lineNum">    1392 </span><span class="lineCov">        850 :       int lv = (bx&gt;&gt;0)&amp;0xf;</span>
+<span class="lineNum">    1393 </span>            :       mrb_value *stack;
+<span class="lineNum">    1394 </span>            : 
+<span class="lineNum">    1395 </span><span class="lineCov">        850 :       if (lv == 0) stack = regs + 1;</span>
+<span class="lineNum">    1396 </span>            :       else {
+<span class="lineNum">    1397 </span><span class="lineCov">          5 :         struct REnv *e = uvenv(mrb, lv-1);</span>
+<span class="lineNum">    1398 </span><span class="lineCov">          5 :         if (!e) {</span>
+<span class="lineNum">    1399 </span><span class="lineCov">          1 :           localjump_error(mrb, LOCALJUMP_ERROR_YIELD);</span>
+<span class="lineNum">    1400 </span><span class="lineCov">          1 :           goto L_RAISE;</span>
+<span class="lineNum">    1401 </span>            :         }
+<span class="lineNum">    1402 </span><span class="lineCov">          4 :         stack = e-&gt;stack + 1;</span>
+<span class="lineNum">    1403 </span>            :       }
+<span class="lineNum">    1404 </span><span class="lineCov">        849 :       regs[a] = stack[m1+r+m2];</span>
+<span class="lineNum">    1405 </span><span class="lineCov">        849 :       NEXT;</span>
+<span class="lineNum">    1406 </span>            :     }
+<span class="lineNum">    1407 </span>            : 
+<span class="lineNum">    1408 </span>            : #define attr_i value.i
+<span class="lineNum">    1409 </span>            : #ifdef MRB_NAN_BOXING
+<span class="lineNum">    1410 </span>            : #define attr_f f
+<span class="lineNum">    1411 </span>            : #else
+<span class="lineNum">    1412 </span>            : #define attr_f value.f
+<span class="lineNum">    1413 </span>            : #endif
+<span class="lineNum">    1414 </span>            : 
+<span class="lineNum">    1415 </span>            : #define TYPES2(a,b) ((((uint16_t)(a))&lt;&lt;8)|(((uint16_t)(b))&amp;0xff))
+<span class="lineNum">    1416 </span>            : #define OP_MATH_BODY(op,v1,v2) do {\
+<span class="lineNum">    1417 </span>            :   regs[a].v1 = regs[a].v1 op regs[a+1].v2;\
+<span class="lineNum">    1418 </span>            : } while(0)
+<span class="lineNum">    1419 </span>            : 
+<span class="lineNum">    1420 </span><span class="lineCov">     133856 :     CASE(OP_ADD) {</span>
+<span class="lineNum">    1421 </span>            :       /* A B C  R(A) := R(A)+R(A+1) (Syms[B]=:+,C=1)*/
+<span class="lineNum">    1422 </span><span class="lineCov">     133856 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1423 </span>            : 
+<span class="lineNum">    1424 </span>            :       /* need to check if op is overridden */
+<span class="lineNum">    1425 </span><span class="lineCov">     133856 :       switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {</span>
+<span class="lineNum">    1426 </span>            :       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):
+<span class="lineNum">    1427 </span>            :         {
+<span class="lineNum">    1428 </span>            :           mrb_int x, y, z;
+<span class="lineNum">    1429 </span><span class="lineCov">     133628 :           mrb_value *regs_a = regs + a;</span>
+<span class="lineNum">    1430 </span>            : 
+<span class="lineNum">    1431 </span><span class="lineCov">     133628 :           x = mrb_fixnum(regs_a[0]);</span>
+<span class="lineNum">    1432 </span><span class="lineCov">     133628 :           y = mrb_fixnum(regs_a[1]);</span>
+<span class="lineNum">    1433 </span><span class="lineCov">     133628 :           z = x + y;</span>
+<span class="lineNum">    1434 </span><span class="lineCov">     133628 :           if ((x &lt; 0) != (z &lt; 0) &amp;&amp; ((x &lt; 0) ^ (y &lt; 0)) == 0) {</span>
+<span class="lineNum">    1435 </span>            :             /* integer overflow */
+<span class="lineNum">    1436 </span><span class="lineNoCov">          0 :             SET_FLT_VALUE(regs_a[0], (mrb_float)x + (mrb_float)y);</span>
+<span class="lineNum">    1437 </span>            :           }
+<span class="lineNum">    1438 </span>            :           else {
+<span class="lineNum">    1439 </span><span class="lineCov">     133628 :             regs_a[0].attr_i = z;</span>
+<span class="lineNum">    1440 </span>            :           }
+<span class="lineNum">    1441 </span>            :         }
+<span class="lineNum">    1442 </span><span class="lineCov">     133628 :         break;</span>
+<span class="lineNum">    1443 </span>            :       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FLOAT):
+<span class="lineNum">    1444 </span>            :         {
+<span class="lineNum">    1445 </span><span class="lineCov">          1 :           mrb_int x = mrb_fixnum(regs[a]);</span>
+<span class="lineNum">    1446 </span><span class="lineCov">          1 :           mrb_float y = mrb_float(regs[a+1]);</span>
+<span class="lineNum">    1447 </span><span class="lineCov">          1 :           SET_FLT_VALUE(regs[a], (mrb_float)x + y);</span>
+<span class="lineNum">    1448 </span>            :         }
+<span class="lineNum">    1449 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    1450 </span>            :       case TYPES2(MRB_TT_FLOAT,MRB_TT_FIXNUM):
+<span class="lineNum">    1451 </span><span class="lineCov">         27 :         OP_MATH_BODY(+,attr_f,attr_i);</span>
+<span class="lineNum">    1452 </span><span class="lineCov">         27 :         break;</span>
+<span class="lineNum">    1453 </span>            :       case TYPES2(MRB_TT_FLOAT,MRB_TT_FLOAT):
+<span class="lineNum">    1454 </span><span class="lineCov">         14 :         OP_MATH_BODY(+,attr_f,attr_f);</span>
+<span class="lineNum">    1455 </span><span class="lineCov">         14 :         break;</span>
+<span class="lineNum">    1456 </span>            :       case TYPES2(MRB_TT_STRING,MRB_TT_STRING):
+<span class="lineNum">    1457 </span><span class="lineCov">        142 :         regs[a] = mrb_str_plus(mrb, regs[a], regs[a+1]);</span>
+<span class="lineNum">    1458 </span><span class="lineCov">        142 :         break;</span>
+<span class="lineNum">    1459 </span>            :       default:
+<span class="lineNum">    1460 </span><span class="lineCov">         44 :         goto L_SEND;</span>
+<span class="lineNum">    1461 </span>            :       }
+<span class="lineNum">    1462 </span><span class="lineCov">     133812 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1463 </span><span class="lineCov">     133812 :       NEXT;</span>
+<span class="lineNum">    1464 </span>            :     }
+<span class="lineNum">    1465 </span>            : 
+<span class="lineNum">    1466 </span><span class="lineCov">       1248 :     CASE(OP_SUB) {</span>
+<span class="lineNum">    1467 </span>            :       /* A B C  R(A) := R(A)-R(A+1) (Syms[B]=:-,C=1)*/
+<span class="lineNum">    1468 </span><span class="lineCov">       1248 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1469 </span>            : 
+<span class="lineNum">    1470 </span>            :       /* need to check if op is overridden */
+<span class="lineNum">    1471 </span><span class="lineCov">       1248 :       switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {</span>
+<span class="lineNum">    1472 </span>            :       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):
+<span class="lineNum">    1473 </span>            :         {
+<span class="lineNum">    1474 </span>            :           mrb_int x, y, z;
+<span class="lineNum">    1475 </span>            : 
+<span class="lineNum">    1476 </span><span class="lineCov">       1118 :           x = mrb_fixnum(regs[a]);</span>
+<span class="lineNum">    1477 </span><span class="lineCov">       1118 :           y = mrb_fixnum(regs[a+1]);</span>
+<span class="lineNum">    1478 </span><span class="lineCov">       1118 :           z = x - y;</span>
+<span class="lineNum">    1479 </span><span class="lineCov">       1118 :           if (((x &lt; 0) ^ (y &lt; 0)) != 0 &amp;&amp; (x &lt; 0) != (z &lt; 0)) {</span>
+<span class="lineNum">    1480 </span>            :             /* integer overflow */
+<span class="lineNum">    1481 </span><span class="lineNoCov">          0 :             SET_FLT_VALUE(regs[a], (mrb_float)x - (mrb_float)y);</span>
+<span class="lineNum">    1482 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1483 </span>            :           }
+<span class="lineNum">    1484 </span><span class="lineCov">       1118 :           SET_INT_VALUE(regs[a], z);</span>
+<span class="lineNum">    1485 </span>            :         }
+<span class="lineNum">    1486 </span><span class="lineCov">       1118 :         break;</span>
+<span class="lineNum">    1487 </span>            :       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FLOAT):
+<span class="lineNum">    1488 </span>            :         {
+<span class="lineNum">    1489 </span><span class="lineCov">          1 :           mrb_int x = mrb_fixnum(regs[a]);</span>
+<span class="lineNum">    1490 </span><span class="lineCov">          1 :           mrb_float y = mrb_float(regs[a+1]);</span>
+<span class="lineNum">    1491 </span><span class="lineCov">          1 :           SET_FLT_VALUE(regs[a], (mrb_float)x - y);</span>
+<span class="lineNum">    1492 </span>            :         }
+<span class="lineNum">    1493 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    1494 </span>            :       case TYPES2(MRB_TT_FLOAT,MRB_TT_FIXNUM):
+<span class="lineNum">    1495 </span><span class="lineCov">          1 :         OP_MATH_BODY(-,attr_f,attr_i);</span>
+<span class="lineNum">    1496 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    1497 </span>            :       case TYPES2(MRB_TT_FLOAT,MRB_TT_FLOAT):
+<span class="lineNum">    1498 </span><span class="lineCov">        124 :         OP_MATH_BODY(-,attr_f,attr_f);</span>
+<span class="lineNum">    1499 </span><span class="lineCov">        124 :         break;</span>
+<span class="lineNum">    1500 </span>            :       default:
+<span class="lineNum">    1501 </span><span class="lineCov">          4 :         goto L_SEND;</span>
+<span class="lineNum">    1502 </span>            :       }
+<span class="lineNum">    1503 </span><span class="lineCov">       1244 :       NEXT;</span>
+<span class="lineNum">    1504 </span>            :     }
+<span class="lineNum">    1505 </span>            : 
+<span class="lineNum">    1506 </span><span class="lineCov">         34 :     CASE(OP_MUL) {</span>
+<span class="lineNum">    1507 </span>            :       /* A B C  R(A) := R(A)*R(A+1) (Syms[B]=:*,C=1)*/
+<span class="lineNum">    1508 </span><span class="lineCov">         34 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1509 </span>            : 
+<span class="lineNum">    1510 </span>            :       /* need to check if op is overridden */
+<span class="lineNum">    1511 </span><span class="lineCov">         34 :       switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {</span>
+<span class="lineNum">    1512 </span>            :       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):
+<span class="lineNum">    1513 </span>            :         {
+<span class="lineNum">    1514 </span>            :           mrb_int x, y, z;
+<span class="lineNum">    1515 </span>            : 
+<span class="lineNum">    1516 </span><span class="lineCov">         10 :           x = mrb_fixnum(regs[a]);</span>
+<span class="lineNum">    1517 </span><span class="lineCov">         10 :           y = mrb_fixnum(regs[a+1]);</span>
+<span class="lineNum">    1518 </span><span class="lineCov">         10 :           z = x * y;</span>
+<span class="lineNum">    1519 </span><span class="lineCov">         10 :           if (x != 0 &amp;&amp; z/x != y) {</span>
+<span class="lineNum">    1520 </span><span class="lineNoCov">          0 :             SET_FLT_VALUE(regs[a], (mrb_float)x * (mrb_float)y);</span>
+<span class="lineNum">    1521 </span>            :           }
+<span class="lineNum">    1522 </span>            :           else {
+<span class="lineNum">    1523 </span><span class="lineCov">         10 :             SET_INT_VALUE(regs[a], z);</span>
+<span class="lineNum">    1524 </span>            :           }
+<span class="lineNum">    1525 </span>            :         }
+<span class="lineNum">    1526 </span><span class="lineCov">         10 :         break;</span>
+<span class="lineNum">    1527 </span>            :       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FLOAT):
+<span class="lineNum">    1528 </span>            :         {
+<span class="lineNum">    1529 </span><span class="lineCov">          1 :           mrb_int x = mrb_fixnum(regs[a]);</span>
+<span class="lineNum">    1530 </span><span class="lineCov">          1 :           mrb_float y = mrb_float(regs[a+1]);</span>
+<span class="lineNum">    1531 </span><span class="lineCov">          1 :           SET_FLT_VALUE(regs[a], (mrb_float)x * y);</span>
+<span class="lineNum">    1532 </span>            :         }
+<span class="lineNum">    1533 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    1534 </span>            :       case TYPES2(MRB_TT_FLOAT,MRB_TT_FIXNUM):
+<span class="lineNum">    1535 </span><span class="lineCov">         14 :         OP_MATH_BODY(*,attr_f,attr_i);</span>
+<span class="lineNum">    1536 </span><span class="lineCov">         14 :         break;</span>
+<span class="lineNum">    1537 </span>            :       case TYPES2(MRB_TT_FLOAT,MRB_TT_FLOAT):
+<span class="lineNum">    1538 </span><span class="lineCov">          1 :         OP_MATH_BODY(*,attr_f,attr_f);</span>
+<span class="lineNum">    1539 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    1540 </span>            :       default:
+<span class="lineNum">    1541 </span><span class="lineCov">          8 :         goto L_SEND;</span>
+<span class="lineNum">    1542 </span>            :       }
+<span class="lineNum">    1543 </span><span class="lineCov">         26 :       NEXT;</span>
+<span class="lineNum">    1544 </span>            :     }
+<span class="lineNum">    1545 </span>            : 
+<span class="lineNum">    1546 </span><span class="lineCov">         86 :     CASE(OP_DIV) {</span>
+<span class="lineNum">    1547 </span>            :       /* A B C  R(A) := R(A)/R(A+1) (Syms[B]=:/,C=1)*/
+<span class="lineNum">    1548 </span><span class="lineCov">         86 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1549 </span>            : 
+<span class="lineNum">    1550 </span>            :       /* need to check if op is overridden */
+<span class="lineNum">    1551 </span><span class="lineCov">         86 :       switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {</span>
+<span class="lineNum">    1552 </span>            :       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):
+<span class="lineNum">    1553 </span>            :         {
+<span class="lineNum">    1554 </span><span class="lineCov">          1 :           mrb_int x = mrb_fixnum(regs[a]);</span>
+<span class="lineNum">    1555 </span><span class="lineCov">          1 :           mrb_int y = mrb_fixnum(regs[a+1]);</span>
+<span class="lineNum">    1556 </span><span class="lineCov">          1 :           SET_FLT_VALUE(regs[a], (mrb_float)x / (mrb_float)y);</span>
+<span class="lineNum">    1557 </span>            :         }
+<span class="lineNum">    1558 </span><span class="lineCov">          1 :         break;</span>
+<span class="lineNum">    1559 </span>            :       case TYPES2(MRB_TT_FIXNUM,MRB_TT_FLOAT):
+<span class="lineNum">    1560 </span>            :         {
+<span class="lineNum">    1561 </span><span class="lineCov">         53 :           mrb_int x = mrb_fixnum(regs[a]);</span>
+<span class="lineNum">    1562 </span><span class="lineCov">         53 :           mrb_float y = mrb_float(regs[a+1]);</span>
+<span class="lineNum">    1563 </span><span class="lineCov">         53 :           SET_FLT_VALUE(regs[a], (mrb_float)x / y);</span>
+<span class="lineNum">    1564 </span>            :         }
+<span class="lineNum">    1565 </span><span class="lineCov">         53 :         break;</span>
+<span class="lineNum">    1566 </span>            :       case TYPES2(MRB_TT_FLOAT,MRB_TT_FIXNUM):
+<span class="lineNum">    1567 </span><span class="lineCov">         28 :         OP_MATH_BODY(/,attr_f,attr_i);</span>
+<span class="lineNum">    1568 </span><span class="lineCov">         28 :         break;</span>
+<span class="lineNum">    1569 </span>            :       case TYPES2(MRB_TT_FLOAT,MRB_TT_FLOAT):
+<span class="lineNum">    1570 </span><span class="lineCov">          4 :         OP_MATH_BODY(/,attr_f,attr_f);</span>
+<span class="lineNum">    1571 </span><span class="lineCov">          4 :         break;</span>
+<span class="lineNum">    1572 </span>            :       default:
+<span class="lineNum">    1573 </span><span class="lineNoCov">          0 :         goto L_SEND;</span>
+<span class="lineNum">    1574 </span>            :       }
+<span class="lineNum">    1575 </span><span class="lineCov">         86 :       NEXT;</span>
+<span class="lineNum">    1576 </span>            :     }
+<span class="lineNum">    1577 </span>            : 
+<span class="lineNum">    1578 </span><span class="lineNoCov">          0 :     CASE(OP_ADDI) {</span>
+<span class="lineNum">    1579 </span>            :       /* A B C  R(A) := R(A)+C (Syms[B]=:+)*/
+<span class="lineNum">    1580 </span><span class="lineNoCov">          0 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1581 </span>            : 
+<span class="lineNum">    1582 </span>            :       /* need to check if + is overridden */
+<span class="lineNum">    1583 </span><span class="lineNoCov">          0 :       switch (mrb_type(regs[a])) {</span>
+<span class="lineNum">    1584 </span>            :       case MRB_TT_FIXNUM:
+<span class="lineNum">    1585 </span>            :         {
+<span class="lineNum">    1586 </span><span class="lineNoCov">          0 :           mrb_int x = regs[a].attr_i;</span>
+<span class="lineNum">    1587 </span><span class="lineNoCov">          0 :           mrb_int y = GETARG_C(i);</span>
+<span class="lineNum">    1588 </span><span class="lineNoCov">          0 :           mrb_int z = x + y;</span>
+<span class="lineNum">    1589 </span>            : 
+<span class="lineNum">    1590 </span><span class="lineNoCov">          0 :           if (((x &lt; 0) ^ (y &lt; 0)) == 0 &amp;&amp; (x &lt; 0) != (z &lt; 0)) {</span>
+<span class="lineNum">    1591 </span>            :             /* integer overflow */
+<span class="lineNum">    1592 </span><span class="lineNoCov">          0 :             SET_FLT_VALUE(regs[a], (mrb_float)x + (mrb_float)y);</span>
+<span class="lineNum">    1593 </span><span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1594 </span>            :           }
+<span class="lineNum">    1595 </span><span class="lineNoCov">          0 :           regs[a].attr_i = z;</span>
+<span class="lineNum">    1596 </span>            :         }
+<span class="lineNum">    1597 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">    1598 </span>            :       case MRB_TT_FLOAT:
+<span class="lineNum">    1599 </span><span class="lineNoCov">          0 :         regs[a].attr_f += GETARG_C(i);</span>
+<span class="lineNum">    1600 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">    1601 </span>            :       default:
+<span class="lineNum">    1602 </span><span class="lineNoCov">          0 :         SET_INT_VALUE(regs[a+1], GETARG_C(i));</span>
+<span class="lineNum">    1603 </span><span class="lineNoCov">          0 :         i = MKOP_ABC(OP_SEND, a, GETARG_B(i), 1);</span>
+<span class="lineNum">    1604 </span><span class="lineNoCov">          0 :         goto L_SEND;</span>
+<span class="lineNum">    1605 </span>            :       }
+<span class="lineNum">    1606 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">    1607 </span>            :     }
+<span class="lineNum">    1608 </span>            : 
+<span class="lineNum">    1609 </span><span class="lineNoCov">          0 :     CASE(OP_SUBI) {</span>
+<span class="lineNum">    1610 </span>            :       /* A B C  R(A) := R(A)-C (Syms[B]=:-)*/
+<span class="lineNum">    1611 </span><span class="lineNoCov">          0 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1612 </span><span class="lineNoCov">          0 :       mrb_value *regs_a = regs + a;</span>
+<span class="lineNum">    1613 </span>            : 
+<span class="lineNum">    1614 </span>            :       /* need to check if + is overridden */
+<span class="lineNum">    1615 </span><span class="lineNoCov">          0 :       switch (mrb_type(regs_a[0])) {</span>
+<span class="lineNum">    1616 </span>            :       case MRB_TT_FIXNUM:
+<span class="lineNum">    1617 </span>            :         {
+<span class="lineNum">    1618 </span><span class="lineNoCov">          0 :           mrb_int x = regs_a[0].attr_i;</span>
+<span class="lineNum">    1619 </span><span class="lineNoCov">          0 :           mrb_int y = GETARG_C(i);</span>
+<span class="lineNum">    1620 </span><span class="lineNoCov">          0 :           mrb_int z = x - y;</span>
+<span class="lineNum">    1621 </span>            : 
+<span class="lineNum">    1622 </span><span class="lineNoCov">          0 :           if ((x &lt; 0) != (z &lt; 0) &amp;&amp; ((x &lt; 0) ^ (y &lt; 0)) != 0) {</span>
+<span class="lineNum">    1623 </span>            :             /* integer overflow */
+<span class="lineNum">    1624 </span><span class="lineNoCov">          0 :             SET_FLT_VALUE(regs_a[0], (mrb_float)x - (mrb_float)y);</span>
+<span class="lineNum">    1625 </span>            :           }
+<span class="lineNum">    1626 </span>            :           else {
+<span class="lineNum">    1627 </span><span class="lineNoCov">          0 :             regs_a[0].attr_i = z;</span>
+<span class="lineNum">    1628 </span>            :           }
+<span class="lineNum">    1629 </span>            :         }
+<span class="lineNum">    1630 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">    1631 </span>            :       case MRB_TT_FLOAT:
+<span class="lineNum">    1632 </span><span class="lineNoCov">          0 :         regs_a[0].attr_f -= GETARG_C(i);</span>
+<span class="lineNum">    1633 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">    1634 </span>            :       default:
+<span class="lineNum">    1635 </span><span class="lineNoCov">          0 :         SET_INT_VALUE(regs_a[1], GETARG_C(i));</span>
+<span class="lineNum">    1636 </span><span class="lineNoCov">          0 :         i = MKOP_ABC(OP_SEND, a, GETARG_B(i), 1);</span>
+<span class="lineNum">    1637 </span><span class="lineNoCov">          0 :         goto L_SEND;</span>
+<span class="lineNum">    1638 </span>            :       }
+<span class="lineNum">    1639 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">    1640 </span>            :     }
+<span class="lineNum">    1641 </span>            : 
+<span class="lineNum">    1642 </span>            : #define OP_CMP_BODY(op,v1,v2) do {\
+<span class="lineNum">    1643 </span>            :   if (regs[a].v1 op regs[a+1].v2) {\
+<span class="lineNum">    1644 </span>            :     SET_TRUE_VALUE(regs[a]);\
+<span class="lineNum">    1645 </span>            :   }\
+<span class="lineNum">    1646 </span>            :   else {\
+<span class="lineNum">    1647 </span>            :     SET_FALSE_VALUE(regs[a]);\
+<span class="lineNum">    1648 </span>            :   }\
+<span class="lineNum">    1649 </span>            : } while(0)
+<span class="lineNum">    1650 </span>            : 
+<span class="lineNum">    1651 </span>            : #define OP_CMP(op) do {\
+<span class="lineNum">    1652 </span>            :   int a = GETARG_A(i);\
+<span class="lineNum">    1653 </span>            :   /* need to check if - is overridden */\
+<span class="lineNum">    1654 </span>            :   switch (TYPES2(mrb_type(regs[a]),mrb_type(regs[a+1]))) {\
+<span class="lineNum">    1655 </span>            :   case TYPES2(MRB_TT_FIXNUM,MRB_TT_FIXNUM):\
+<span class="lineNum">    1656 </span>            :     OP_CMP_BODY(op,attr_i,attr_i);\
+<span class="lineNum">    1657 </span>            :     break;\
+<span class="lineNum">    1658 </span>            :   case TYPES2(MRB_TT_FIXNUM,MRB_TT_FLOAT):\
+<span class="lineNum">    1659 </span>            :     OP_CMP_BODY(op,attr_i,attr_f);\
+<span class="lineNum">    1660 </span>            :     break;\
+<span class="lineNum">    1661 </span>            :   case TYPES2(MRB_TT_FLOAT,MRB_TT_FIXNUM):\
+<span class="lineNum">    1662 </span>            :     OP_CMP_BODY(op,attr_f,attr_i);\
+<span class="lineNum">    1663 </span>            :     break;\
+<span class="lineNum">    1664 </span>            :   case TYPES2(MRB_TT_FLOAT,MRB_TT_FLOAT):\
+<span class="lineNum">    1665 </span>            :     OP_CMP_BODY(op,attr_f,attr_f);\
+<span class="lineNum">    1666 </span>            :     break;\
+<span class="lineNum">    1667 </span>            :   default:\
+<span class="lineNum">    1668 </span>            :     goto L_SEND;\
+<span class="lineNum">    1669 </span>            :   }\
+<span class="lineNum">    1670 </span>            : } while(0)
+<span class="lineNum">    1671 </span>            : 
+<span class="lineNum">    1672 </span><span class="lineCov">       1371 :     CASE(OP_EQ) {</span>
+<span class="lineNum">    1673 </span>            :       /* A B C  R(A) := R(A)&lt;R(A+1) (Syms[B]=:==,C=1)*/
+<span class="lineNum">    1674 </span><span class="lineCov">       1371 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1675 </span><span class="lineCov">       1371 :       if (mrb_obj_eq(mrb, regs[a], regs[a+1])) {</span>
+<span class="lineNum">    1676 </span><span class="lineCov">        631 :         SET_TRUE_VALUE(regs[a]);</span>
+<span class="lineNum">    1677 </span>            :       }
+<span class="lineNum">    1678 </span>            :       else {
+<span class="lineNum">    1679 </span><span class="lineCov">        740 :         OP_CMP(==);</span>
+<span class="lineNum">    1680 </span>            :       }
+<span class="lineNum">    1681 </span><span class="lineCov">        944 :       NEXT;</span>
+<span class="lineNum">    1682 </span>            :     }
+<span class="lineNum">    1683 </span>            : 
+<span class="lineNum">    1684 </span><span class="lineCov">       2562 :     CASE(OP_LT) {</span>
+<span class="lineNum">    1685 </span>            :       /* A B C  R(A) := R(A)&lt;R(A+1) (Syms[B]=:&lt;,C=1)*/
+<span class="lineNum">    1686 </span><span class="lineCov">       2562 :       OP_CMP(&lt;);</span>
+<span class="lineNum">    1687 </span><span class="lineCov">       2556 :       NEXT;</span>
+<span class="lineNum">    1688 </span>            :     }
+<span class="lineNum">    1689 </span>            : 
+<span class="lineNum">    1690 </span><span class="lineCov">        935 :     CASE(OP_LE) {</span>
+<span class="lineNum">    1691 </span>            :       /* A B C  R(A) := R(A)&lt;=R(A+1) (Syms[B]=:&lt;=,C=1)*/
+<span class="lineNum">    1692 </span><span class="lineCov">        935 :       OP_CMP(&lt;=);</span>
+<span class="lineNum">    1693 </span><span class="lineCov">        934 :       NEXT;</span>
+<span class="lineNum">    1694 </span>            :     }
+<span class="lineNum">    1695 </span>            : 
+<span class="lineNum">    1696 </span><span class="lineCov">     131721 :     CASE(OP_GT) {</span>
+<span class="lineNum">    1697 </span>            :       /* A B C  R(A) := R(A)&lt;R(A+1) (Syms[B]=:&lt;,C=1)*/
+<span class="lineNum">    1698 </span><span class="lineCov">     131721 :       OP_CMP(&gt;);</span>
+<span class="lineNum">    1699 </span><span class="lineCov">     131717 :       NEXT;</span>
+<span class="lineNum">    1700 </span>            :     }
+<span class="lineNum">    1701 </span>            : 
+<span class="lineNum">    1702 </span><span class="lineCov">         71 :     CASE(OP_GE) {</span>
+<span class="lineNum">    1703 </span>            :       /* A B C  R(A) := R(A)&lt;=R(A+1) (Syms[B]=:&lt;=,C=1)*/
+<span class="lineNum">    1704 </span><span class="lineCov">         71 :       OP_CMP(&gt;=);</span>
+<span class="lineNum">    1705 </span><span class="lineCov">         70 :       NEXT;</span>
+<span class="lineNum">    1706 </span>            :     }
+<span class="lineNum">    1707 </span>            : 
+<span class="lineNum">    1708 </span><span class="lineCov">       1239 :     CASE(OP_ARRAY) {</span>
+<span class="lineNum">    1709 </span>            :       /* A B C          R(A) := ary_new(R(B),R(B+1)..R(B+C)) */
+<span class="lineNum">    1710 </span><span class="lineCov">       1239 :       regs[GETARG_A(i)] = mrb_ary_new_from_values(mrb, GETARG_C(i), &amp;regs[GETARG_B(i)]);</span>
+<span class="lineNum">    1711 </span><span class="lineCov">       1239 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1712 </span><span class="lineCov">       1239 :       NEXT;</span>
+<span class="lineNum">    1713 </span>            :     }
+<span class="lineNum">    1714 </span>            : 
+<span class="lineNum">    1715 </span><span class="lineCov">        110 :     CASE(OP_ARYCAT) {</span>
+<span class="lineNum">    1716 </span>            :       /* A B            mrb_ary_concat(R(A),R(B)) */
+<span class="lineNum">    1717 </span><span class="lineCov">        110 :       mrb_ary_concat(mrb, regs[GETARG_A(i)],</span>
+<span class="lineNum">    1718 </span>            :                      mrb_ary_splat(mrb, regs[GETARG_B(i)]));
+<span class="lineNum">    1719 </span><span class="lineCov">        110 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1720 </span><span class="lineCov">        110 :       NEXT;</span>
+<span class="lineNum">    1721 </span>            :     }
+<span class="lineNum">    1722 </span>            : 
+<span class="lineNum">    1723 </span><span class="lineNoCov">          0 :     CASE(OP_ARYPUSH) {</span>
+<span class="lineNum">    1724 </span>            :       /* A B            R(A).push(R(B)) */
+<span class="lineNum">    1725 </span><span class="lineNoCov">          0 :       mrb_ary_push(mrb, regs[GETARG_A(i)], regs[GETARG_B(i)]);</span>
+<span class="lineNum">    1726 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">    1727 </span>            :     }
+<span class="lineNum">    1728 </span>            : 
+<span class="lineNum">    1729 </span><span class="lineCov">          2 :     CASE(OP_AREF) {</span>
+<span class="lineNum">    1730 </span>            :       /* A B C          R(A) := R(B)[C] */
+<span class="lineNum">    1731 </span><span class="lineCov">          2 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1732 </span><span class="lineCov">          2 :       int c = GETARG_C(i);</span>
+<span class="lineNum">    1733 </span><span class="lineCov">          2 :       mrb_value v = regs[GETARG_B(i)];</span>
+<span class="lineNum">    1734 </span>            : 
+<span class="lineNum">    1735 </span><span class="lineCov">          2 :       if (!mrb_array_p(v)) {</span>
+<span class="lineNum">    1736 </span><span class="lineNoCov">          0 :         if (c == 0) {</span>
+<span class="lineNum">    1737 </span><span class="lineNoCov">          0 :           regs[GETARG_A(i)] = v;</span>
+<span class="lineNum">    1738 </span>            :         }
+<span class="lineNum">    1739 </span>            :         else {
+<span class="lineNum">    1740 </span><span class="lineNoCov">          0 :           SET_NIL_VALUE(regs[a]);</span>
+<span class="lineNum">    1741 </span>            :         }
+<span class="lineNum">    1742 </span>            :       }
+<span class="lineNum">    1743 </span>            :       else {
+<span class="lineNum">    1744 </span><span class="lineCov">          2 :         regs[GETARG_A(i)] = mrb_ary_ref(mrb, v, c);</span>
+<span class="lineNum">    1745 </span>            :       }
+<span class="lineNum">    1746 </span><span class="lineCov">          2 :       NEXT;</span>
+<span class="lineNum">    1747 </span>            :     }
+<span class="lineNum">    1748 </span>            : 
+<span class="lineNum">    1749 </span><span class="lineNoCov">          0 :     CASE(OP_ASET) {</span>
+<span class="lineNum">    1750 </span>            :       /* A B C          R(B)[C] := R(A) */
+<span class="lineNum">    1751 </span><span class="lineNoCov">          0 :       mrb_ary_set(mrb, regs[GETARG_B(i)], GETARG_C(i), regs[GETARG_A(i)]);</span>
+<span class="lineNum">    1752 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">    1753 </span>            :     }
+<span class="lineNum">    1754 </span>            : 
+<span class="lineNum">    1755 </span><span class="lineNoCov">          0 :     CASE(OP_APOST) {</span>
+<span class="lineNum">    1756 </span>            :       /* A B C  *R(A),R(A+1)..R(A+C) := R(A) */
+<span class="lineNum">    1757 </span><span class="lineNoCov">          0 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1758 </span><span class="lineNoCov">          0 :       mrb_value v = regs[a];</span>
+<span class="lineNum">    1759 </span><span class="lineNoCov">          0 :       int pre  = GETARG_B(i);</span>
+<span class="lineNum">    1760 </span><span class="lineNoCov">          0 :       int post = GETARG_C(i);</span>
+<span class="lineNum">    1761 </span>            : 
+<span class="lineNum">    1762 </span><span class="lineNoCov">          0 :       if (!mrb_array_p(v)) {</span>
+<span class="lineNum">    1763 </span><span class="lineNoCov">          0 :         regs[a++] = mrb_ary_new_capa(mrb, 0);</span>
+<span class="lineNum">    1764 </span><span class="lineNoCov">          0 :         while (post--) {</span>
+<span class="lineNum">    1765 </span><span class="lineNoCov">          0 :           SET_NIL_VALUE(regs[a]);</span>
+<span class="lineNum">    1766 </span><span class="lineNoCov">          0 :           a++;</span>
+<span class="lineNum">    1767 </span>            :         }
+<span class="lineNum">    1768 </span>            :       }
+<span class="lineNum">    1769 </span>            :       else {
+<span class="lineNum">    1770 </span><span class="lineNoCov">          0 :         struct RArray *ary = mrb_ary_ptr(v);</span>
+<span class="lineNum">    1771 </span><span class="lineNoCov">          0 :         int len = ary-&gt;len;</span>
+<span class="lineNum">    1772 </span>            :         int i;
+<span class="lineNum">    1773 </span>            : 
+<span class="lineNum">    1774 </span><span class="lineNoCov">          0 :         if (len &gt; pre + post) {</span>
+<span class="lineNum">    1775 </span><span class="lineNoCov">          0 :           regs[a++] = mrb_ary_new_from_values(mrb, len - pre - post, ary-&gt;ptr+pre);</span>
+<span class="lineNum">    1776 </span><span class="lineNoCov">          0 :           while (post--) {</span>
+<span class="lineNum">    1777 </span><span class="lineNoCov">          0 :             regs[a++] = ary-&gt;ptr[len-post-1];</span>
+<span class="lineNum">    1778 </span>            :           }
+<span class="lineNum">    1779 </span>            :         }
+<span class="lineNum">    1780 </span>            :         else {
+<span class="lineNum">    1781 </span><span class="lineNoCov">          0 :           regs[a++] = mrb_ary_new_capa(mrb, 0);</span>
+<span class="lineNum">    1782 </span><span class="lineNoCov">          0 :           for (i=0; i+pre&lt;len; i++) {</span>
+<span class="lineNum">    1783 </span><span class="lineNoCov">          0 :             regs[a+i] = ary-&gt;ptr[pre+i];</span>
+<span class="lineNum">    1784 </span>            :           }
+<span class="lineNum">    1785 </span><span class="lineNoCov">          0 :           while (i &lt; post) {</span>
+<span class="lineNum">    1786 </span><span class="lineNoCov">          0 :             SET_NIL_VALUE(regs[a+i]);</span>
+<span class="lineNum">    1787 </span><span class="lineNoCov">          0 :             i++;</span>
+<span class="lineNum">    1788 </span>            :           }
+<span class="lineNum">    1789 </span>            :         }
+<span class="lineNum">    1790 </span>            :       }
+<span class="lineNum">    1791 </span><span class="lineNoCov">          0 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1792 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">    1793 </span>            :     }
+<span class="lineNum">    1794 </span>            : 
+<span class="lineNum">    1795 </span><span class="lineCov">       3545 :     CASE(OP_STRING) {</span>
+<span class="lineNum">    1796 </span>            :       /* A Bx           R(A) := str_new(Lit(Bx)) */
+<span class="lineNum">    1797 </span><span class="lineCov">       3545 :       regs[GETARG_A(i)] = mrb_str_literal(mrb, pool[GETARG_Bx(i)]);</span>
+<span class="lineNum">    1798 </span><span class="lineCov">       3545 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1799 </span><span class="lineCov">       3545 :       NEXT;</span>
+<span class="lineNum">    1800 </span>            :     }
+<span class="lineNum">    1801 </span>            : 
+<span class="lineNum">    1802 </span><span class="lineCov">        226 :     CASE(OP_STRCAT) {</span>
+<span class="lineNum">    1803 </span>            :       /* A B    R(A).concat(R(B)) */
+<span class="lineNum">    1804 </span><span class="lineCov">        226 :       mrb_str_concat(mrb, regs[GETARG_A(i)], regs[GETARG_B(i)]);</span>
+<span class="lineNum">    1805 </span><span class="lineCov">        226 :       NEXT;</span>
+<span class="lineNum">    1806 </span>            :     }
+<span class="lineNum">    1807 </span>            : 
+<span class="lineNum">    1808 </span><span class="lineCov">         61 :     CASE(OP_HASH) {</span>
+<span class="lineNum">    1809 </span>            :       /* A B C   R(A) := hash_new(R(B),R(B+1)..R(B+C)) */
+<span class="lineNum">    1810 </span><span class="lineCov">         61 :       int b = GETARG_B(i);</span>
+<span class="lineNum">    1811 </span><span class="lineCov">         61 :       int c = GETARG_C(i);</span>
+<span class="lineNum">    1812 </span><span class="lineCov">         61 :       int lim = b+c*2;</span>
+<span class="lineNum">    1813 </span><span class="lineCov">         61 :       mrb_value hash = mrb_hash_new_capa(mrb, c);</span>
+<span class="lineNum">    1814 </span>            : 
+<span class="lineNum">    1815 </span><span class="lineCov">        212 :       while (b &lt; lim) {</span>
+<span class="lineNum">    1816 </span><span class="lineCov">         90 :         mrb_hash_set(mrb, hash, regs[b], regs[b+1]);</span>
+<span class="lineNum">    1817 </span><span class="lineCov">         90 :         b+=2;</span>
+<span class="lineNum">    1818 </span>            :       }
+<span class="lineNum">    1819 </span><span class="lineCov">         61 :       regs[GETARG_A(i)] = hash;</span>
+<span class="lineNum">    1820 </span><span class="lineCov">         61 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1821 </span><span class="lineCov">         61 :       NEXT;</span>
+<span class="lineNum">    1822 </span>            :     }
+<span class="lineNum">    1823 </span>            : 
+<span class="lineNum">    1824 </span><span class="lineCov">       2871 :     CASE(OP_LAMBDA) {</span>
+<span class="lineNum">    1825 </span>            :       /* A b c  R(A) := lambda(SEQ[b],c) (b:c = 14:2) */
+<span class="lineNum">    1826 </span>            :       struct RProc *p;
+<span class="lineNum">    1827 </span><span class="lineCov">       2871 :       int c = GETARG_c(i);</span>
+<span class="lineNum">    1828 </span>            : 
+<span class="lineNum">    1829 </span><span class="lineCov">       2871 :       if (c &amp; OP_L_CAPTURE) {</span>
+<span class="lineNum">    1830 </span><span class="lineCov">       1078 :         p = mrb_closure_new(mrb, mrb-&gt;irep[irep-&gt;idx+GETARG_b(i)]);</span>
+<span class="lineNum">    1831 </span>            :       }
+<span class="lineNum">    1832 </span>            :       else {
+<span class="lineNum">    1833 </span><span class="lineCov">       1793 :         p = mrb_proc_new(mrb, mrb-&gt;irep[irep-&gt;idx+GETARG_b(i)]);</span>
+<span class="lineNum">    1834 </span>            :       }
+<span class="lineNum">    1835 </span><span class="lineCov">       2871 :       if (c &amp; OP_L_STRICT) p-&gt;flags |= MRB_PROC_STRICT;</span>
+<span class="lineNum">    1836 </span><span class="lineCov">       2871 :       regs[GETARG_A(i)] = mrb_obj_value(p);</span>
+<span class="lineNum">    1837 </span><span class="lineCov">       2871 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1838 </span><span class="lineCov">       2871 :       NEXT;</span>
+<span class="lineNum">    1839 </span>            :     }
+<span class="lineNum">    1840 </span>            : 
+<span class="lineNum">    1841 </span><span class="lineCov">          7 :     CASE(OP_OCLASS) {</span>
+<span class="lineNum">    1842 </span>            :       /* A      R(A) := ::Object */
+<span class="lineNum">    1843 </span><span class="lineCov">          7 :       regs[GETARG_A(i)] = mrb_obj_value(mrb-&gt;object_class);</span>
+<span class="lineNum">    1844 </span><span class="lineCov">          7 :       NEXT;</span>
+<span class="lineNum">    1845 </span>            :     }
+<span class="lineNum">    1846 </span>            : 
+<span class="lineNum">    1847 </span><span class="lineCov">        512 :     CASE(OP_CLASS) {</span>
+<span class="lineNum">    1848 </span>            :       /* A B    R(A) := newclass(R(A),Sym(B),R(A+1)) */
+<span class="lineNum">    1849 </span><span class="lineCov">        512 :       struct RClass *c = 0;</span>
+<span class="lineNum">    1850 </span><span class="lineCov">        512 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1851 </span>            :       mrb_value base, super;
+<span class="lineNum">    1852 </span><span class="lineCov">        512 :       mrb_sym id = syms[GETARG_B(i)];</span>
+<span class="lineNum">    1853 </span>            : 
+<span class="lineNum">    1854 </span><span class="lineCov">        512 :       base = regs[a];</span>
+<span class="lineNum">    1855 </span><span class="lineCov">        512 :       super = regs[a+1];</span>
+<span class="lineNum">    1856 </span><span class="lineCov">        512 :       if (mrb_nil_p(base)) {</span>
+<span class="lineNum">    1857 </span><span class="lineCov">        497 :         base = mrb_obj_value(mrb-&gt;ci-&gt;target_class);</span>
+<span class="lineNum">    1858 </span>            :       }
+<span class="lineNum">    1859 </span><span class="lineCov">        512 :       c = mrb_vm_define_class(mrb, base, super, id);</span>
+<span class="lineNum">    1860 </span><span class="lineCov">        509 :       regs[a] = mrb_obj_value(c);</span>
+<span class="lineNum">    1861 </span><span class="lineCov">        509 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1862 </span><span class="lineCov">        509 :       NEXT;</span>
+<span class="lineNum">    1863 </span>            :     }
+<span class="lineNum">    1864 </span>            : 
+<span class="lineNum">    1865 </span><span class="lineCov">        201 :     CASE(OP_MODULE) {</span>
+<span class="lineNum">    1866 </span>            :       /* A B            R(A) := newmodule(R(A),Sym(B)) */
+<span class="lineNum">    1867 </span><span class="lineCov">        201 :       struct RClass *c = 0;</span>
+<span class="lineNum">    1868 </span><span class="lineCov">        201 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1869 </span>            :       mrb_value base;
+<span class="lineNum">    1870 </span><span class="lineCov">        201 :       mrb_sym id = syms[GETARG_B(i)];</span>
+<span class="lineNum">    1871 </span>            : 
+<span class="lineNum">    1872 </span><span class="lineCov">        201 :       base = regs[a];</span>
+<span class="lineNum">    1873 </span><span class="lineCov">        201 :       if (mrb_nil_p(base)) {</span>
+<span class="lineNum">    1874 </span><span class="lineCov">        201 :         base = mrb_obj_value(mrb-&gt;ci-&gt;target_class);</span>
+<span class="lineNum">    1875 </span>            :       }
+<span class="lineNum">    1876 </span><span class="lineCov">        201 :       c = mrb_vm_define_module(mrb, base, id);</span>
+<span class="lineNum">    1877 </span><span class="lineCov">        201 :       regs[a] = mrb_obj_value(c);</span>
+<span class="lineNum">    1878 </span><span class="lineCov">        201 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1879 </span><span class="lineCov">        201 :       NEXT;</span>
+<span class="lineNum">    1880 </span>            :     }
+<span class="lineNum">    1881 </span>            : 
+<span class="lineNum">    1882 </span><span class="lineCov">        710 :     CASE(OP_EXEC) {</span>
+<span class="lineNum">    1883 </span>            :       /* A Bx   R(A) := blockexec(R(A),SEQ[Bx]) */
+<span class="lineNum">    1884 </span><span class="lineCov">        710 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1885 </span>            :       mrb_callinfo *ci;
+<span class="lineNum">    1886 </span><span class="lineCov">        710 :       mrb_value recv = regs[a];</span>
+<span class="lineNum">    1887 </span>            :       struct RProc *p;
+<span class="lineNum">    1888 </span>            : 
+<span class="lineNum">    1889 </span>            :       /* prepare stack */
+<span class="lineNum">    1890 </span><span class="lineCov">        710 :       ci = cipush(mrb);</span>
+<span class="lineNum">    1891 </span><span class="lineCov">        710 :       ci-&gt;pc = pc + 1;</span>
+<span class="lineNum">    1892 </span><span class="lineCov">        710 :       ci-&gt;acc = a;</span>
+<span class="lineNum">    1893 </span><span class="lineCov">        710 :       ci-&gt;mid = 0;</span>
+<span class="lineNum">    1894 </span><span class="lineCov">        710 :       ci-&gt;stackidx = mrb-&gt;stack - mrb-&gt;stbase;</span>
+<span class="lineNum">    1895 </span><span class="lineCov">        710 :       ci-&gt;argc = 0;</span>
+<span class="lineNum">    1896 </span><span class="lineCov">        710 :       ci-&gt;target_class = mrb_class_ptr(recv);</span>
+<span class="lineNum">    1897 </span>            : 
+<span class="lineNum">    1898 </span>            :       /* prepare stack */
+<span class="lineNum">    1899 </span><span class="lineCov">        710 :       mrb-&gt;stack += a;</span>
+<span class="lineNum">    1900 </span>            : 
+<span class="lineNum">    1901 </span><span class="lineCov">        710 :       p = mrb_proc_new(mrb, mrb-&gt;irep[irep-&gt;idx+GETARG_Bx(i)]);</span>
+<span class="lineNum">    1902 </span><span class="lineCov">        710 :       p-&gt;target_class = ci-&gt;target_class;</span>
+<span class="lineNum">    1903 </span><span class="lineCov">        710 :       ci-&gt;proc = p;</span>
+<span class="lineNum">    1904 </span>            : 
+<span class="lineNum">    1905 </span><span class="lineCov">        710 :       if (MRB_PROC_CFUNC_P(p)) {</span>
+<span class="lineNum">    1906 </span><span class="lineNoCov">          0 :         mrb-&gt;stack[0] = p-&gt;body.func(mrb, recv);</span>
+<span class="lineNum">    1907 </span><span class="lineNoCov">          0 :         mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1908 </span><span class="lineNoCov">          0 :         if (mrb-&gt;exc) goto L_RAISE;</span>
+<span class="lineNum">    1909 </span>            :         /* pop stackpos */
+<span class="lineNum">    1910 </span><span class="lineNoCov">          0 :         regs = mrb-&gt;stack = mrb-&gt;stbase + mrb-&gt;ci-&gt;stackidx;</span>
+<span class="lineNum">    1911 </span><span class="lineNoCov">          0 :         cipop(mrb);</span>
+<span class="lineNum">    1912 </span><span class="lineNoCov">          0 :         NEXT;</span>
+<span class="lineNum">    1913 </span>            :       }
+<span class="lineNum">    1914 </span>            :       else {
+<span class="lineNum">    1915 </span><span class="lineCov">        710 :         irep = p-&gt;body.irep;</span>
+<span class="lineNum">    1916 </span><span class="lineCov">        710 :         pool = irep-&gt;pool;</span>
+<span class="lineNum">    1917 </span><span class="lineCov">        710 :         syms = irep-&gt;syms;</span>
+<span class="lineNum">    1918 </span><span class="lineCov">        710 :         stack_extend(mrb, irep-&gt;nregs, 1);</span>
+<span class="lineNum">    1919 </span><span class="lineCov">        710 :         ci-&gt;nregs = irep-&gt;nregs;</span>
+<span class="lineNum">    1920 </span><span class="lineCov">        710 :         regs = mrb-&gt;stack;</span>
+<span class="lineNum">    1921 </span><span class="lineCov">        710 :         pc = irep-&gt;iseq;</span>
+<span class="lineNum">    1922 </span><span class="lineCov">        710 :         JUMP;</span>
+<span class="lineNum">    1923 </span>            :       }
+<span class="lineNum">    1924 </span>            :     }
+<span class="lineNum">    1925 </span>            : 
+<span class="lineNum">    1926 </span><span class="lineCov">       1793 :     CASE(OP_METHOD) {</span>
+<span class="lineNum">    1927 </span>            :       /* A B            R(A).newmethod(Sym(B),R(A+1)) */
+<span class="lineNum">    1928 </span><span class="lineCov">       1793 :       int a = GETARG_A(i);</span>
+<span class="lineNum">    1929 </span><span class="lineCov">       1793 :       struct RClass *c = mrb_class_ptr(regs[a]);</span>
+<span class="lineNum">    1930 </span>            : 
+<span class="lineNum">    1931 </span><span class="lineCov">       1793 :       mrb_define_method_vm(mrb, c, syms[GETARG_B(i)], regs[a+1]);</span>
+<span class="lineNum">    1932 </span><span class="lineCov">       1793 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1933 </span><span class="lineCov">       1793 :       NEXT;</span>
+<span class="lineNum">    1934 </span>            :     }
+<span class="lineNum">    1935 </span>            : 
+<span class="lineNum">    1936 </span><span class="lineCov">         64 :     CASE(OP_SCLASS) {</span>
+<span class="lineNum">    1937 </span>            :       /* A B    R(A) := R(B).singleton_class */
+<span class="lineNum">    1938 </span><span class="lineCov">         64 :       regs[GETARG_A(i)] = mrb_singleton_class(mrb, regs[GETARG_B(i)]);</span>
+<span class="lineNum">    1939 </span><span class="lineCov">         64 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1940 </span><span class="lineCov">         64 :       NEXT;</span>
+<span class="lineNum">    1941 </span>            :     }
+<span class="lineNum">    1942 </span>            : 
+<span class="lineNum">    1943 </span><span class="lineCov">       1835 :     CASE(OP_TCLASS) {</span>
+<span class="lineNum">    1944 </span>            :       /* A B    R(A) := target_class */
+<span class="lineNum">    1945 </span><span class="lineCov">       1835 :       if (!mrb-&gt;ci-&gt;target_class) {</span>
+<span class="lineNum">    1946 </span>            :         static const char msg[] = &quot;no target class or module&quot;;
+<span class="lineNum">    1947 </span><span class="lineNoCov">          0 :         mrb_value exc = mrb_exc_new(mrb, E_TYPE_ERROR, msg, sizeof(msg) - 1);</span>
+<span class="lineNum">    1948 </span><span class="lineNoCov">          0 :         mrb-&gt;exc = mrb_obj_ptr(exc);</span>
+<span class="lineNum">    1949 </span><span class="lineNoCov">          0 :         goto L_RAISE;</span>
+<span class="lineNum">    1950 </span>            :       }
+<span class="lineNum">    1951 </span><span class="lineCov">       1835 :       regs[GETARG_A(i)] = mrb_obj_value(mrb-&gt;ci-&gt;target_class);</span>
+<span class="lineNum">    1952 </span><span class="lineCov">       1835 :       NEXT;</span>
+<span class="lineNum">    1953 </span>            :     }
+<span class="lineNum">    1954 </span>            : 
+<span class="lineNum">    1955 </span><span class="lineCov">         82 :     CASE(OP_RANGE) {</span>
+<span class="lineNum">    1956 </span>            :       /* A B C  R(A) := range_new(R(B),R(B+1),C) */
+<span class="lineNum">    1957 </span><span class="lineCov">         82 :       int b = GETARG_B(i);</span>
+<span class="lineNum">    1958 </span><span class="lineCov">         82 :       regs[GETARG_A(i)] = mrb_range_new(mrb, regs[b], regs[b+1], GETARG_C(i));</span>
+<span class="lineNum">    1959 </span><span class="lineCov">         82 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">    1960 </span><span class="lineCov">         82 :       NEXT;</span>
+<span class="lineNum">    1961 </span>            :     }
+<span class="lineNum">    1962 </span>            : 
+<span class="lineNum">    1963 </span><span class="lineNoCov">          0 :     CASE(OP_DEBUG) {</span>
+<span class="lineNum">    1964 </span>            :       /* A      debug print R(A),R(B),R(C) */
+<span class="lineNum">    1965 </span>            : #ifdef ENABLE_STDIO
+<span class="lineNum">    1966 </span><span class="lineNoCov">          0 :       printf(&quot;OP_DEBUG %d %d %d\n&quot;, GETARG_A(i), GETARG_B(i), GETARG_C(i));</span>
+<span class="lineNum">    1967 </span>            : #else
+<span class="lineNum">    1968 </span>            :       MRB_PANIC_ABORT();
+<span class="lineNum">    1969 </span>            : #endif
+<span class="lineNum">    1970 </span><span class="lineNoCov">          0 :       NEXT;</span>
+<span class="lineNum">    1971 </span>            :     }
+<span class="lineNum">    1972 </span>            : 
+<span class="lineNum">    1973 </span><span class="lineCov">        154 :     CASE(OP_STOP) {</span>
+<span class="lineNum">    1974 </span>            :       /*        stop VM */
+<span class="lineNum">    1975 </span><span class="lineCov">        154 :     L_STOP:</span>
+<span class="lineNum">    1976 </span>            :       {
+<span class="lineNum">    1977 </span><span class="lineCov">        154 :         int n = mrb-&gt;ci-&gt;eidx;</span>
+<span class="lineNum">    1978 </span>            : 
+<span class="lineNum">    1979 </span><span class="lineCov">        308 :         while (n--) {</span>
+<span class="lineNum">    1980 </span><span class="lineNoCov">          0 :           ecall(mrb, n);</span>
+<span class="lineNum">    1981 </span>            :         }
+<span class="lineNum">    1982 </span>            :       }
+<span class="lineNum">    1983 </span><span class="lineCov">        154 :       mrb-&gt;jmp = prev_jmp;</span>
+<span class="lineNum">    1984 </span><span class="lineCov">        154 :       if (mrb-&gt;exc) {</span>
+<span class="lineNum">    1985 </span><span class="lineNoCov">          0 :         return mrb_obj_value(mrb-&gt;exc);</span>
+<span class="lineNum">    1986 </span>            :       }
+<span class="lineNum">    1987 </span><span class="lineCov">        154 :       return regs[irep-&gt;nlocals];</span>
+<span class="lineNum">    1988 </span>            :     }
+<span class="lineNum">    1989 </span>            : 
+<span class="lineNum">    1990 </span><span class="lineCov">          1 :     CASE(OP_ERR) {</span>
+<span class="lineNum">    1991 </span>            :       /* Bx     raise RuntimeError with message Lit(Bx) */
+<span class="lineNum">    1992 </span><span class="lineCov">          1 :       mrb_value msg = pool[GETARG_Bx(i)];</span>
+<span class="lineNum">    1993 </span>            :       mrb_value exc;
+<span class="lineNum">    1994 </span>            : 
+<span class="lineNum">    1995 </span><span class="lineCov">          1 :       if (GETARG_A(i) == 0) {</span>
+<span class="lineNum">    1996 </span><span class="lineNoCov">          0 :         exc = mrb_exc_new3(mrb, E_RUNTIME_ERROR, msg);</span>
+<span class="lineNum">    1997 </span>            :       }
+<span class="lineNum">    1998 </span>            :       else {
+<span class="lineNum">    1999 </span><span class="lineCov">          1 :         exc = mrb_exc_new3(mrb, E_LOCALJUMP_ERROR, msg);</span>
+<span class="lineNum">    2000 </span>            :       }
+<span class="lineNum">    2001 </span><span class="lineCov">          1 :       mrb-&gt;exc = mrb_obj_ptr(exc);</span>
+<span class="lineNum">    2002 </span><span class="lineCov">          1 :       goto L_RAISE;</span>
+<span class="lineNum">    2003 </span>            :     }
+<span class="lineNum">    2004 </span>            :   }
+<span class="lineNum">    2005 </span>            :   END_DISPATCH;
+<span class="lineNum">    2006 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

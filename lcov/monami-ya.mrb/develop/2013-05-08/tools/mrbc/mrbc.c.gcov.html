@@ -1,0 +1,324 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - tools/mrbc/mrbc.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">tools/mrbc</a> - mrbc.c<span style="font-size: 80%;"> (source / <a href="mrbc.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntry">126</td>
+            <td class="headerCovTableEntryLo">51.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryMed">87.5 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &lt;stdio.h&gt;</a>
+<span class="lineNum">       2 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">       3 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">       4 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">       5 </span>            : #include &quot;mruby/compile.h&quot;
+<span class="lineNum">       6 </span>            : #include &quot;mruby/dump.h&quot;
+<span class="lineNum">       7 </span>            : #include &quot;mruby/proc.h&quot;
+<span class="lineNum">       8 </span>            : 
+<span class="lineNum">       9 </span>            : #define RITEBIN_EXT &quot;.mrb&quot;
+<span class="lineNum">      10 </span>            : #define C_EXT       &quot;.c&quot;
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : void mrb_show_version(mrb_state *);
+<span class="lineNum">      13 </span>            : void mrb_show_copyright(mrb_state *);
+<span class="lineNum">      14 </span>            : void parser_dump(mrb_state*, struct mrb_ast_node*, int);
+<span class="lineNum">      15 </span>            : void codedump_all(mrb_state*, int);
+<span class="lineNum">      16 </span>            : 
+<span class="lineNum">      17 </span>            : struct _args {
+<span class="lineNum">      18 </span>            :   FILE *rfp;
+<span class="lineNum">      19 </span>            :   FILE *wfp;
+<span class="lineNum">      20 </span>            :   char *filename;
+<span class="lineNum">      21 </span>            :   char *initname;
+<span class="lineNum">      22 </span>            :   char *ext;
+<span class="lineNum">      23 </span>            :   mrb_bool check_syntax : 1;
+<span class="lineNum">      24 </span>            :   mrb_bool verbose      : 1;
+<span class="lineNum">      25 </span>            :   mrb_bool debug_info   : 1;
+<span class="lineNum">      26 </span>            : };
+<span class="lineNum">      27 </span>            : 
+<a name="28"><span class="lineNum">      28 </span>            : static void</a>
+<span class="lineNum">      29 </span>            : usage(const char *name)
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      31 </span>            :   static const char *const usage_msg[] = {
+<span class="lineNum">      32 </span>            :   &quot;switches:&quot;,
+<span class="lineNum">      33 </span>            :   &quot;-c           check syntax only&quot;,
+<span class="lineNum">      34 </span>            :   &quot;-o&lt;outfile&gt;  place the output into &lt;outfile&gt;&quot;,
+<span class="lineNum">      35 </span>            :   &quot;-v           print version number, then turn on verbose mode&quot;,
+<span class="lineNum">      36 </span>            :   &quot;-g           produce debugging information&quot;,
+<span class="lineNum">      37 </span>            :   &quot;-B&lt;symbol&gt;   binary &lt;symbol&gt; output in C language format&quot;,
+<span class="lineNum">      38 </span>            :   &quot;--verbose    run at verbose mode&quot;,
+<span class="lineNum">      39 </span>            :   &quot;--version    print the version&quot;,
+<span class="lineNum">      40 </span>            :   &quot;--copyright  print the copyright&quot;,
+<span class="lineNum">      41 </span>            :   NULL
+<span class="lineNum">      42 </span>            :   };
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :   const char *const *p = usage_msg;</span>
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :   printf(&quot;Usage: %s [switches] programfile\n&quot;, name);</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :   while (*p)</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :     printf(&quot;  %s\n&quot;, *p++);</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      49 </span>            : 
+<a name="50"><span class="lineNum">      50 </span>            : static char *</a>
+<span class="lineNum">      51 </span>            : get_outfilename(mrb_state *mrb, char *infile, char *ext)
+<span class="lineNum">      52 </span><span class="lineCov">         39 : {</span>
+<span class="lineNum">      53 </span>            :   char *outfile;
+<span class="lineNum">      54 </span>            :   char *p;
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span><span class="lineCov">         39 :   outfile = (char*)mrb_malloc(mrb, strlen(infile) + strlen(ext) + 1);</span>
+<span class="lineNum">      57 </span><span class="lineCov">         39 :   strcpy(outfile, infile);</span>
+<span class="lineNum">      58 </span><span class="lineCov">         39 :   if (*ext) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :     if ((p = strrchr(outfile, '.')) == NULL)</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :       p = &amp;outfile[strlen(outfile)];</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :     strcpy(p, ext);</span>
+<span class="lineNum">      62 </span>            :   }
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineCov">         39 :   return outfile;</span>
+<span class="lineNum">      65 </span>            : }
+<span class="lineNum">      66 </span>            : 
+<a name="67"><span class="lineNum">      67 </span>            : static int</a>
+<span class="lineNum">      68 </span>            : parse_args(mrb_state *mrb, int argc, char **argv, struct _args *args)
+<span class="lineNum">      69 </span><span class="lineCov">         39 : {</span>
+<span class="lineNum">      70 </span><span class="lineCov">         39 :   char *infile = NULL;</span>
+<span class="lineNum">      71 </span><span class="lineCov">         39 :   char *outfile = NULL;</span>
+<span class="lineNum">      72 </span><span class="lineCov">         39 :   char **origargv = argv;</span>
+<span class="lineNum">      73 </span><span class="lineCov">         39 :   int result = EXIT_SUCCESS;</span>
+<span class="lineNum">      74 </span>            :   static const struct _args args_zero = { 0 };
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineCov">         39 :   *args = args_zero;</span>
+<span class="lineNum">      77 </span><span class="lineCov">         39 :   args-&gt;ext = RITEBIN_EXT;</span>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineCov">        117 :   for (argc--,argv++; argc &gt; 0; argc--,argv++) {</span>
+<span class="lineNum">      80 </span><span class="lineCov">        117 :     if (**argv == '-') {</span>
+<span class="lineNum">      81 </span><span class="lineCov">        117 :       if (strlen(*argv) == 1) {</span>
+<span class="lineNum">      82 </span><span class="lineCov">         39 :         args-&gt;filename = infile = &quot;-&quot;;</span>
+<span class="lineNum">      83 </span><span class="lineCov">         39 :         args-&gt;rfp = stdin;</span>
+<span class="lineNum">      84 </span><span class="lineCov">         39 :         break;</span>
+<span class="lineNum">      85 </span>            :       }
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineCov">         78 :       switch ((*argv)[1]) {</span>
+<span class="lineNum">      88 </span>            :       case 'o':
+<span class="lineNum">      89 </span><span class="lineCov">         39 :         if (outfile) {</span>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :           printf(&quot;%s: An output file is already specified. (%s)\n&quot;,</span>
+<span class="lineNum">      91 </span>            :                  *origargv, outfile);
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :           result = EXIT_FAILURE;</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :           goto exit;</span>
+<span class="lineNum">      94 </span>            :         }
+<span class="lineNum">      95 </span><span class="lineCov">         39 :         outfile = get_outfilename(mrb, (*argv) + 2, &quot;&quot;);</span>
+<span class="lineNum">      96 </span><span class="lineCov">         39 :         break;</span>
+<span class="lineNum">      97 </span>            :       case 'B':
+<span class="lineNum">      98 </span><span class="lineCov">         39 :         args-&gt;ext = C_EXT;</span>
+<span class="lineNum">      99 </span><span class="lineCov">         39 :         args-&gt;initname = (*argv) + 2;</span>
+<span class="lineNum">     100 </span><span class="lineCov">         39 :         if (*args-&gt;initname == '\0') {</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :           printf(&quot;%s: Function name is not specified.\n&quot;, *origargv);</span>
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :           result = EXIT_FAILURE;</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :           goto exit;</span>
+<span class="lineNum">     104 </span>            :         }
+<span class="lineNum">     105 </span><span class="lineCov">         39 :         break;</span>
+<span class="lineNum">     106 </span>            :       case 'c':
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :         args-&gt;check_syntax = 1;</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     109 </span>            :       case 'v':
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :         if (!args-&gt;verbose) mrb_show_version(mrb);</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :         args-&gt;verbose = 1;</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     113 </span>            :       case 'g':
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :         args-&gt;debug_info = 1;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     116 </span>            :       case '-':
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :         if (strcmp((*argv) + 2, &quot;version&quot;) == 0) {</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :           mrb_show_version(mrb);</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :           exit(EXIT_SUCCESS);</span>
+<span class="lineNum">     120 </span>            :         }
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :         else if (strcmp((*argv) + 2, &quot;verbose&quot;) == 0) {</span>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :           args-&gt;verbose = 1;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :           break;</span>
+<span class="lineNum">     124 </span>            :         }
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         else if (strcmp((*argv) + 2, &quot;copyright&quot;) == 0) {</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :           mrb_show_copyright(mrb);</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :           exit(EXIT_SUCCESS);</span>
+<span class="lineNum">     128 </span>            :         }
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :         result = EXIT_FAILURE;</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :         goto exit;</span>
+<span class="lineNum">     131 </span>            :       default:
+<span class="lineNum">     132 </span>            :         break;
+<span class="lineNum">     133 </span>            :       }
+<span class="lineNum">     134 </span>            :     }
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :     else if (args-&gt;rfp == NULL) {</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :       args-&gt;filename = infile = *argv;</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :       if ((args-&gt;rfp = fopen(infile, &quot;r&quot;)) == NULL) {</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         printf(&quot;%s: Cannot open program file. (%s)\n&quot;, *origargv, infile);</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         goto exit;</span>
+<span class="lineNum">     140 </span>            :       }
+<span class="lineNum">     141 </span>            :     }
+<span class="lineNum">     142 </span>            :   }
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineCov">         39 :   if (infile == NULL) {</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :     result = EXIT_FAILURE;</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :     goto exit;</span>
+<span class="lineNum">     147 </span>            :   }
+<span class="lineNum">     148 </span><span class="lineCov">         39 :   if (!args-&gt;check_syntax) {</span>
+<span class="lineNum">     149 </span><span class="lineCov">         39 :     if (outfile == NULL) {</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :       if (strcmp(&quot;-&quot;, infile) == 0) {</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         outfile = infile;</span>
+<span class="lineNum">     152 </span>            :       }
+<span class="lineNum">     153 </span>            :       else {
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         outfile = get_outfilename(mrb, infile, args-&gt;ext);</span>
+<span class="lineNum">     155 </span>            :       }
+<span class="lineNum">     156 </span>            :     }
+<span class="lineNum">     157 </span><span class="lineCov">         39 :     if (strcmp(&quot;-&quot;, outfile) == 0) {</span>
+<span class="lineNum">     158 </span><span class="lineCov">         39 :       args-&gt;wfp = stdout;</span>
+<span class="lineNum">     159 </span>            :     }
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :     else if ((args-&gt;wfp = fopen(outfile, &quot;wb&quot;)) == NULL) {</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :       printf(&quot;%s: Cannot open output file. (%s)\n&quot;, *origargv, outfile);</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :       result = EXIT_FAILURE;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :       goto exit;</span>
+<span class="lineNum">     164 </span>            :     }
+<span class="lineNum">     165 </span>            :   }
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">         39 : exit:</span>
+<span class="lineNum">     168 </span><span class="lineCov">         39 :   if (outfile &amp;&amp; infile != outfile) mrb_free(mrb, outfile);</span>
+<span class="lineNum">     169 </span><span class="lineCov">         39 :   return result;</span>
+<span class="lineNum">     170 </span>            : }
+<span class="lineNum">     171 </span>            : 
+<a name="172"><span class="lineNum">     172 </span>            : static void</a>
+<span class="lineNum">     173 </span>            : cleanup(mrb_state *mrb, struct _args *args)
+<span class="lineNum">     174 </span><span class="lineCov">         39 : {</span>
+<span class="lineNum">     175 </span><span class="lineCov">         39 :   if (args-&gt;rfp)</span>
+<span class="lineNum">     176 </span><span class="lineCov">         39 :     fclose(args-&gt;rfp);</span>
+<span class="lineNum">     177 </span><span class="lineCov">         39 :   if (args-&gt;wfp)</span>
+<span class="lineNum">     178 </span><span class="lineCov">         39 :     fclose(args-&gt;wfp);</span>
+<span class="lineNum">     179 </span><span class="lineCov">         39 :   mrb_close(mrb);</span>
+<span class="lineNum">     180 </span><span class="lineCov">         39 : }</span>
+<span class="lineNum">     181 </span>            : 
+<a name="182"><span class="lineNum">     182 </span>            : int</a>
+<span class="lineNum">     183 </span>            : main(int argc, char **argv)
+<span class="lineNum">     184 </span><span class="lineCov">         39 : {</span>
+<span class="lineNum">     185 </span><span class="lineCov">         39 :   mrb_state *mrb = mrb_open();</span>
+<span class="lineNum">     186 </span><span class="lineCov">         39 :   int n = -1;</span>
+<span class="lineNum">     187 </span>            :   struct _args args;
+<span class="lineNum">     188 </span>            :   mrbc_context *c;
+<span class="lineNum">     189 </span>            :   mrb_value result;
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span><span class="lineCov">         39 :   if (mrb == NULL) {</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :     fputs(&quot;Invalid mrb_state, exiting mrbc\n&quot;, stderr);</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :     return EXIT_FAILURE;</span>
+<span class="lineNum">     194 </span>            :   }
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">         39 :   n = parse_args(mrb, argc, argv, &amp;args);</span>
+<span class="lineNum">     197 </span><span class="lineCov">         39 :   if (n == EXIT_FAILURE || args.rfp == NULL) {</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :     cleanup(mrb, &amp;args);</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :     usage(argv[0]);</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :     return n;</span>
+<span class="lineNum">     201 </span>            :   }
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">         39 :   c = mrbc_context_new(mrb);</span>
+<span class="lineNum">     204 </span><span class="lineCov">         39 :   if (args.verbose)</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :     c-&gt;dump_result = 1;</span>
+<span class="lineNum">     206 </span><span class="lineCov">         39 :   c-&gt;no_exec = 1;</span>
+<span class="lineNum">     207 </span><span class="lineCov">         39 :   c-&gt;filename = args.filename;</span>
+<span class="lineNum">     208 </span><span class="lineCov">         39 :   result = mrb_load_file_cxt(mrb, args.rfp, c);</span>
+<span class="lineNum">     209 </span><span class="lineCov">         39 :   if (mrb_undef_p(result) || mrb_fixnum(result) &lt; 0) {</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :     cleanup(mrb, &amp;args);</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :     return EXIT_FAILURE;</span>
+<span class="lineNum">     212 </span>            :   }
+<span class="lineNum">     213 </span><span class="lineCov">         39 :   if (args.check_syntax) {</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :     puts(&quot;Syntax OK&quot;);</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :     cleanup(mrb, &amp;args);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :     return EXIT_SUCCESS;</span>
+<span class="lineNum">     217 </span>            :   }
+<span class="lineNum">     218 </span><span class="lineCov">         39 :   if (args.initname) {</span>
+<span class="lineNum">     219 </span><span class="lineCov">         39 :     n = mrb_dump_irep_cfunc(mrb, n, args.debug_info, args.wfp, args.initname);</span>
+<span class="lineNum">     220 </span><span class="lineCov">         39 :     if (n == MRB_DUMP_INVALID_ARGUMENT) {</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :       printf(&quot;%s: Invalid C language symbol name\n&quot;, args.initname);</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :       return EXIT_FAILURE;</span>
+<span class="lineNum">     223 </span>            :     }
+<span class="lineNum">     224 </span>            :   }
+<span class="lineNum">     225 </span>            :   else {
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :     n = mrb_dump_irep_binary(mrb, n, args.debug_info, args.wfp);</span>
+<span class="lineNum">     227 </span>            :   }
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineCov">         39 :   cleanup(mrb, &amp;args);</span>
+<span class="lineNum">     230 </span><span class="lineCov">         39 :   return EXIT_SUCCESS;</span>
+<span class="lineNum">     231 </span>            : }
+<span class="lineNum">     232 </span>            : 
+<a name="233"><span class="lineNum">     233 </span>            : void</a>
+<span class="lineNum">     234 </span>            : mrb_init_mrblib(mrb_state *mrb)
+<span class="lineNum">     235 </span><span class="lineCov">         39 : {</span>
+<span class="lineNum">     236 </span><span class="lineCov">         39 : }</span>
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            : #ifndef DISABLE_GEMS
+<a name="239"><span class="lineNum">     239 </span>            : void</a>
+<span class="lineNum">     240 </span>            : mrb_init_mrbgems(mrb_state *mrb)
+<span class="lineNum">     241 </span><span class="lineCov">         39 : {</span>
+<span class="lineNum">     242 </span><span class="lineCov">         39 : }</span>
+<span class="lineNum">     243 </span>            : 
+<a name="244"><span class="lineNum">     244 </span>            : void</a>
+<span class="lineNum">     245 </span>            : mrb_final_mrbgems(mrb_state *mrb)
+<span class="lineNum">     246 </span><span class="lineCov">         39 : {</span>
+<span class="lineNum">     247 </span><span class="lineCov">         39 : }</span>
+<span class="lineNum">     248 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

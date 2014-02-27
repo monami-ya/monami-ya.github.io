@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/panic.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - panic.c<span style="font-size: 80%;"> (source / <a href="panic.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryMed">86.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &quot;mruby/panic.h&quot;</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : #ifndef MRB_PANIC_ABORT
+<span class="lineNum">       4 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">       5 </span>            : #define MRB_PANIC_ABORT() abort()
+<span class="lineNum">       6 </span>            : #endif
+<span class="lineNum">       7 </span>            : 
+<span class="lineNum">       8 </span>            : static mrb_panic_hook panic_global_hook = NULL;
+<span class="lineNum">       9 </span>            : 
+<a name="10"><span class="lineNum">      10 </span>            : mrb_panic_hook</a>
+<span class="lineNum">      11 </span>            : mrb_panic_get_global_hook(void)
+<span class="lineNum">      12 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">      13 </span><span class="lineCov">          2 :   return panic_global_hook;</span>
+<span class="lineNum">      14 </span>            : }
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : #define PANIC_SET(store) do {\
+<span class="lineNum">      17 </span>            :     if ((store) == NULL) {\
+<span class="lineNum">      18 </span>            :       (store) = (func);\
+<span class="lineNum">      19 </span>            :     }\
+<span class="lineNum">      20 </span>            :     else if ((store) == func) {\
+<span class="lineNum">      21 </span>            :       /* nothing to do. */\
+<span class="lineNum">      22 </span>            :     }\
+<span class="lineNum">      23 </span>            :     else {\
+<span class="lineNum">      24 </span>            :       if (mrb) {\
+<span class="lineNum">      25 </span>            :         mrb_raise(mrb, E_ARGUMENT_ERROR,\
+<span class="lineNum">      26 </span>            :                   &quot;Panic hook is already defined. Reset before redefine.&quot;);\
+<span class="lineNum">      27 </span>            :       }\
+<span class="lineNum">      28 </span>            :     }\
+<span class="lineNum">      29 </span>            :   } while(0)
+<span class="lineNum">      30 </span>            : 
+<a name="31"><span class="lineNum">      31 </span>            : void</a>
+<span class="lineNum">      32 </span>            : mrb_panic_set(mrb_state *mrb, mrb_panic_hook func)
+<span class="lineNum">      33 </span><span class="lineCov">          6 : {</span>
+<span class="lineNum">      34 </span><span class="lineCov">          6 :   if (mrb) {</span>
+<span class="lineNum">      35 </span>            :     /* state local */
+<span class="lineNum">      36 </span><span class="lineCov">          3 :     PANIC_SET(mrb-&gt;panic_hook);</span>
+<span class="lineNum">      37 </span>            :   }
+<span class="lineNum">      38 </span>            :   else {
+<span class="lineNum">      39 </span>            :     /* system global */
+<span class="lineNum">      40 </span><span class="lineCov">          3 :     PANIC_SET(panic_global_hook);</span>
+<span class="lineNum">      41 </span>            :   }
+<span class="lineNum">      42 </span><span class="lineCov">          6 : }</span>
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : #define PANIC_RESET(hook) do {\
+<span class="lineNum">      45 </span>            :     if ((hook) == func) {\
+<span class="lineNum">      46 </span>            :       (hook) = NULL;\
+<span class="lineNum">      47 </span>            :     }\
+<span class="lineNum">      48 </span>            :     else {\
+<span class="lineNum">      49 </span>            :       if (mrb) {\
+<span class="lineNum">      50 </span>            :         mrb_raise(mrb, E_ARGUMENT_ERROR, &quot;Can't reset panic hook. mrb_panic_hook mismatch.&quot;);\
+<span class="lineNum">      51 </span>            :       }\
+<span class="lineNum">      52 </span>            :     }\
+<span class="lineNum">      53 </span>            :   } while(0);
+<span class="lineNum">      54 </span>            : 
+<a name="55"><span class="lineNum">      55 </span>            : void</a>
+<span class="lineNum">      56 </span>            : mrb_panic_reset(mrb_state *mrb, mrb_panic_hook func)
+<span class="lineNum">      57 </span><span class="lineCov">          4 : {</span>
+<span class="lineNum">      58 </span><span class="lineCov">          4 :   if (mrb) {</span>
+<span class="lineNum">      59 </span>            :     /* state local */
+<span class="lineNum">      60 </span><span class="lineCov">          2 :     PANIC_RESET(mrb-&gt;panic_hook);</span>
+<span class="lineNum">      61 </span>            :   }
+<span class="lineNum">      62 </span>            :   else {
+<span class="lineNum">      63 </span>            :     /* system global */
+<span class="lineNum">      64 </span><span class="lineCov">          2 :     PANIC_RESET(panic_global_hook);</span>
+<span class="lineNum">      65 </span>            :   }
+<span class="lineNum">      66 </span><span class="lineCov">          3 : }</span>
+<span class="lineNum">      67 </span>            : 
+<a name="68"><span class="lineNum">      68 </span>            : static void</a>
+<span class="lineNum">      69 </span>            : mrb_panic_default(mrb_state *mrb)
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :   MRB_PANIC_ABORT();</span>
+<span class="lineNum">      72 </span>            : }
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : 
+<a name="75"><span class="lineNum">      75 </span>            : void</a>
+<span class="lineNum">      76 </span>            : mrb_panic(mrb_state *mrb)
+<span class="lineNum">      77 </span><span class="lineCov">          2 : {</span>
+<span class="lineNum">      78 </span>            :   mrb_panic_hook hook;
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">          2 :   if (mrb) {</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :     hook = mrb-&gt;panic_hook;</span>
+<span class="lineNum">      82 </span>            :   }
+<span class="lineNum">      83 </span>            :   else {
+<span class="lineNum">      84 </span><span class="lineCov">          1 :     hook = panic_global_hook;</span>
+<span class="lineNum">      85 </span>            :   }
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineCov">          2 :   if (hook) {</span>
+<span class="lineNum">      88 </span><span class="lineCov">          2 :     hook(mrb);</span>
+<span class="lineNum">      89 </span>            :   }
+<span class="lineNum">      90 </span>            :   else {
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :     mrb_panic_default(mrb);</span>
+<span class="lineNum">      92 </span>            :   }
+<span class="lineNum">      93 </span><span class="lineCov">          1 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

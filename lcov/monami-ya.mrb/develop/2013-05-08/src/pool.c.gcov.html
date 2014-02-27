@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/pool.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - pool.c<span style="font-size: 80%;"> (source / <a href="pool.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">69</td>
+            <td class="headerCovTableEntryLo">58.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** pool.c - memory pool
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #include &lt;stddef.h&gt;
+<span class="lineNum">       8 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">       9 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : /* configuration section */
+<span class="lineNum">      12 </span>            : /* allocated memory address should be multiple of POOL_ALIGNMENT */
+<span class="lineNum">      13 </span>            : /* or undef it if alignment does not matter */
+<span class="lineNum">      14 </span>            : #ifndef POOL_ALIGNMENT
+<span class="lineNum">      15 </span>            : #define POOL_ALIGNMENT 4
+<span class="lineNum">      16 </span>            : #endif
+<span class="lineNum">      17 </span>            : /* page size of memory pool */
+<span class="lineNum">      18 </span>            : #ifndef POOL_PAGE_SIZE
+<span class="lineNum">      19 </span>            : #define POOL_PAGE_SIZE 16000
+<span class="lineNum">      20 </span>            : #endif
+<span class="lineNum">      21 </span>            : /* end of configuration section */
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : struct mrb_pool_page {
+<span class="lineNum">      24 </span>            :   struct mrb_pool_page *next;
+<span class="lineNum">      25 </span>            :   size_t offset;
+<span class="lineNum">      26 </span>            :   size_t len;
+<span class="lineNum">      27 </span>            :   void *last;
+<span class="lineNum">      28 </span>            :   char page[];
+<span class="lineNum">      29 </span>            : };
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : struct mrb_pool {
+<span class="lineNum">      32 </span>            :   mrb_state *mrb;
+<span class="lineNum">      33 </span>            :   struct mrb_pool_page *pages;
+<span class="lineNum">      34 </span>            : };
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #undef TEST_POOL
+<span class="lineNum">      37 </span>            : #ifdef TEST_POOL
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #define mrb_malloc(m,s) malloc(s)
+<span class="lineNum">      40 </span>            : #define mrb_free(m,p) free(p)
+<span class="lineNum">      41 </span>            : #endif
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : #ifdef POOL_ALIGNMENT
+<span class="lineNum">      44 </span>            : #  define ALIGN_PADDING(x) ((-x) &amp; (POOL_ALIGNMENT - 1))
+<span class="lineNum">      45 </span>            : #else
+<span class="lineNum">      46 </span>            : #  define ALIGN_PADDING(x) (0)
+<span class="lineNum">      47 </span>            : #endif
+<span class="lineNum">      48 </span>            : 
+<a name="49"><span class="lineNum">      49 </span>            : mrb_pool*</a>
+<span class="lineNum">      50 </span>            : mrb_pool_open(mrb_state *mrb)
+<span class="lineNum">      51 </span><span class="lineCov">       1633 : {</span>
+<span class="lineNum">      52 </span><span class="lineCov">       1633 :   mrb_pool *pool = (mrb_pool *)mrb_malloc(mrb, sizeof(mrb_pool));</span>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineCov">       1633 :   if (pool) {</span>
+<span class="lineNum">      55 </span><span class="lineCov">       1633 :     pool-&gt;mrb = mrb;</span>
+<span class="lineNum">      56 </span><span class="lineCov">       1633 :     pool-&gt;pages = 0;</span>
+<span class="lineNum">      57 </span>            :   }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineCov">       1633 :   return pool;</span>
+<span class="lineNum">      60 </span>            : }
+<span class="lineNum">      61 </span>            : 
+<a name="62"><span class="lineNum">      62 </span>            : void</a>
+<span class="lineNum">      63 </span>            : mrb_pool_close(mrb_pool *pool)
+<span class="lineNum">      64 </span><span class="lineCov">       1633 : {</span>
+<span class="lineNum">      65 </span>            :   struct mrb_pool_page *page, *tmp;
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span><span class="lineCov">       1633 :   if (!pool) return;</span>
+<span class="lineNum">      68 </span><span class="lineCov">       1633 :   page = pool-&gt;pages;</span>
+<span class="lineNum">      69 </span><span class="lineCov">       5015 :   while (page) {</span>
+<span class="lineNum">      70 </span><span class="lineCov">       1749 :     tmp = page;</span>
+<span class="lineNum">      71 </span><span class="lineCov">       1749 :     page = page-&gt;next;</span>
+<span class="lineNum">      72 </span><span class="lineCov">       1749 :     mrb_free(pool-&gt;mrb, tmp);</span>
+<span class="lineNum">      73 </span>            :   }
+<span class="lineNum">      74 </span><span class="lineCov">       1633 :   mrb_free(pool-&gt;mrb, pool);</span>
+<span class="lineNum">      75 </span>            : }
+<span class="lineNum">      76 </span>            : 
+<a name="77"><span class="lineNum">      77 </span>            : static struct mrb_pool_page*</a>
+<span class="lineNum">      78 </span>            : page_alloc(mrb_pool *pool, size_t len)
+<span class="lineNum">      79 </span><span class="lineCov">       1749 : {</span>
+<span class="lineNum">      80 </span>            :   struct mrb_pool_page *page;
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineCov">       1749 :   if (len &lt; POOL_PAGE_SIZE)</span>
+<span class="lineNum">      83 </span><span class="lineCov">       1749 :     len = POOL_PAGE_SIZE;</span>
+<span class="lineNum">      84 </span><span class="lineCov">       1749 :   page = (struct mrb_pool_page *)mrb_malloc(pool-&gt;mrb, sizeof(struct mrb_pool_page)+len);</span>
+<span class="lineNum">      85 </span><span class="lineCov">       1749 :   if (page) {</span>
+<span class="lineNum">      86 </span><span class="lineCov">       1749 :     page-&gt;offset = 0;</span>
+<span class="lineNum">      87 </span><span class="lineCov">       1749 :     page-&gt;len = len;</span>
+<span class="lineNum">      88 </span>            :   }
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">       1749 :   return page;</span>
+<span class="lineNum">      91 </span>            : }
+<span class="lineNum">      92 </span>            : 
+<a name="93"><span class="lineNum">      93 </span>            : void*</a>
+<span class="lineNum">      94 </span>            : mrb_pool_alloc(mrb_pool *pool, size_t len)
+<span class="lineNum">      95 </span><span class="lineCov">      95271 : {</span>
+<span class="lineNum">      96 </span>            :   struct mrb_pool_page *page;
+<span class="lineNum">      97 </span>            :   size_t n;
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineCov">      95271 :   if (!pool) return 0;</span>
+<span class="lineNum">     100 </span><span class="lineCov">      95271 :   len += ALIGN_PADDING(len);</span>
+<span class="lineNum">     101 </span><span class="lineCov">      95271 :   page = pool-&gt;pages;</span>
+<span class="lineNum">     102 </span><span class="lineCov">     192488 :   while (page) {</span>
+<span class="lineNum">     103 </span><span class="lineCov">      95468 :     if (page-&gt;offset + len &lt;= page-&gt;len) {</span>
+<span class="lineNum">     104 </span><span class="lineCov">      93522 :       n = page-&gt;offset;</span>
+<span class="lineNum">     105 </span><span class="lineCov">      93522 :       page-&gt;offset += len;</span>
+<span class="lineNum">     106 </span><span class="lineCov">      93522 :       page-&gt;last = (char*)page-&gt;page+n;</span>
+<span class="lineNum">     107 </span><span class="lineCov">      93522 :       return page-&gt;last;</span>
+<span class="lineNum">     108 </span>            :     }
+<span class="lineNum">     109 </span><span class="lineCov">       1946 :     page = page-&gt;next;</span>
+<span class="lineNum">     110 </span>            :   }
+<span class="lineNum">     111 </span><span class="lineCov">       1749 :   page = page_alloc(pool, len);</span>
+<span class="lineNum">     112 </span><span class="lineCov">       1749 :   if (!page) return 0;</span>
+<span class="lineNum">     113 </span><span class="lineCov">       1749 :   page-&gt;offset = len;</span>
+<span class="lineNum">     114 </span><span class="lineCov">       1749 :   page-&gt;next = pool-&gt;pages;</span>
+<span class="lineNum">     115 </span><span class="lineCov">       1749 :   pool-&gt;pages = page;</span>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineCov">       1749 :   page-&gt;last = (void*)page-&gt;page;</span>
+<span class="lineNum">     118 </span><span class="lineCov">       1749 :   return page-&gt;last;</span>
+<span class="lineNum">     119 </span>            : }
+<span class="lineNum">     120 </span>            : 
+<a name="121"><span class="lineNum">     121 </span>            : int</a>
+<span class="lineNum">     122 </span>            : mrb_pool_can_realloc(mrb_pool *pool, void *p, size_t len)
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     124 </span>            :   struct mrb_pool_page *page;
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :   if (!pool) return FALSE;</span>
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :   len += ALIGN_PADDING(len);</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :   page = pool-&gt;pages;</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :   while (page) {</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :     if (page-&gt;last == p) {</span>
+<span class="lineNum">     131 </span>            :       size_t beg;
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :       beg = (char*)p - page-&gt;page;</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :       if (beg + len &gt; page-&gt;len) return FALSE;</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :       return TRUE;</span>
+<span class="lineNum">     136 </span>            :     }
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :     page = page-&gt;next;</span>
+<span class="lineNum">     138 </span>            :   }
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :   return FALSE;</span>
+<span class="lineNum">     140 </span>            : }
+<span class="lineNum">     141 </span>            : 
+<a name="142"><span class="lineNum">     142 </span>            : void*</a>
+<span class="lineNum">     143 </span>            : mrb_pool_realloc(mrb_pool *pool, void *p, size_t oldlen, size_t newlen)
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     145 </span>            :   struct mrb_pool_page *page;
+<span class="lineNum">     146 </span>            :   void *np;
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :   if (!pool) return 0;</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :   oldlen += ALIGN_PADDING(oldlen);</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :   newlen += ALIGN_PADDING(newlen);</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :   page = pool-&gt;pages;</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :   while (page) {</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :     if (page-&gt;last == p) {</span>
+<span class="lineNum">     154 </span>            :       size_t beg;
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :       beg = (char*)p - page-&gt;page;</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :       if (beg + oldlen != page-&gt;offset) break;</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :       if (beg + newlen &gt; page-&gt;len) {</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :         page-&gt;offset = beg;</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         break;</span>
+<span class="lineNum">     161 </span>            :       }
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :       page-&gt;offset = beg + newlen;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :       return p;</span>
+<span class="lineNum">     164 </span>            :     }
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :     page = page-&gt;next;</span>
+<span class="lineNum">     166 </span>            :   }
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :   np = mrb_pool_alloc(pool, newlen);</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :   memcpy(np, p, oldlen);</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :   return np;</span>
+<span class="lineNum">     170 </span>            : }
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            : #ifdef TEST_POOL
+<span class="lineNum">     173 </span>            : int
+<span class="lineNum">     174 </span>            : main(void)
+<span class="lineNum">     175 </span>            : {
+<span class="lineNum">     176 </span>            :   int i, len = 250;
+<span class="lineNum">     177 </span>            :   mrb_pool *pool;
+<span class="lineNum">     178 </span>            :   void *p;
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span>            :   pool = mrb_pool_open(0);
+<span class="lineNum">     181 </span>            :   p = mrb_pool_alloc(pool, len);
+<span class="lineNum">     182 </span>            :   for (i=1; i&lt;20; i++) {
+<span class="lineNum">     183 </span>            :     printf(&quot;%p (len=%d) %d\n&quot;, p, len, mrb_pool_can_realloc(pool, p, len*2));
+<span class="lineNum">     184 </span>            :     p = mrb_pool_realloc(pool, p, len, len*2);
+<span class="lineNum">     185 </span>            :     len *= 2;
+<span class="lineNum">     186 </span>            :   }
+<span class="lineNum">     187 </span>            :   mrb_pool_close(pool);
+<span class="lineNum">     188 </span>            :   return 0;
+<span class="lineNum">     189 </span>            : }
+<span class="lineNum">     190 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

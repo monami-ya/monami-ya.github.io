@@ -1,0 +1,712 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - src/load.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - load.c<span style="font-size: 80%;"> (source / <a href="load.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">99</td>
+            <td class="headerCovTableEntry">309</td>
+            <td class="headerCovTableEntryLo">32.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">42.9 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** load.c - mruby binary loader
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #ifndef SIZE_MAX
+<span class="lineNum">       8 </span>            :  /* Some versions of VC++
+<span class="lineNum">       9 </span>            :   * has SIZE_MAX in stdint.h
+<span class="lineNum">      10 </span>            :   */
+<span class="lineNum">      11 </span>            : # include &lt;limits.h&gt;
+<span class="lineNum">      12 </span>            : #endif
+<span class="lineNum">      13 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      14 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      15 </span>            : #include &quot;mruby/dump.h&quot;
+<span class="lineNum">      16 </span>            : #include &quot;mruby/irep.h&quot;
+<span class="lineNum">      17 </span>            : #include &quot;mruby/proc.h&quot;
+<span class="lineNum">      18 </span>            : #include &quot;mruby/string.h&quot;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #if !defined(_WIN32) &amp;&amp; SIZE_MAX &lt; UINT32_MAX
+<span class="lineNum">      21 </span>            : # define SIZE_ERROR_MUL(x, y) ((x) &gt; SIZE_MAX / (y))
+<span class="lineNum">      22 </span>            : # define SIZE_ERROR(x) ((x) &gt; SIZE_MAX)
+<span class="lineNum">      23 </span>            : #else
+<span class="lineNum">      24 </span>            : # define SIZE_ERROR_MUL(x, y) (0)
+<span class="lineNum">      25 </span>            : # define SIZE_ERROR(x) (0)
+<span class="lineNum">      26 </span>            : #endif
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #if CHAR_BIT != 8
+<span class="lineNum">      29 </span>            : # error This code assumes CHAR_BIT == 8
+<span class="lineNum">      30 </span>            : #endif
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #ifdef MRB_ENABLE_ROMED
+<span class="lineNum">      33 </span>            : extern mrb_bool on_rodata_p(void *ptr);
+<span class="lineNum">      34 </span>            : #else
+<span class="lineNum">      35 </span>            : # define on_rodata_p(ptr) FALSE
+<span class="lineNum">      36 </span>            : #endif
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : 
+<a name="39"><span class="lineNum">      39 </span>            : static void</a>
+<span class="lineNum">      40 </span>            : irep_free(size_t sirep, mrb_state *mrb)
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">      42 </span>            :   size_t i;
+<span class="lineNum">      43 </span>            :   void *p;
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :   for (i = sirep; i &lt; mrb-&gt;irep_len; i++) {</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :     if (mrb-&gt;irep[i]) {</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :       p = mrb-&gt;irep[i]-&gt;iseq;</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :       if (p &amp;&amp; !on_rodata_p(p))</span>
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :         mrb_free(mrb, p);</span>
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :       p = mrb-&gt;irep[i]-&gt;pool;</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :       if (p &amp;&amp; !on_rodata_p(p))</span>
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 :         mrb_free(mrb, p);</span>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :       p = mrb-&gt;irep[i]-&gt;syms;</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :       if (p &amp;&amp; !on_rodata_p(p))</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :         mrb_free(mrb, p);</span>
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :       mrb_free(mrb, mrb-&gt;irep[i]);</span>
+<span class="lineNum">      60 </span>            :     }
+<span class="lineNum">      61 </span>            :   }
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      63 </span>            : 
+<a name="64"><span class="lineNum">      64 </span>            : static size_t</a>
+<span class="lineNum">      65 </span>            : offset_crc_body(void)
+<span class="lineNum">      66 </span><span class="lineCov">        153 : {</span>
+<span class="lineNum">      67 </span>            :   struct rite_binary_header header;
+<span class="lineNum">      68 </span><span class="lineCov">        153 :   return ((uint8_t *)header.binary_crc - (uint8_t *)&amp;header) + sizeof(header.binary_crc);</span>
+<span class="lineNum">      69 </span>            : }
+<span class="lineNum">      70 </span>            : 
+<a name="71"><span class="lineNum">      71 </span>            : static int</a>
+<span class="lineNum">      72 </span>            : read_rite_irep_record(mrb_state *mrb, const uint8_t *bin, uint32_t *len)
+<span class="lineNum">      73 </span><span class="lineCov">       4358 : {</span>
+<span class="lineNum">      74 </span>            :   int ret;
+<span class="lineNum">      75 </span>            :   size_t i;
+<span class="lineNum">      76 </span><span class="lineCov">       4358 :   const uint8_t *src = bin;</span>
+<span class="lineNum">      77 </span>            :   uint16_t tt, pool_data_len, snl;
+<span class="lineNum">      78 </span>            :   size_t plen;
+<span class="lineNum">      79 </span><span class="lineCov">       4358 :   int ai = mrb_gc_arena_save(mrb);</span>
+<span class="lineNum">      80 </span><span class="lineCov">       4358 :   mrb_irep *irep = mrb_add_irep(mrb);</span>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :   // skip record size
+<span class="lineNum">      83 </span><span class="lineCov">       4358 :   src += sizeof(uint32_t);</span>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :   // number of local variable
+<span class="lineNum">      86 </span><span class="lineCov">       4358 :   irep-&gt;nlocals = bin_to_uint16(src);</span>
+<span class="lineNum">      87 </span><span class="lineCov">       4358 :   src += sizeof(uint16_t);</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :   // number of register variable
+<span class="lineNum">      90 </span><span class="lineCov">       4358 :   irep-&gt;nregs = bin_to_uint16(src);</span>
+<span class="lineNum">      91 </span><span class="lineCov">       4358 :   src += sizeof(uint16_t);</span>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span>            :   // Binary Data Section
+<span class="lineNum">      94 </span>            :   // ISEQ BLOCK
+<span class="lineNum">      95 </span><span class="lineCov">       4358 :   irep-&gt;ilen = bin_to_uint32(src);</span>
+<span class="lineNum">      96 </span><span class="lineCov">       4358 :   src += sizeof(uint32_t);</span>
+<span class="lineNum">      97 </span><span class="lineCov">       4358 :   if (irep-&gt;ilen &gt; 0) {</span>
+<span class="lineNum">      98 </span>            :     if (SIZE_ERROR_MUL(sizeof(mrb_code), irep-&gt;ilen)) {
+<span class="lineNum">      99 </span>            :       ret = MRB_DUMP_GENERAL_FAILURE;
+<span class="lineNum">     100 </span>            :       goto error_exit;
+<span class="lineNum">     101 </span>            :     }
+<span class="lineNum">     102 </span><span class="lineCov">       4358 :     irep-&gt;iseq = (mrb_code *)mrb_malloc(mrb, sizeof(mrb_code) * irep-&gt;ilen);</span>
+<span class="lineNum">     103 </span><span class="lineCov">       4358 :     if (irep-&gt;iseq == NULL) {</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :       ret = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     106 </span>            :     }
+<span class="lineNum">     107 </span><span class="lineCov">      73475 :     for (i = 0; i &lt; irep-&gt;ilen; i++) {</span>
+<span class="lineNum">     108 </span><span class="lineCov">      69117 :       irep-&gt;iseq[i] = bin_to_uint32(src);     //iseq</span>
+<span class="lineNum">     109 </span><span class="lineCov">      69117 :       src += sizeof(uint32_t);</span>
+<span class="lineNum">     110 </span>            :     }
+<span class="lineNum">     111 </span>            :   }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            :   //POOL BLOCK
+<span class="lineNum">     114 </span><span class="lineCov">       4358 :   plen = bin_to_uint32(src); /* number of pool */</span>
+<span class="lineNum">     115 </span><span class="lineCov">       4358 :   src += sizeof(uint32_t);</span>
+<span class="lineNum">     116 </span><span class="lineCov">       4358 :   if (plen &gt; 0) {</span>
+<span class="lineNum">     117 </span>            :     if (SIZE_ERROR_MUL(sizeof(mrb_value), plen)) {
+<span class="lineNum">     118 </span>            :       ret = MRB_DUMP_GENERAL_FAILURE;
+<span class="lineNum">     119 </span>            :       goto error_exit;
+<span class="lineNum">     120 </span>            :     }
+<span class="lineNum">     121 </span><span class="lineCov">       1599 :     irep-&gt;pool = (mrb_value *)mrb_malloc(mrb, sizeof(mrb_value) * plen);</span>
+<span class="lineNum">     122 </span><span class="lineCov">       1599 :     if (irep-&gt;pool == NULL) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :       ret = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     125 </span>            :     }
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">       6811 :     for (i = 0; i &lt; plen; i++) {</span>
+<span class="lineNum">     128 </span>            :       mrb_value s;
+<span class="lineNum">     129 </span><span class="lineCov">       5212 :       tt = *src++; //pool TT</span>
+<span class="lineNum">     130 </span><span class="lineCov">       5212 :       pool_data_len = bin_to_uint16(src); //pool data length</span>
+<span class="lineNum">     131 </span><span class="lineCov">       5212 :       src += sizeof(uint16_t);</span>
+<span class="lineNum">     132 </span><span class="lineCov">       5212 :       s = mrb_str_new(mrb, (char *)src, pool_data_len);</span>
+<span class="lineNum">     133 </span><span class="lineCov">       5212 :       src += pool_data_len;</span>
+<span class="lineNum">     134 </span><span class="lineCov">       5212 :       switch (tt) { //pool data</span>
+<span class="lineNum">     135 </span>            :       case MRB_TT_FIXNUM:
+<span class="lineNum">     136 </span><span class="lineCov">       2167 :         irep-&gt;pool[i] = mrb_str_to_inum(mrb, s, 10, FALSE);</span>
+<span class="lineNum">     137 </span><span class="lineCov">       2167 :         break;</span>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            :       case MRB_TT_FLOAT:
+<span class="lineNum">     140 </span><span class="lineCov">        134 :         irep-&gt;pool[i] = mrb_float_value(mrb_str_to_dbl(mrb, s, FALSE));</span>
+<span class="lineNum">     141 </span><span class="lineCov">        134 :         break;</span>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            :       case MRB_TT_STRING:
+<span class="lineNum">     144 </span><span class="lineCov">       2911 :         irep-&gt;pool[i] = s;</span>
+<span class="lineNum">     145 </span><span class="lineCov">       2911 :         break;</span>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :       default:
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :         irep-&gt;pool[i] = mrb_nil_value();</span>
+<span class="lineNum">     149 </span>            :         break;
+<span class="lineNum">     150 </span>            :       }
+<span class="lineNum">     151 </span><span class="lineCov">       5212 :       irep-&gt;plen++;</span>
+<span class="lineNum">     152 </span><span class="lineCov">       5212 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">     153 </span>            :     }
+<span class="lineNum">     154 </span>            :   }
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :   //SYMS BLOCK
+<span class="lineNum">     157 </span><span class="lineCov">       4358 :   irep-&gt;slen = bin_to_uint32(src);  //syms length</span>
+<span class="lineNum">     158 </span><span class="lineCov">       4358 :   src += sizeof(uint32_t);</span>
+<span class="lineNum">     159 </span><span class="lineCov">       4358 :   if (irep-&gt;slen &gt; 0) {</span>
+<span class="lineNum">     160 </span>            :     if (SIZE_ERROR_MUL(sizeof(mrb_sym), irep-&gt;slen)) {
+<span class="lineNum">     161 </span>            :       ret = MRB_DUMP_GENERAL_FAILURE;
+<span class="lineNum">     162 </span>            :       goto error_exit;
+<span class="lineNum">     163 </span>            :     }
+<span class="lineNum">     164 </span><span class="lineCov">       3879 :     irep-&gt;syms = (mrb_sym *)mrb_malloc(mrb, sizeof(mrb_sym) * irep-&gt;slen);</span>
+<span class="lineNum">     165 </span><span class="lineCov">       3879 :     if (irep-&gt;syms == NULL) {</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :       ret = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     168 </span>            :     }
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span><span class="lineCov">      17857 :     for (i = 0; i &lt; irep-&gt;slen; i++) {</span>
+<span class="lineNum">     171 </span><span class="lineCov">      13978 :       snl = bin_to_uint16(src);               //symbol name length</span>
+<span class="lineNum">     172 </span><span class="lineCov">      13978 :       src += sizeof(uint16_t);</span>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineCov">      13978 :       if (snl == MRB_DUMP_NULL_SYM_LEN) {</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :         irep-&gt;syms[i] = 0;</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         continue;</span>
+<span class="lineNum">     177 </span>            :       }
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineCov">      13978 :       irep-&gt;syms[i] = mrb_intern2(mrb, (char *)src, snl);</span>
+<span class="lineNum">     180 </span><span class="lineCov">      13978 :       src += snl + 1;</span>
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span><span class="lineCov">      13978 :       mrb_gc_arena_restore(mrb, ai);</span>
+<span class="lineNum">     183 </span>            :     }
+<span class="lineNum">     184 </span>            :   }
+<span class="lineNum">     185 </span><span class="lineCov">       4358 :   *len = src - bin;</span>
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span><span class="lineCov">       4358 :   ret = MRB_DUMP_OK;</span>
+<span class="lineNum">     188 </span><span class="lineCov">       4358 : error_exit:</span>
+<span class="lineNum">     189 </span><span class="lineCov">       4358 :   return ret;</span>
+<span class="lineNum">     190 </span>            : }
+<span class="lineNum">     191 </span>            : 
+<a name="192"><span class="lineNum">     192 </span>            : static int</a>
+<span class="lineNum">     193 </span>            : read_rite_section_irep(mrb_state *mrb, const uint8_t *bin)
+<span class="lineNum">     194 </span><span class="lineCov">        153 : {</span>
+<span class="lineNum">     195 </span>            :   int result;
+<span class="lineNum">     196 </span>            :   size_t sirep;
+<span class="lineNum">     197 </span>            :   size_t i;
+<span class="lineNum">     198 </span>            :   uint32_t len;
+<span class="lineNum">     199 </span>            :   uint16_t nirep;
+<span class="lineNum">     200 </span>            :   uint16_t n;
+<span class="lineNum">     201 </span>            :   const struct rite_section_irep_header *header;
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">        153 :   header = (const struct rite_section_irep_header*)bin;</span>
+<span class="lineNum">     204 </span><span class="lineCov">        153 :   bin += sizeof(struct rite_section_irep_header);</span>
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span><span class="lineCov">        153 :   sirep = mrb-&gt;irep_len;</span>
+<span class="lineNum">     207 </span><span class="lineCov">        153 :   nirep = bin_to_uint16(header-&gt;nirep);</span>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span>            :   //Read Binary Data Section
+<span class="lineNum">     210 </span><span class="lineCov">       4511 :   for (n = 0, i = sirep; n &lt; nirep; n++, i++) {</span>
+<span class="lineNum">     211 </span><span class="lineCov">       4358 :     result = read_rite_irep_record(mrb, bin, &amp;len);</span>
+<span class="lineNum">     212 </span><span class="lineCov">       4358 :     if (result != MRB_DUMP_OK)</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     214 </span><span class="lineCov">       4358 :     bin += len;</span>
+<span class="lineNum">     215 </span>            :   }
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span><span class="lineCov">        153 :   result = sirep + bin_to_uint16(header-&gt;sirep);</span>
+<span class="lineNum">     218 </span><span class="lineCov">        153 : error_exit:</span>
+<span class="lineNum">     219 </span><span class="lineCov">        153 :   if (result &lt; MRB_DUMP_OK) {</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :     irep_free(sirep, mrb);</span>
+<span class="lineNum">     221 </span>            :   }
+<span class="lineNum">     222 </span><span class="lineCov">        153 :   return result;</span>
+<span class="lineNum">     223 </span>            : }
+<span class="lineNum">     224 </span>            : 
+<a name="225"><span class="lineNum">     225 </span>            : static int</a>
+<span class="lineNum">     226 </span>            : read_rite_lineno_record(mrb_state *mrb, const uint8_t *bin, size_t irepno, uint32_t *len)
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     228 </span>            :   int ret;
+<span class="lineNum">     229 </span>            :   size_t i, fname_len, niseq;
+<span class="lineNum">     230 </span>            :   char *fname;
+<span class="lineNum">     231 </span>            :   uint16_t *lines;
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :   ret = MRB_DUMP_OK;</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :   *len = 0;</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :   bin += sizeof(uint32_t); // record size</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :   *len += sizeof(uint32_t);</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :   fname_len = bin_to_uint16(bin);</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :   bin += sizeof(uint16_t);</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :   *len += sizeof(uint16_t);</span>
+<span class="lineNum">     240 </span>            :   if (SIZE_ERROR(fname_len + 1)) {
+<span class="lineNum">     241 </span>            :     ret = MRB_DUMP_GENERAL_FAILURE;
+<span class="lineNum">     242 </span>            :     goto error_exit;
+<span class="lineNum">     243 </span>            :   }
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :   fname = (char *)mrb_malloc(mrb, fname_len + 1);</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :   if (fname == NULL) {</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :     ret = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :     goto error_exit;</span>
+<span class="lineNum">     248 </span>            :   }
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :   memcpy(fname, bin, fname_len);</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :   fname[fname_len] = '\0';</span>
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :   bin += fname_len;</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :   *len += fname_len;</span>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :   niseq = bin_to_uint32(bin);</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :   bin += sizeof(uint32_t); // niseq</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :   *len += sizeof(uint32_t);</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            :   if (SIZE_ERROR_MUL(niseq, sizeof(uint16_t))) {
+<span class="lineNum">     259 </span>            :     ret = MRB_DUMP_GENERAL_FAILURE;
+<span class="lineNum">     260 </span>            :     goto error_exit;
+<span class="lineNum">     261 </span>            :   }
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :   lines = (uint16_t *)mrb_malloc(mrb, niseq * sizeof(uint16_t));</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :   if (lines == NULL) {</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :     ret = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :     goto error_exit;</span>
+<span class="lineNum">     266 </span>            :   }
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :   for (i = 0; i &lt; niseq; i++) {</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :     lines[i] = bin_to_uint16(bin);</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :     bin += sizeof(uint16_t); // niseq</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :     *len += sizeof(uint16_t);</span>
+<span class="lineNum">     271 </span>            :  }
+<span class="lineNum">     272 </span>            : 
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :   mrb-&gt;irep[irepno]-&gt;filename = fname;</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :   mrb-&gt;irep[irepno]-&gt;lines = lines;</span>
+<span class="lineNum">     275 </span>            : 
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 : error_exit:</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :   if (fname) {</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :     mrb_free(mrb, fname);</span>
+<span class="lineNum">     279 </span>            :   }
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :   return ret;</span>
+<span class="lineNum">     282 </span>            : }
+<span class="lineNum">     283 </span>            : 
+<a name="284"><span class="lineNum">     284 </span>            : static int</a>
+<span class="lineNum">     285 </span>            : read_rite_section_lineno(mrb_state *mrb, const uint8_t *bin, size_t sirep)
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     287 </span>            :   int result;
+<span class="lineNum">     288 </span>            :   size_t i;
+<span class="lineNum">     289 </span>            :   uint32_t len;
+<span class="lineNum">     290 </span>            :   uint16_t nirep;
+<span class="lineNum">     291 </span>            :   uint16_t n;
+<span class="lineNum">     292 </span>            :   const struct rite_section_lineno_header *header;
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :   len = 0;</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :   header = (const struct rite_section_lineno_header*)bin;</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :   bin += sizeof(struct rite_section_lineno_header);</span>
+<span class="lineNum">     297 </span>            : 
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :   nirep = bin_to_uint16(header-&gt;nirep);</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span>            :   //Read Binary Data Section
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :   for (n = 0, i = sirep; n &lt; nirep; n++, i++) {</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :     result = read_rite_lineno_record(mrb, bin, i, &amp;len);</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :     if (result != MRB_DUMP_OK)</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :     bin += len;</span>
+<span class="lineNum">     306 </span>            :   }
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :   result = sirep + bin_to_uint16(header-&gt;sirep);</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 : error_exit:</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :   return result;</span>
+<span class="lineNum">     311 </span>            : }
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span>            : 
+<a name="314"><span class="lineNum">     314 </span>            : static int</a>
+<span class="lineNum">     315 </span>            : read_rite_binary_header(const uint8_t *bin, size_t *bin_size, uint16_t *crc)
+<span class="lineNum">     316 </span><span class="lineCov">        153 : {</span>
+<span class="lineNum">     317 </span><span class="lineCov">        153 :   const struct rite_binary_header *header = (const struct rite_binary_header *)bin;</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineCov">        153 :   if (memcmp(header-&gt;binary_identify, RITE_BINARY_IDENFIFIER, sizeof(header-&gt;binary_identify)) != 0) {</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :     return MRB_DUMP_INVALID_FILE_HEADER;</span>
+<span class="lineNum">     321 </span>            :   }
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineCov">        153 :   if (memcmp(header-&gt;binary_version, RITE_BINARY_FORMAT_VER, sizeof(header-&gt;binary_version)) != 0) {</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :     return MRB_DUMP_INVALID_FILE_HEADER;</span>
+<span class="lineNum">     325 </span>            :   }
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span><span class="lineCov">        153 :   *crc = bin_to_uint16(header-&gt;binary_crc);</span>
+<span class="lineNum">     328 </span><span class="lineCov">        153 :   if (bin_size) {</span>
+<span class="lineNum">     329 </span><span class="lineCov">        153 :     *bin_size = bin_to_uint32(header-&gt;binary_size);</span>
+<span class="lineNum">     330 </span>            :   }
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span><span class="lineCov">        153 :   return MRB_DUMP_OK;</span>
+<span class="lineNum">     333 </span>            : }
+<span class="lineNum">     334 </span>            : 
+<a name="335"><span class="lineNum">     335 </span>            : int32_t</a>
+<span class="lineNum">     336 </span>            : mrb_read_irep(mrb_state *mrb, const uint8_t *bin)
+<span class="lineNum">     337 </span><span class="lineCov">        153 : {</span>
+<span class="lineNum">     338 </span>            :   int result;
+<span class="lineNum">     339 </span><span class="lineCov">        153 :   int32_t total_nirep = 0;</span>
+<span class="lineNum">     340 </span>            :   const struct rite_section_header *section_header;
+<span class="lineNum">     341 </span>            :   uint16_t crc;
+<span class="lineNum">     342 </span><span class="lineCov">        153 :   size_t bin_size = 0;</span>
+<span class="lineNum">     343 </span>            :   size_t n;
+<span class="lineNum">     344 </span>            :   size_t sirep;
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span><span class="lineCov">        153 :   if ((mrb == NULL) || (bin == NULL)) {</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :     return MRB_DUMP_INVALID_ARGUMENT;</span>
+<span class="lineNum">     348 </span>            :   }
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineCov">        153 :   result = read_rite_binary_header(bin, &amp;bin_size, &amp;crc);</span>
+<span class="lineNum">     351 </span><span class="lineCov">        153 :   if (result != MRB_DUMP_OK) {</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :     return result;</span>
+<span class="lineNum">     353 </span>            :   }
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span><span class="lineCov">        153 :   n = offset_crc_body();</span>
+<span class="lineNum">     356 </span><span class="lineCov">        153 :   if (crc != calc_crc_16_ccitt(bin + n, bin_size - n, 0)) {</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :     return MRB_DUMP_INVALID_FILE_HEADER;</span>
+<span class="lineNum">     358 </span>            :   }
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span><span class="lineCov">        153 :   bin += sizeof(struct rite_binary_header);</span>
+<span class="lineNum">     361 </span><span class="lineCov">        153 :   sirep = mrb-&gt;irep_len;</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :   do {
+<span class="lineNum">     364 </span><span class="lineCov">        306 :     section_header = (const struct rite_section_header *)bin;</span>
+<span class="lineNum">     365 </span><span class="lineCov">        306 :     if (memcmp(section_header-&gt;section_identify, RITE_SECTION_IREP_IDENTIFIER, sizeof(section_header-&gt;section_identify)) == 0) {</span>
+<span class="lineNum">     366 </span><span class="lineCov">        153 :       result = read_rite_section_irep(mrb, bin);</span>
+<span class="lineNum">     367 </span><span class="lineCov">        153 :       if (result &lt; MRB_DUMP_OK) {</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :         return result;</span>
+<span class="lineNum">     369 </span>            :       }
+<span class="lineNum">     370 </span><span class="lineCov">        153 :       total_nirep += result;</span>
+<span class="lineNum">     371 </span>            :     }
+<span class="lineNum">     372 </span><span class="lineCov">        153 :     else if (memcmp(section_header-&gt;section_identify, RITE_SECTION_LIENO_IDENTIFIER, sizeof(section_header-&gt;section_identify)) == 0) {</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :       result = read_rite_section_lineno(mrb, bin, sirep);</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :       if (result &lt; MRB_DUMP_OK) {</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :         return result;</span>
+<span class="lineNum">     376 </span>            :       }
+<span class="lineNum">     377 </span>            :     }
+<span class="lineNum">     378 </span><span class="lineCov">        306 :     bin += bin_to_uint32(section_header-&gt;section_size);</span>
+<span class="lineNum">     379 </span><span class="lineCov">        306 :   } while (memcmp(section_header-&gt;section_identify, RITE_BINARY_EOF, sizeof(section_header-&gt;section_identify)) != 0);</span>
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span><span class="lineCov">        153 :   return total_nirep;</span>
+<span class="lineNum">     382 </span>            : }
+<span class="lineNum">     383 </span>            : 
+<a name="384"><span class="lineNum">     384 </span>            : static void</a>
+<span class="lineNum">     385 </span>            : irep_error(mrb_state *mrb, int n)
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     387 </span>            :   static const char msg[] = &quot;irep load error&quot;;
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :   mrb-&gt;exc = mrb_obj_ptr(mrb_exc_new(mrb, E_SCRIPT_ERROR, msg, sizeof(msg) - 1));</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     390 </span>            : 
+<a name="391"><span class="lineNum">     391 </span>            : mrb_value</a>
+<span class="lineNum">     392 </span>            : mrb_load_irep(mrb_state *mrb, const uint8_t *bin)
+<span class="lineNum">     393 </span><span class="lineCov">        153 : {</span>
+<span class="lineNum">     394 </span>            :   int32_t n;
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span><span class="lineCov">        153 :   n = mrb_read_irep(mrb, bin);</span>
+<span class="lineNum">     397 </span><span class="lineCov">        153 :   if (n &lt; 0) {</span>
+<span class="lineNum">     398 </span><span class="lineNoCov">          0 :     irep_error(mrb, n);</span>
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 :     return mrb_nil_value();</span>
+<span class="lineNum">     400 </span>            :   }
+<span class="lineNum">     401 </span><span class="lineCov">        153 :   return mrb_run(mrb, mrb_proc_new(mrb, mrb-&gt;irep[n]), mrb_top_self(mrb));</span>
+<span class="lineNum">     402 </span>            : }
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span>            : #ifdef ENABLE_STDIO
+<span class="lineNum">     405 </span>            : 
+<a name="406"><span class="lineNum">     406 </span>            : static int32_t</a>
+<span class="lineNum">     407 </span>            : read_rite_section_lineno_file(mrb_state *mrb, FILE *fp, size_t sirep)
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     409 </span>            :   int32_t result;
+<span class="lineNum">     410 </span>            :   size_t i;
+<span class="lineNum">     411 </span>            :   uint16_t nirep;
+<span class="lineNum">     412 </span>            :   uint16_t n;
+<span class="lineNum">     413 </span>            :   uint32_t len, buf_size;
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :   uint8_t *buf = NULL;</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :   const size_t record_header_size = 4;</span>
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span>            :   struct rite_section_lineno_header header;
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :   if (fread(&amp;header, sizeof(struct rite_section_lineno_header), 1, fp) == 0) {</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :     return MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     420 </span>            :   }
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :   nirep = bin_to_uint16(header.nirep);</span>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :   buf_size = record_header_size;</span>
+<span class="lineNum">     425 </span>            :   /* We don't need to check buf_size. As it is enough small. */
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :   buf = (uint8_t *)mrb_malloc(mrb, buf_size);</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :   if (!buf) {</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :     result = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :     goto error_exit;</span>
+<span class="lineNum">     430 </span>            :   }
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            :   //Read Binary Data Section
+<span class="lineNum">     433 </span><span class="lineNoCov">          0 :   for (n = 0, i = sirep; n &lt; nirep; n++, i++) {</span>
+<span class="lineNum">     434 </span>            :     void *ptr;
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :     if (fread(buf, record_header_size, 1, fp) == 0) {</span>
+<span class="lineNum">     437 </span><span class="lineNoCov">          0 :       result = MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     439 </span>            :     }
+<span class="lineNum">     440 </span><span class="lineNoCov">          0 :     buf_size = bin_to_uint32(&amp;buf[0]);</span>
+<span class="lineNum">     441 </span>            :     if (SIZE_ERROR(buf_size)) {
+<span class="lineNum">     442 </span>            :       result = MRB_DUMP_GENERAL_FAILURE;
+<span class="lineNum">     443 </span>            :       goto error_exit;
+<span class="lineNum">     444 </span>            :     }
+<span class="lineNum">     445 </span><span class="lineNoCov">          0 :     ptr = mrb_realloc(mrb, buf, buf_size);</span>
+<span class="lineNum">     446 </span><span class="lineNoCov">          0 :     if (!ptr) {</span>
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :       result = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     449 </span>            :     }
+<span class="lineNum">     450 </span><span class="lineNoCov">          0 :     buf = (uint8_t *)ptr;</span>
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :     if (fread(&amp;buf[record_header_size], buf_size - record_header_size, 1, fp) == 0) {</span>
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :       result = MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     455 </span>            :     }
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :     result = read_rite_lineno_record(mrb, buf, i, &amp;len);</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :     if (result != MRB_DUMP_OK)</span>
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     459 </span>            :   }
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :   result = sirep + bin_to_uint16(header.sirep);</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 : error_exit:</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :   if (buf) {</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :     mrb_free(mrb, buf);</span>
+<span class="lineNum">     465 </span>            :   }
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :   if (result &lt; MRB_DUMP_OK) {</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :     irep_free(sirep, mrb);</span>
+<span class="lineNum">     468 </span>            :   }
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :   return result;</span>
+<span class="lineNum">     470 </span>            : }
+<span class="lineNum">     471 </span>            : 
+<a name="472"><span class="lineNum">     472 </span>            : static int32_t</a>
+<span class="lineNum">     473 </span>            : read_rite_section_irep_file(mrb_state *mrb, FILE *fp)
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     475 </span>            :   int32_t result;
+<span class="lineNum">     476 </span>            :   size_t sirep;
+<span class="lineNum">     477 </span>            :   size_t i;
+<span class="lineNum">     478 </span>            :   uint16_t nirep;
+<span class="lineNum">     479 </span>            :   uint16_t n;
+<span class="lineNum">     480 </span>            :   uint32_t len, buf_size;
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :   uint8_t *buf = NULL;</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :   const size_t record_header_size = 1 + 4;</span>
+<span class="lineNum">     483 </span>            :   struct rite_section_irep_header header;
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :   if (fread(&amp;header, sizeof(struct rite_section_irep_header), 1, fp) == 0) {</span>
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :     return MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     487 </span>            :   }
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :   sirep = mrb-&gt;irep_len;</span>
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :   nirep = bin_to_uint16(header.nirep);</span>
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span><span class="lineNoCov">          0 :   buf_size = record_header_size;</span>
+<span class="lineNum">     493 </span>            :   /* You don't need use SIZE_ERROR as buf_size is enough small. */
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :   buf = (uint8_t *)mrb_malloc(mrb, buf_size);</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :   if (!buf) {</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :     result = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :     goto error_exit;</span>
+<span class="lineNum">     498 </span>            :   }
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span>            :   //Read Binary Data Section
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :   for (n = 0, i = sirep; n &lt; nirep; n++, i++) {</span>
+<span class="lineNum">     502 </span>            :     void *ptr;
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :     if (fread(buf, record_header_size, 1, fp) == 0) {</span>
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :       result = MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     507 </span>            :     }
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :     buf_size = bin_to_uint32(&amp;buf[0]);</span>
+<span class="lineNum">     509 </span>            :     if (SIZE_ERROR(buf_size)) {
+<span class="lineNum">     510 </span>            :       result = MRB_DUMP_GENERAL_FAILURE;
+<span class="lineNum">     511 </span>            :       goto error_exit;
+<span class="lineNum">     512 </span>            :     }
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :     ptr = mrb_realloc(mrb, buf, buf_size);</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :     if (!ptr) {</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :       result = MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     517 </span>            :     }
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :     buf = (uint8_t *)ptr;</span>
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span><span class="lineNoCov">          0 :     if (fread(&amp;buf[record_header_size], buf_size - record_header_size, 1, fp) == 0) {</span>
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :       result = MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     522 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     523 </span>            :     }
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :     result = read_rite_irep_record(mrb, buf, &amp;len);</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :     if (result != MRB_DUMP_OK)</span>
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :       goto error_exit;</span>
+<span class="lineNum">     527 </span>            :   }
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :   result = sirep + bin_to_uint16(header.sirep);</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 : error_exit:</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :   if (buf) {</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :     mrb_free(mrb, buf);</span>
+<span class="lineNum">     533 </span>            :   }
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :   if (result &lt; MRB_DUMP_OK) {</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :     irep_free(sirep, mrb);</span>
+<span class="lineNum">     536 </span>            :   }
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :   return result;</span>
+<span class="lineNum">     538 </span>            : }
+<span class="lineNum">     539 </span>            : 
+<a name="540"><span class="lineNum">     540 </span>            : int32_t</a>
+<span class="lineNum">     541 </span>            : mrb_read_irep_file(mrb_state *mrb, FILE* fp)
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     543 </span>            :   int result;
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :   int32_t total_nirep = 0;</span>
+<span class="lineNum">     545 </span>            :   uint8_t *buf;
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :   uint16_t crc, crcwk = 0;</span>
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :   uint32_t section_size = 0;</span>
+<span class="lineNum">     548 </span>            :   size_t nbytes;
+<span class="lineNum">     549 </span>            :   size_t sirep;
+<span class="lineNum">     550 </span>            :   struct rite_section_header section_header;
+<span class="lineNum">     551 </span>            :   long fpos;
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :   const size_t block_size = 1 &lt;&lt; 14;</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :   const size_t buf_size = sizeof(struct rite_binary_header);</span>
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :   if ((mrb == NULL) || (fp == NULL)) {</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :     return MRB_DUMP_INVALID_ARGUMENT;</span>
+<span class="lineNum">     557 </span>            :   }
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span>            :   /* You don't need use SIZE_ERROR as buf_size is enough small. */
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :   buf = mrb_malloc(mrb, buf_size);</span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :   if (!buf) {</span>
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :     return MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     563 </span>            :   }
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :   if (fread(buf, buf_size, 1, fp) == 0) {</span>
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :     mrb_free(mrb, buf);</span>
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :     return MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     567 </span>            :   }
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :   result = read_rite_binary_header(buf, NULL, &amp;crc);</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :   mrb_free(mrb, buf);</span>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :   if (result != MRB_DUMP_OK) {</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :     return result;</span>
+<span class="lineNum">     572 </span>            :   }
+<span class="lineNum">     573 </span>            : 
+<span class="lineNum">     574 </span>            :   /* verify CRC */
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :   fpos = ftell(fp);</span>
+<span class="lineNum">     576 </span>            :   /* You don't need use SIZE_ERROR as block_size is enough small. */
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :   buf = mrb_malloc(mrb, block_size);</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :   if (!buf) {</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :     return MRB_DUMP_GENERAL_FAILURE;</span>
+<span class="lineNum">     580 </span>            :   }
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :   fseek(fp, offset_crc_body(), SEEK_SET);</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :   while ((nbytes = fread(buf, 1, block_size, fp)) &gt; 0) {</span>
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :     crcwk = calc_crc_16_ccitt(buf, nbytes, crcwk);</span>
+<span class="lineNum">     584 </span>            :   }
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :   mrb_free(mrb, buf);</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :   if (nbytes == 0 &amp;&amp; ferror(fp)) {</span>
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :     return MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     588 </span>            :   }
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :   if (crcwk != crc) {</span>
+<span class="lineNum">     590 </span><span class="lineNoCov">          0 :     return MRB_DUMP_INVALID_FILE_HEADER;</span>
+<span class="lineNum">     591 </span>            :   }
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :   fseek(fp, fpos + section_size, SEEK_SET);</span>
+<span class="lineNum">     593 </span><span class="lineNoCov">          0 :   sirep = mrb-&gt;irep_len;</span>
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span>            :   // read sections
+<span class="lineNum">     596 </span>            :   do {
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :     fpos = ftell(fp);</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :     if (fread(&amp;section_header, sizeof(struct rite_section_header), 1, fp) == 0) {</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :       return MRB_DUMP_READ_FAULT;</span>
+<span class="lineNum">     600 </span>            :     }
+<span class="lineNum">     601 </span><span class="lineNoCov">          0 :     section_size = bin_to_uint32(section_header.section_size);</span>
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :     if (memcmp(section_header.section_identify, RITE_SECTION_IREP_IDENTIFIER, sizeof(section_header.section_identify)) == 0) {</span>
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :       fseek(fp, fpos, SEEK_SET);</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :       result = read_rite_section_irep_file(mrb, fp);</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :       if (result &lt; MRB_DUMP_OK) {</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :         return result;</span>
+<span class="lineNum">     608 </span>            :       }
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :       total_nirep += result;</span>
+<span class="lineNum">     610 </span>            :     }
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :     else if (memcmp(section_header.section_identify, RITE_SECTION_LIENO_IDENTIFIER, sizeof(section_header.section_identify)) == 0) {</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :       fseek(fp, fpos, SEEK_SET);</span>
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :       result = read_rite_section_lineno_file(mrb, fp, sirep);</span>
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :       if (result &lt; MRB_DUMP_OK) {</span>
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :         return result;</span>
+<span class="lineNum">     616 </span>            :       }
+<span class="lineNum">     617 </span>            :     }
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :     fseek(fp, fpos + section_size, SEEK_SET);</span>
+<span class="lineNum">     620 </span><span class="lineNoCov">          0 :   } while (memcmp(section_header.section_identify, RITE_BINARY_EOF, sizeof(section_header.section_identify)) != 0);</span>
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :   return total_nirep;</span>
+<span class="lineNum">     623 </span>            : }
+<span class="lineNum">     624 </span>            : 
+<a name="625"><span class="lineNum">     625 </span>            : mrb_value</a>
+<span class="lineNum">     626 </span>            : mrb_load_irep_file(mrb_state *mrb, FILE* fp)
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 : {</span>
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :   int n = mrb_read_irep_file(mrb, fp);</span>
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :   if (n &lt; 0) {</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :     irep_error(mrb, n);</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :     return mrb_nil_value();</span>
+<span class="lineNum">     633 </span>            :   }
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :   return mrb_run(mrb, mrb_proc_new(mrb, mrb-&gt;irep[n]), mrb_top_self(mrb));</span>
+<span class="lineNum">     635 </span>            : }
+<span class="lineNum">     636 </span>            : #endif /* ENABLE_STDIO */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

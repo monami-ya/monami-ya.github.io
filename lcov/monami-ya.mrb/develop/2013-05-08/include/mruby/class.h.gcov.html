@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - monami-ya.mrb_develop.info - include/mruby/class.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">include/mruby</a> - class.h<span style="font-size: 80%;"> (source / <a href="class.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">monami-ya.mrb_develop.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2013-05-08</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            : ** mruby/class.h - Class class
+<span class="lineNum">       3 </span>            : **
+<span class="lineNum">       4 </span>            : ** See Copyright Notice in mruby.h
+<span class="lineNum">       5 </span>            : */
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : #ifndef MRUBY_CLASS_H
+<span class="lineNum">       8 </span>            : #define MRUBY_CLASS_H
+<span class="lineNum">       9 </span>            : 
+<span class="lineNum">      10 </span>            : #if defined(__cplusplus)
+<span class="lineNum">      11 </span>            : extern &quot;C&quot; {
+<span class="lineNum">      12 </span>            : #endif
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : #include &quot;mruby.h&quot;
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : struct RClass {
+<span class="lineNum">      17 </span>            :   MRB_OBJECT_HEADER;
+<span class="lineNum">      18 </span>            :   struct iv_tbl *iv;
+<span class="lineNum">      19 </span>            :   struct kh_mt *mt;
+<span class="lineNum">      20 </span>            :   struct RClass *super;
+<span class="lineNum">      21 </span>            : };
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #define mrb_class_ptr(v)    ((struct RClass*)((v).value.p))
+<span class="lineNum">      24 </span>            : #define RCLASS_SUPER(v)     (((struct RClass*)((v).value.p))-&gt;super)
+<span class="lineNum">      25 </span>            : #define RCLASS_IV_TBL(v)    (((struct RClass*)((v).value.p))-&gt;iv)
+<span class="lineNum">      26 </span>            : #define RCLASS_M_TBL(v)     (((struct RClass*)((v).value.p))-&gt;mt)
+<span class="lineNum">      27 </span>            : 
+<a name="28"><span class="lineNum">      28 </span>            : static inline struct RClass*</a>
+<span class="lineNum">      29 </span>            : mrb_class(mrb_state *mrb, mrb_value v)
+<span class="lineNum">      30 </span><span class="lineCov">     150616 : {</span>
+<span class="lineNum">      31 </span><span class="lineCov">     150616 :   switch (mrb_type(v)) {</span>
+<span class="lineNum">      32 </span>            :   case MRB_TT_FALSE:
+<span class="lineNum">      33 </span><span class="lineCov">        185 :     if (v.value.i)</span>
+<span class="lineNum">      34 </span><span class="lineCov">        108 :       return mrb-&gt;false_class;</span>
+<span class="lineNum">      35 </span><span class="lineCov">         77 :     return mrb-&gt;nil_class;</span>
+<span class="lineNum">      36 </span>            :   case MRB_TT_TRUE:
+<span class="lineNum">      37 </span><span class="lineCov">        754 :     return mrb-&gt;true_class;</span>
+<span class="lineNum">      38 </span>            :   case MRB_TT_SYMBOL:
+<span class="lineNum">      39 </span><span class="lineCov">        653 :     return mrb-&gt;symbol_class;</span>
+<span class="lineNum">      40 </span>            :   case MRB_TT_FIXNUM:
+<span class="lineNum">      41 </span><span class="lineCov">       1072 :     return mrb-&gt;fixnum_class;</span>
+<span class="lineNum">      42 </span>            :   case MRB_TT_FLOAT:
+<span class="lineNum">      43 </span><span class="lineCov">        652 :     return mrb-&gt;float_class;</span>
+<span class="lineNum">      44 </span>            :   default:
+<span class="lineNum">      45 </span><span class="lineCov">     147300 :     return mrb_obj_ptr(v)-&gt;c;</span>
+<span class="lineNum">      46 </span>            :   }
+<span class="lineNum">      47 </span>            : }
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : #define MRB_SET_INSTANCE_TT(c, tt) c-&gt;flags = ((c-&gt;flags &amp; ~0xff) | (char)tt)
+<span class="lineNum">      50 </span>            : #define MRB_INSTANCE_TT(c) (enum mrb_vtype)(c-&gt;flags &amp; 0xff)
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : struct RClass* mrb_define_class_id(mrb_state*, mrb_sym, struct RClass*);
+<span class="lineNum">      53 </span>            : struct RClass* mrb_define_module_id(mrb_state*, mrb_sym);
+<span class="lineNum">      54 </span>            : struct RClass *mrb_vm_define_class(mrb_state*, mrb_value, mrb_value, mrb_sym);
+<span class="lineNum">      55 </span>            : struct RClass *mrb_vm_define_module(mrb_state*, mrb_value, mrb_sym);
+<span class="lineNum">      56 </span>            : void mrb_define_method_vm(mrb_state*, struct RClass*, mrb_sym, mrb_value);
+<span class="lineNum">      57 </span>            : void mrb_define_method_raw(mrb_state*, struct RClass*, mrb_sym, struct RProc *);
+<span class="lineNum">      58 </span>            : void mrb_define_method_id(mrb_state *mrb, struct RClass *c, mrb_sym mid, mrb_func_t func, mrb_aspec aspec);
+<span class="lineNum">      59 </span>            : void mrb_alias_method(mrb_state *mrb, struct RClass *c, mrb_sym a, mrb_sym b);
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            : struct RClass *mrb_class_outer_module(mrb_state*, struct RClass *);
+<span class="lineNum">      62 </span>            : struct RProc *mrb_method_search_vm(mrb_state*, struct RClass**, mrb_sym);
+<span class="lineNum">      63 </span>            : struct RProc *mrb_method_search(mrb_state*, struct RClass*, mrb_sym);
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : struct RClass* mrb_class_real(struct RClass* cl);
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : void mrb_obj_call_init(mrb_state *mrb, mrb_value obj, int argc, mrb_value *argv);
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : void mrb_gc_mark_mt(mrb_state*, struct RClass*);
+<span class="lineNum">      70 </span>            : size_t mrb_gc_mark_mt_size(mrb_state*, struct RClass*);
+<span class="lineNum">      71 </span>            : void mrb_gc_free_mt(mrb_state*, struct RClass*);
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : #if defined(__cplusplus)
+<span class="lineNum">      74 </span>            : }  /* extern &quot;C&quot; { */
+<span class="lineNum">      75 </span>            : #endif
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            : #endif  /* MRUBY_CLASS_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
