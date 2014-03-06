@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: events | 合同会社もなみ屋]]></title>
-  <link href="http://products.monami-ya.jp/blog/categories/events/atom.xml" rel="self"/>
-  <link href="http://products.monami-ya.jp/"/>
-  <updated>2014-03-06T21:59:09+09:00</updated>
-  <id>http://products.monami-ya.jp/</id>
+  <link href="http://www.monami-ya.jp/blog/categories/events/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2014-03-06T22:11:21+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
     <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[QCon Tokyo 2013 講演のご報告]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/04/25/32/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/04/25/32/"/>
     <updated>2013-04-25T09:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/04/25/32</id>
+    <id>http://www.monami-ya.jp/blog/2013/04/25/32</id>
     <content type="html"><![CDATA[<p>2013年4月23日に開催されたQCon Tokyo 2013にて，弊社代表である邑中雅樹が，講演「mrubyの今，そして目指すもの」を行いました．</p>
 
 <p>当日は，機器組込みとエンタープライズコンピューティングを結ぶキーコンポーネントとして最近注目を集めている mruby について，ソースコードコミッターの立場から，現状の紹介や今後の可能性などご紹介差し上げました．</p>
@@ -31,18 +31,18 @@
   
   <entry>
     <title type="html"><![CDATA[「富士通セミコンダクターFM3ファミリ・マイコン開発技術セミナ」講演プレゼンシートを公開いたしました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2012/10/13/16/"/>
+    <link href="http://www.monami-ya.jp/blog/2012/10/13/16/"/>
     <updated>2012-10-13T19:35:26+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2012/10/13/16</id>
+    <id>http://www.monami-ya.jp/blog/2012/10/13/16</id>
     <content type="html"><![CDATA[<p>2012年10月12日［金］に秋葉原コンベンションホール 5Fで開催されました「富士通セミコンダクターFM3ファミリ・マイコン開発技術セミナ」における弊社代表の邑中による講演プレゼンシート「オープンソース系ソフトウェアで構築するARMマイコン開発環境」を，<a href="http://www.slideshare.net/monaka/cq-tsefm3">slideshareにて公開</a>いたしました．</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[「富士通セミコンダクターFM3ファミリ・マイコン開発技術セミナ」にて講演いたします．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2012/08/29/15/"/>
+    <link href="http://www.monami-ya.jp/blog/2012/08/29/15/"/>
     <updated>2012-08-29T02:23:12+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2012/08/29/15</id>
+    <id>http://www.monami-ya.jp/blog/2012/08/29/15</id>
     <content type="html"><![CDATA[<p>2012年10月12日［金］に秋葉原コンベンションホール 5Fで開催される「<a href="http://it.cqpub.co.jp/tse/201210FM3/">富士通セミコンダクターFM3ファミリ・マイコン開発技術セミナ</a>」にて，弊社代表の邑中が「オープンソース系ソフトウェアで構築するARMマイコン開発環境」と題した講演を行います．</p>
 
 <p>参加は無料ですが，テクニカルセッションへの参加には<a href="https://it.cqpub.co.jp/tse/201210FM3/regist/">事前登録</a>が必要です．</p>
@@ -51,9 +51,9 @@
   
   <entry>
     <title type="html"><![CDATA[「ルネサス エンジニアフォーラム　2012」に出展・講演いたします．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2012/08/29/14/"/>
+    <link href="http://www.monami-ya.jp/blog/2012/08/29/14/"/>
     <updated>2012-08-29T02:11:21+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2012/08/29/14</id>
+    <id>http://www.monami-ya.jp/blog/2012/08/29/14</id>
     <content type="html"><![CDATA[<p>2012年9月6日（木）～8日（土）に，ルネサス半導体トレ－ニングセンターで開催される「ルネサス エンジニアフォーラム　2012」にて，今秋に出荷予定の PizzaFactory for e2studio の先行展示を行います．</p>
 
 <p>また，期間中，下記のとおり，弊社代表の邑中が登壇いたします．</p>
@@ -70,9 +70,9 @@
   
   <entry>
     <title type="html"><![CDATA[「ARM Cortex-M マイコン・ワークショップ2012」で講演いたします．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2012/04/27/7/"/>
+    <link href="http://www.monami-ya.jp/blog/2012/04/27/7/"/>
     <updated>2012-04-27T08:26:24+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2012/04/27/7</id>
+    <id>http://www.monami-ya.jp/blog/2012/04/27/7</id>
     <content type="html"><![CDATA[<p>5月25日に開催予定の，CQ出版(株)主催の「ARM Cortex-M マイコン・ワークショップ2012」にて，弊社代表の邑中が「オープン・ソースで構築するARMマイコン開発環境」というタイトルで講演いたします．</p>
 
 <p>詳細につきましては，<a href="http://it.cqpub.co.jp/tse/201205ARM/">イベントの特設サイト</a>を御覧ください．</p>

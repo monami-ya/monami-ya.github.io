@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[合同会社もなみ屋]]></title>
-  <link href="http://products.monami-ya.jp/atom.xml" rel="self"/>
-  <link href="http://products.monami-ya.jp/"/>
-  <updated>2014-03-06T21:59:09+09:00</updated>
-  <id>http://products.monami-ya.jp/</id>
+  <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2014-03-06T22:11:21+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
     <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[ヘルプデスクサービスの緊急メンテナンスを行います．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2014/03/04/45/"/>
+    <link href="http://www.monami-ya.jp/blog/2014/03/04/45/"/>
     <updated>2014-03-04T23:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2014/03/04/45</id>
+    <id>http://www.monami-ya.jp/blog/2014/03/04/45</id>
     <content type="html"><![CDATA[<p>本日14:00(JST)から，ヘルプデスクサービスの緊急メンテナンスを行います．
 同16:00(JST)には再開の予定です．</p>
 
@@ -35,9 +35,9 @@
   
   <entry>
     <title type="html"><![CDATA[ヘルプデスクサービスを設置致しました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2014/01/16/44/"/>
+    <link href="http://www.monami-ya.jp/blog/2014/01/16/44/"/>
     <updated>2014-01-16T06:25:47+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2014/01/16/44</id>
+    <id>http://www.monami-ya.jp/blog/2014/01/16/44</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋(弊社)は，以前からオープンソース・ソフトウェア(OSS)を中心とした，ソフトウェアの保守に関するサポートを提供してまいりました．
 このたび，サービス品質を向上させる目的で，ヘルプデスクサービスを立ち上げます．</p>
 
@@ -67,9 +67,9 @@
   
   <entry>
     <title type="html"><![CDATA[「組込みネット」に弊社代表インタビューが掲載されました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2014/01/09/43/"/>
+    <link href="http://www.monami-ya.jp/blog/2014/01/09/43/"/>
     <updated>2014-01-09T23:40:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2014/01/09/43</id>
+    <id>http://www.monami-ya.jp/blog/2014/01/09/43</id>
     <content type="html"><![CDATA[<p>CQ出版社が運営している技術者向けWebサイト「<a href="http://www.kumikomi.net/">組み込みネット</a>」にて，<a href="http://www.kumikomi.net/archives/2014/01/in04mona.php">弊社代表である邑中雅樹へのインタビュー記事が掲載</a>されました．</p>
 
 <p>インタビューは，新春特別企画として行われました．
@@ -80,9 +80,9 @@
   
   <entry>
     <title type="html"><![CDATA[ソフトウェアのビルド状況を公開しています．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2014/01/05/42/"/>
+    <link href="http://www.monami-ya.jp/blog/2014/01/05/42/"/>
     <updated>2014-01-05T09:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2014/01/05/42</id>
+    <id>http://www.monami-ya.jp/blog/2014/01/05/42</id>
     <content type="html"><![CDATA[<p>弊社で開発中のソフトウェアのうち，ビルド状況をを公開可能なものについて，<a href="http://builder.monami-ya.com:8080/">Web上での公開</a>を開始しています．</p>
 
 <p>ビルド状況を公開しているソフトウェアのライセンスは様々です．
@@ -101,18 +101,18 @@
   
   <entry>
     <title type="html"><![CDATA[「RaspberryPi対応GPIO変換基板キット」組み立て時の注意点]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/08/28/41/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/08/28/41/"/>
     <updated>2013-08-28T02:22:42+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/08/28/41</id>
+    <id>http://www.monami-ya.jp/blog/2013/08/28/41</id>
     <content type="html"><![CDATA[<p>「RaspberryPi対応GPIO変換基板キット」の組み立て時においては，CONN1のコネクタの向きにご注意ください．<a href="https://www.dropbox.com/sc/l77bzrrqyybv6tv/0wN8vWwhcv">リンク先にある写真</a> のように，基板外側にコネクタの切り欠きが向くようにしてください．</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[「RaspberryPi対応GPIO変換基板キット」の販売を開始いたしました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/08/28/40/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/08/28/40/"/>
     <updated>2013-08-28T01:45:28+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/08/28/40</id>
+    <id>http://www.monami-ya.jp/blog/2013/08/28/40</id>
     <content type="html"><![CDATA[<p>圧倒的なコストパフォーマンスで大きな話題となっているRaspberry Piは，その拡張のためのGPIOが2列のピンヘッダとなっているため，ブレッドボードとの接続が難しく，ラピッドプロトタイピングの障壁となっていました．</p>
 
 <p>このたび，合同会社もなみ屋は，2x13ピンヘッダから1x26ピンに変換する基板を作成し，必要なケーブルやコネクタを同梱したキットを作成いたしました．
@@ -124,9 +124,9 @@
   
   <entry>
     <title type="html"><![CDATA[Androidアプリ「GPS Finder」のソースコードを公開]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/05/26/38/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/05/26/38/"/>
     <updated>2013-05-26T15:30:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/05/26/38</id>
+    <id>http://www.monami-ya.jp/blog/2013/05/26/38</id>
     <content type="html"><![CDATA[<p>Google Play Store で無償公開中の Android アプリケーション「<a href="https://play.google.com/store/apps/details?id=com.monami_ya.android.gpsfinder">GPS Finder</a>」のソースコードを<a href="http://support.monami-ya.com/gpsfinder/">オープンソース公開</a>いたしました．</p>
 
 <p>ソースツリーには，GPL3, APL2.0, Public domain のソースファイルが混在しています．再利用時には各ソースファイル冒頭のライセンス文言をご参照ください．</p>
@@ -135,9 +135,9 @@
   
   <entry>
     <title type="html"><![CDATA[TOPPERS/ASP学習教材同梱のPizzaFactory3ユーザマニュアルを電子書籍として販売開始]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/05/16/37/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/05/16/37/"/>
     <updated>2013-05-16T19:00:42+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/05/16/37</id>
+    <id>http://www.monami-ya.jp/blog/2013/05/16/37</id>
     <content type="html"><![CDATA[<p><a href="http://www.amazon.co.jp/o/ASIN/B004KV9Q82/monamisoftwar-22">TOPPERS/ASP学習教材</a>は，各地の組込みセミナーの教材としてご好評頂いておりました，
 このたび，TOPPERS/ASP学習教材に同梱されおりました，「TOPPERS/ASP学習教材 / PizzaFactory3 Users Manual」の [Kindle版]が出版されました．<a href="http://www.amazon.co.jp/o/ASIN/B00CQNLIB4/monamisoftwar-22">Amazon.co.jp</a> を始めとする，各国 Amazon サイトからご購入可能です．</p>
 
@@ -152,18 +152,18 @@
   
   <entry>
     <title type="html"><![CDATA[monami-ya.mrbのカバレッジ計測結果]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/05/08/coverage/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/05/08/coverage/"/>
     <updated>2013-05-08T01:05:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/05/08/coverage</id>
+    <id>http://www.monami-ya.jp/blog/2013/05/08/coverage</id>
     <content type="html"><![CDATA[<p>本エントリ発信時点の，monami-ya.mrb のソースレベルカバレッジ結果を<a href="http://mrb.monami-ya.jp/lcov/monami-ya.mrb/develop/2013-05-08/">公開</a>いたします．</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[値下げいたしました．"PizzaFactory Tiny JTAG for Blackfin/Sharc" ]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/05/06/35/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/05/06/35/"/>
     <updated>2013-05-06T07:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/05/06/35</id>
+    <id>http://www.monami-ya.jp/blog/2013/05/06/35</id>
     <content type="html"><![CDATA[<p>弊社製品直販ショップ Monami-ya Online Shop で販売中の，&#8221;PizzaFactory Tiny JTAG for Blackfin/Sharc&#8221; の本体価格が，下記の通り価格改定となりました．</p>
 
 <ul>
@@ -181,9 +181,9 @@
   
   <entry>
     <title type="html"><![CDATA[Tech village に弊社代表によるmrubyのビルド環境に関する連載が，スタートいたしました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/04/27/33/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/04/27/33/"/>
     <updated>2013-04-27T20:50:11+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/04/27/33</id>
+    <id>http://www.monami-ya.jp/blog/2013/04/27/33</id>
     <content type="html"><![CDATA[<p><a href="http://www.kumikomi.net/">「組み込みネット」</a>に，弊社代表の邑中による解説記事「mruby組み込み活用テクニック」の連載が始まっています．
 初回は<a href="http://www.kumikomi.net/archives/2013/04/ep05rak1.php">「mrubyのビルド・ツールRakeを知る」</a>と称して，Ruby言語の知識が必要とされるRakeビルドツールを，Ruby言語に詳しくない組み込みエンジニアの方々にもご理解頂けるよう留意した解説となっています．</p>
 ]]></content>
@@ -191,9 +191,9 @@
   
   <entry>
     <title type="html"><![CDATA[2013年5月連休中の営業について]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/04/26/34/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/04/26/34/"/>
     <updated>2013-04-26T09:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/04/26/34</id>
+    <id>http://www.monami-ya.jp/blog/2013/04/26/34</id>
     <content type="html"><![CDATA[<p>5月の連休につきましては，4月27日から5月6日まで，本社休日と致します．
 当該期間中，お問い合わせに滞りが生じる可能性につきまして，ご容赦ください．</p>
 
@@ -206,9 +206,9 @@
   
   <entry>
     <title type="html"><![CDATA[QCon Tokyo 2013 講演のご報告]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/04/25/32/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/04/25/32/"/>
     <updated>2013-04-25T09:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/04/25/32</id>
+    <id>http://www.monami-ya.jp/blog/2013/04/25/32</id>
     <content type="html"><![CDATA[<p>2013年4月23日に開催されたQCon Tokyo 2013にて，弊社代表である邑中雅樹が，講演「mrubyの今，そして目指すもの」を行いました．</p>
 
 <p>当日は，機器組込みとエンタープライズコンピューティングを結ぶキーコンポーネントとして最近注目を集めている mruby について，ソースコードコミッターの立場から，現状の紹介や今後の可能性などご紹介差し上げました．</p>
@@ -222,9 +222,9 @@
   
   <entry>
     <title type="html"><![CDATA[QCon Tokyo 2013 講演のご報告]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013/"/>
     <updated>2013-04-25T00:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013</id>
+    <id>http://www.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013</id>
     <content type="html"><![CDATA[<p>2013年4月23日に開催されたQCon Tokyo 2013にて，monami-ya.mrbの開発者である邑中雅樹が，講演「mrubyの今，そして目指すもの」を行いました．</p>
 
 <p>当日は，機器組込みとエンタープライズコンピューティングを結ぶキーコンポーネントとして最近注目を集めている mruby について，ソースコードコミッターの立場から，現状の紹介や今後の可能性などご紹介差し上げました．</p>
@@ -238,27 +238,27 @@
   
   <entry>
     <title type="html"><![CDATA[Monami-ya.mrb サイトをオープンいたしました]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/04/19/site-open/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/04/19/site-open/"/>
     <updated>2013-04-19T18:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/04/19/site-open</id>
+    <id>http://www.monami-ya.jp/blog/2013/04/19/site-open</id>
     <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/">http://www.monami-ya.jp/</a> から，関連情報を分離いたしました．</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[「機器組込み向け軽量Rubyライブラリ」の製品情報を公開しました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/04/10/31/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/04/10/31/"/>
     <updated>2013-04-10T03:17:56+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/04/10/31</id>
+    <id>http://www.monami-ya.jp/blog/2013/04/10/31</id>
     <content type="html"><![CDATA[<p>機器組込み向け軽量Ruby ライブラリである<a href="http://www.monami-ya.jp/mruby">「monami-ya.mrb」の製品情報を当サイトにて公開</a>いたしました．</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Interface誌2013年5月号への記事寄稿について]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/03/26/29/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/03/26/29/"/>
     <updated>2013-03-26T01:54:42+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/03/26/29</id>
+    <id>http://www.monami-ya.jp/blog/2013/03/26/29</id>
     <content type="html"><![CDATA[<p>CQ出版(株)発行の月刊誌「Interface」2013年5月号(3月25日発行)に掲載の連載記事「基礎ほど奥深〜い！Cプログラミングの当たり前！？」にて「goto文って使っちゃダメなの? 構造化プログラミングの本当の意味合い」と称して，弊社代表の邑中が寄稿しております．</p>
 
 <p>書店等でお見かけの際は，ぜひお手にとってご一読ください．</p>
@@ -269,9 +269,9 @@
   
   <entry>
     <title type="html"><![CDATA[Interface誌2013年3月号への記事寄稿について]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/01/25/27/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/01/25/27/"/>
     <updated>2013-01-25T20:05:59+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/01/25/27</id>
+    <id>http://www.monami-ya.jp/blog/2013/01/25/27</id>
     <content type="html"><![CDATA[<p>CQ出版(株)発行の月刊誌「Interface」2013年3月号(2月25日発行)に掲載の連載記事「基礎ほど奥深〜い！Cプログラミングの当たり前！？」にて「エラーが出なくて見つけづらい！プリプロセッサが原因のバグ」と称して，弊社代表の邑中が寄稿しております．</p>
 
 <p>書店等でお見かけの際は，ぜひお手にとってご一読ください．</p>
@@ -282,18 +282,18 @@
   
   <entry>
     <title type="html"><![CDATA[Tech village に弊社代表によるmrubyの解説記事(後編)が掲載されました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2012/12/15/26/"/>
+    <link href="http://www.monami-ya.jp/blog/2012/12/15/26/"/>
     <updated>2012-12-15T20:03:14+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2012/12/15/26</id>
+    <id>http://www.monami-ya.jp/blog/2012/12/15/26</id>
     <content type="html"><![CDATA[<p><a href="http://www.kumikomi.net/">「組み込みネット」</a>に，弊社代表の邑中による解説記事<a href="http://www.kumikomi.net/archives/2012/12/ep17mrb3.php">「組み込みC言語プログラマのためのmruby入門（後編） ―― mrubyの組み込み方とJavaとの違い」</a>が掲載されました．</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[ソースコードリポジトリを移転いたしました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2012/12/07/24/"/>
+    <link href="http://www.monami-ya.jp/blog/2012/12/07/24/"/>
     <updated>2012-12-07T01:11:08+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2012/12/07/24</id>
+    <id>http://www.monami-ya.jp/blog/2012/12/07/24</id>
     <content type="html"><![CDATA[<p>PizzaFactory Express, PizzaFactory Express (CQ版), PizzaFactory for e2studio のソースコードは，合同会社もなみ屋が管理しておりましたが，この度，オープンソース部分を PizzaFactory チームに移管いたしました．</p>
 
 <p>合同会社もなみ屋は，PizzaFactoryチームへの協力と貢献を継続し，また PizzaFactory をベースにした製品展開やサポートサービスも継続いたします．</p>

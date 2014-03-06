@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Event | 合同会社もなみ屋]]></title>
-  <link href="http://products.monami-ya.jp/blog/categories/event/atom.xml" rel="self"/>
-  <link href="http://products.monami-ya.jp/"/>
-  <updated>2014-03-06T21:59:09+09:00</updated>
-  <id>http://products.monami-ya.jp/</id>
+  <link href="http://www.monami-ya.jp/blog/categories/event/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2014-03-06T22:11:21+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
     <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[QCon Tokyo 2013 講演のご報告]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013/"/>
     <updated>2013-04-25T00:00:00+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013</id>
+    <id>http://www.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013</id>
     <content type="html"><![CDATA[<p>2013年4月23日に開催されたQCon Tokyo 2013にて，monami-ya.mrbの開発者である邑中雅樹が，講演「mrubyの今，そして目指すもの」を行いました．</p>
 
 <p>当日は，機器組込みとエンタープライズコンピューティングを結ぶキーコンポーネントとして最近注目を集めている mruby について，ソースコードコミッターの立場から，現状の紹介や今後の可能性などご紹介差し上げました．</p>

@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: rpi-gpio | 合同会社もなみ屋]]></title>
-  <link href="http://products.monami-ya.jp/blog/categories/rpi-gpio/atom.xml" rel="self"/>
-  <link href="http://products.monami-ya.jp/"/>
-  <updated>2014-03-06T21:59:09+09:00</updated>
-  <id>http://products.monami-ya.jp/</id>
+  <link href="http://www.monami-ya.jp/blog/categories/rpi-gpio/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2014-03-06T22:11:21+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
     <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
@@ -15,18 +15,18 @@
   
   <entry>
     <title type="html"><![CDATA[「RaspberryPi対応GPIO変換基板キット」組み立て時の注意点]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/08/28/41/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/08/28/41/"/>
     <updated>2013-08-28T02:22:42+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/08/28/41</id>
+    <id>http://www.monami-ya.jp/blog/2013/08/28/41</id>
     <content type="html"><![CDATA[<p>「RaspberryPi対応GPIO変換基板キット」の組み立て時においては，CONN1のコネクタの向きにご注意ください．<a href="https://www.dropbox.com/sc/l77bzrrqyybv6tv/0wN8vWwhcv">リンク先にある写真</a> のように，基板外側にコネクタの切り欠きが向くようにしてください．</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[「RaspberryPi対応GPIO変換基板キット」の販売を開始いたしました．]]></title>
-    <link href="http://products.monami-ya.jp/blog/2013/08/28/40/"/>
+    <link href="http://www.monami-ya.jp/blog/2013/08/28/40/"/>
     <updated>2013-08-28T01:45:28+09:00</updated>
-    <id>http://products.monami-ya.jp/blog/2013/08/28/40</id>
+    <id>http://www.monami-ya.jp/blog/2013/08/28/40</id>
     <content type="html"><![CDATA[<p>圧倒的なコストパフォーマンスで大きな話題となっているRaspberry Piは，その拡張のためのGPIOが2列のピンヘッダとなっているため，ブレッドボードとの接続が難しく，ラピッドプロトタイピングの障壁となっていました．</p>
 
 <p>このたび，合同会社もなみ屋は，2x13ピンヘッダから1x26ピンに変換する基板を作成し，必要なケーブルやコネクタを同梱したキットを作成いたしました．
