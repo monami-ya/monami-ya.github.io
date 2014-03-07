@@ -4,7 +4,7 @@
   <title><![CDATA[Category: events | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/events/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-03-06T23:29:58+09:00</updated>
+  <updated>2014-03-07T14:27:57+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -35,6 +35,7 @@
     <updated>2012-10-13T19:35:26+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2012/10/13/16</id>
     <content type="html"><![CDATA[<p>2012年10月12日［金］に秋葉原コンベンションホール 5Fで開催されました「富士通セミコンダクターFM3ファミリ・マイコン開発技術セミナ」における弊社代表の邑中による講演プレゼンシート「オープンソース系ソフトウェアで構築するARMマイコン開発環境」を，<a href="http://www.slideshare.net/monaka/cq-tsefm3">slideshareにて公開</a>いたしました．</p>
+
 ]]></content>
   </entry>
   
@@ -58,13 +59,15 @@
 
 <p>また，期間中，下記のとおり，弊社代表の邑中が登壇いたします．</p>
 
-<p>Eclipse IDEを用いたRXマイコン開発
-: 【D-PS1】 9月8日（土） 10:00～10:45</p>
-
-<p>パネルディスカッション「組込み製品開発に“オープンソース”をどう生かすか」
-: 【D-PS3】 9月8日（土） 13:00～13:45</p>
+<dl>
+  <dt>Eclipse IDEを用いたRXマイコン開発</dt>
+  <dd>【D-PS1】 9月8日（土） 10:00～10:45</dd>
+  <dt>パネルディスカッション「組込み製品開発に“オープンソース”をどう生かすか」</dt>
+  <dd>【D-PS3】 9月8日（土） 13:00～13:45</dd>
+</dl>
 
 <p>参加は無料ですが，事前のお申し込みが必要です．詳細は，<a href="https://renesasevent.smktg.jp/public/application/add/31">登録サイト</a>にてご確認ください．</p>
+
 ]]></content>
   </entry>
   
@@ -76,6 +79,7 @@
     <content type="html"><![CDATA[<p>5月25日に開催予定の，CQ出版(株)主催の「ARM Cortex-M マイコン・ワークショップ2012」にて，弊社代表の邑中が「オープン・ソースで構築するARMマイコン開発環境」というタイトルで講演いたします．</p>
 
 <p>詳細につきましては，<a href="http://it.cqpub.co.jp/tse/201205ARM/">イベントの特設サイト</a>を御覧ください．</p>
+
 ]]></content>
   </entry>
   

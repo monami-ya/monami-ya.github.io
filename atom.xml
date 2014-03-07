@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-03-06T23:29:58+09:00</updated>
+  <updated>2014-03-07T14:27:57+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -24,10 +24,9 @@
 <p>使用できなくなるサービスは下記のとおりです．</p>
 
 <ul>
-<li>ヘルプデスクサービス Webインタフェース</li>
-<li>helpdesk.monami-ya.com へのメール送信</li>
+  <li>ヘルプデスクサービス Webインタフェース</li>
+  <li>helpdesk.monami-ya.com へのメール送信</li>
 </ul>
-
 
 <p>ご利用者の皆様にはご不便をお掛け致しますこと，お詫び申し上げます．</p>
 ]]></content>
@@ -47,16 +46,15 @@
 <p>弊社のヘルプデスクサービスは，以下の2つの機能を持ちます．</p>
 
 <ul>
-<li>弊社へのご質問(電子メール/FAX)と，その回答を蓄積するサポートデータベースとその Webフロントエンド</li>
-<li>ヘルプデスクが収集した情報から，お客様との同意を頂いた上で固有の情報を除き，広く閲覧可能にするFAQデータベース</li>
+  <li>弊社へのご質問(電子メール/FAX)と，その回答を蓄積するサポートデータベースとその Webフロントエンド</li>
+  <li>ヘルプデスクが収集した情報から，お客様との同意を頂いた上で固有の情報を除き，広く閲覧可能にするFAQデータベース</li>
 </ul>
-
 
 <p>ヘルプデスクの URL は下記のとおりです．</p>
 
 <p><a href="http://helpdesk.monami-ya.com/">http://helpdesk.monami-ya.com/</a></p>
 
-<h1>ご注意事項</h1>
+<h1 id="section">ご注意事項</h1>
 
 <p>本記事公開時点では，ヘルプデスクサービスはβ版です．
 現在，弊社とのサポート契約を締結されているお客様は，もうしばらくの間，現行システムをご利用ください．移行の時期は，別途ご連絡差し上げる予定です．</p>
@@ -89,13 +87,14 @@
 オープンソースライセンスが適用されないものも含まれます．
 成果物がダウンロード可能になっている場合でも，その取扱にはご注意ください．</p>
 
-<h4>2014年1月9日追記</h4>
-
-<blockquote><p>本サービスは，Microsoft社のスタートアップ向け支援プログラムBizSparkで提供された計算機資源を活用しています．
+<h4 id="section">2014年1月9日追記</h4>
+<blockquote>
+  <p>本サービスは，Microsoft社のスタートアップ向け支援プログラムBizSparkで提供された計算機資源を活用しています．
 本サービスは，開発作業の一環であり，弊社の主要業務であるオープンソースソフトウェアのサポートや受託開発とは関係がありません．
 (BizSparkは，Microsoft社が提供した計算機資源を，開発等以外の業務に活用することを禁止しています．)</p>
 
-<p>オープンソース・ソフトウェアに関し，弊社への業務委託をご希望の方は，弊社の<a href="http://www.monami-ya.jp/about_us">会社情報のページ</a>にある方法にてお問い合わせください．</p></blockquote>
+  <p>オープンソース・ソフトウェアに関し，弊社への業務委託をご希望の方は，弊社の<a href="http://www.monami-ya.jp/about_us">会社情報のページ</a>にある方法にてお問い合わせください．</p>
+</blockquote>
 ]]></content>
   </entry>
   
@@ -130,6 +129,7 @@
     <content type="html"><![CDATA[<p>Google Play Store で無償公開中の Android アプリケーション「<a href="https://play.google.com/store/apps/details?id=com.monami_ya.android.gpsfinder">GPS Finder</a>」のソースコードを<a href="http://support.monami-ya.com/gpsfinder/">オープンソース公開</a>いたしました．</p>
 
 <p>ソースツリーには，GPL3, APL2.0, Public domain のソースファイルが混在しています．再利用時には各ソースファイル冒頭のライセンス文言をご参照ください．</p>
+
 ]]></content>
   </entry>
   
@@ -147,6 +147,7 @@
 <p>また，TOPPERS/ASP学習教材に含まれていた， PizzaFactory3のインストーラバイナリは，<a href="http://www.pizzafactory.jp/pizzafactory3-edu-becomes-free-beer">PizzaFactory プロジェクトが無償公開</a>しております．</p>
 
 <p>組込みソフトウェアやリアルタイムシステムの学習に，是非お役立てください．</p>
+
 ]]></content>
   </entry>
   
@@ -164,18 +165,18 @@
     <link href="http://www.monami-ya.jp/blog/2013/05/06/35/"/>
     <updated>2013-05-06T07:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/05/06/35</id>
-    <content type="html"><![CDATA[<p>弊社製品直販ショップ Monami-ya Online Shop で販売中の，&#8221;PizzaFactory Tiny JTAG for Blackfin/Sharc&#8221; の本体価格が，下記の通り価格改定となりました．</p>
+    <content type="html"><![CDATA[<p>弊社製品直販ショップ Monami-ya Online Shop で販売中の，”PizzaFactory Tiny JTAG for Blackfin/Sharc” の本体価格が，下記の通り価格改定となりました．</p>
 
 <ul>
-<li>従来 : 14,000円</li>
-<li>新価格 : 5,000円</li>
+  <li>従来 : 14,000円</li>
+  <li>新価格 : 5,000円 </li>
 </ul>
-
 
 <p>Analog Devices社製各種評価ボードの他，金子システム社製 <a href="http://www.kaneko-sys.co.jp/shop/00001.html">ACB-BF592 基板</a>およびデバイスドライバーズ社製<a href="http://e-kit.jp/products/E!Kit-BF533/#BF533">E!KIT BF533</a>など各社評価ボードでもお使いいただけます．</p>
 
-<p>&ldquo;PizzaFactory Tiny JTAG for Blackfin/Sharc&#8221;は，<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">Amazon.co.jp にて購入可能</a>です．
+<p>“PizzaFactory Tiny JTAG for Blackfin/Sharc”は，<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">Amazon.co.jp にて購入可能</a>です．
 お住まいの地域によっては，お急ぎ便や当日お急ぎ便も可能となっております．</p>
+
 ]]></content>
   </entry>
   
@@ -201,6 +202,7 @@
 お急ぎの方は，ご契約内容をご確認ください．</p>
 
 <p>ご不便をお掛けいたしますが，宜しくお願い申し上げます．</p>
+
 ]]></content>
   </entry>
   
@@ -241,7 +243,7 @@
     <link href="http://www.monami-ya.jp/blog/2013/04/19/site-open/"/>
     <updated>2013-04-19T18:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/04/19/site-open</id>
-    <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/">http://www.monami-ya.jp/</a> から，関連情報を分離いたしました．</p>
+    <content type="html"><![CDATA[<p>http://www.monami-ya.jp/ から，関連情報を分離いたしました．</p>
 ]]></content>
   </entry>
   
@@ -263,7 +265,7 @@
 
 <p>書店等でお見かけの際は，ぜひお手にとってご一読ください．</p>
 
-<p><a href="http://www.amazon.co.jp/o/ASIN/B00BOTTRLY/monamiya-22"><img src="http://images-jp.amazon.com/images/P/B00BOTTRLY.09.MZZZZZZZ.jpg"></img></a></p>
+<p><a href="http://www.amazon.co.jp/o/ASIN/B00BOTTRLY/monamiya-22"><img src="http://images-jp.amazon.com/images/P/B00BOTTRLY.09.MZZZZZZZ.jpg" />&lt;/img&gt;</a></p>
 ]]></content>
   </entry>
   
@@ -276,7 +278,7 @@
 
 <p>書店等でお見かけの際は，ぜひお手にとってご一読ください．</p>
 
-<p><a href="http://www.amazon.co.jp/o/ASIN/B00AT1E7AO/monamiya-22"><img src="http://images-jp.amazon.com/images/P/B00AT1E7AO.09.MZZZZZZZ.jpg"></img></a></p>
+<p><a href="http://www.amazon.co.jp/o/ASIN/B00AT1E7AO/monamiya-22"><img src="http://images-jp.amazon.com/images/P/B00AT1E7AO.09.MZZZZZZZ.jpg" />&lt;/img&gt;</a></p>
 ]]></content>
   </entry>
   
@@ -299,7 +301,7 @@
 <p>合同会社もなみ屋は，PizzaFactoryチームへの協力と貢献を継続し，また PizzaFactory をベースにした製品展開やサポートサービスも継続いたします．</p>
 
 <p>新しいソースコードリポジトリは，bitbucket.org によりホスティングされます．
-PizzaFactory チームの URL は <a href="https://bitbucket.org/pizzafactory/">https://bitbucket.org/pizzafactory/</a> です．</p>
+PizzaFactory チームの URL は https://bitbucket.org/pizzafactory/ です．</p>
 ]]></content>
   </entry>
   

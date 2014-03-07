@@ -4,7 +4,7 @@
   <title><![CDATA[Category: products | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/products/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-03-06T23:29:58+09:00</updated>
+  <updated>2014-03-07T14:27:57+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -27,16 +27,15 @@
 <p>弊社のヘルプデスクサービスは，以下の2つの機能を持ちます．</p>
 
 <ul>
-<li>弊社へのご質問(電子メール/FAX)と，その回答を蓄積するサポートデータベースとその Webフロントエンド</li>
-<li>ヘルプデスクが収集した情報から，お客様との同意を頂いた上で固有の情報を除き，広く閲覧可能にするFAQデータベース</li>
+  <li>弊社へのご質問(電子メール/FAX)と，その回答を蓄積するサポートデータベースとその Webフロントエンド</li>
+  <li>ヘルプデスクが収集した情報から，お客様との同意を頂いた上で固有の情報を除き，広く閲覧可能にするFAQデータベース</li>
 </ul>
-
 
 <p>ヘルプデスクの URL は下記のとおりです．</p>
 
 <p><a href="http://helpdesk.monami-ya.com/">http://helpdesk.monami-ya.com/</a></p>
 
-<h1>ご注意事項</h1>
+<h1 id="section">ご注意事項</h1>
 
 <p>本記事公開時点では，ヘルプデスクサービスはβ版です．
 現在，弊社とのサポート契約を締結されているお客様は，もうしばらくの間，現行システムをご利用ください．移行の時期は，別途ご連絡差し上げる予定です．</p>
@@ -53,6 +52,7 @@
     <content type="html"><![CDATA[<p>Google Play Store で無償公開中の Android アプリケーション「<a href="https://play.google.com/store/apps/details?id=com.monami_ya.android.gpsfinder">GPS Finder</a>」のソースコードを<a href="http://support.monami-ya.com/gpsfinder/">オープンソース公開</a>いたしました．</p>
 
 <p>ソースツリーには，GPL3, APL2.0, Public domain のソースファイルが混在しています．再利用時には各ソースファイル冒頭のライセンス文言をご参照ください．</p>
+
 ]]></content>
   </entry>
   
@@ -70,6 +70,7 @@
 <p>また，TOPPERS/ASP学習教材に含まれていた， PizzaFactory3のインストーラバイナリは，<a href="http://www.pizzafactory.jp/pizzafactory3-edu-becomes-free-beer">PizzaFactory プロジェクトが無償公開</a>しております．</p>
 
 <p>組込みソフトウェアやリアルタイムシステムの学習に，是非お役立てください．</p>
+
 ]]></content>
   </entry>
   
@@ -78,18 +79,18 @@
     <link href="http://www.monami-ya.jp/blog/2013/05/06/35/"/>
     <updated>2013-05-06T07:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/05/06/35</id>
-    <content type="html"><![CDATA[<p>弊社製品直販ショップ Monami-ya Online Shop で販売中の，"PizzaFactory Tiny JTAG for Blackfin/Sharc" の本体価格が，下記の通り価格改定となりました．</p>
+    <content type="html"><![CDATA[<p>弊社製品直販ショップ Monami-ya Online Shop で販売中の，”PizzaFactory Tiny JTAG for Blackfin/Sharc” の本体価格が，下記の通り価格改定となりました．</p>
 
 <ul>
-<li>従来 : 14,000円</li>
-<li>新価格 : 5,000円</li>
+  <li>従来 : 14,000円</li>
+  <li>新価格 : 5,000円 </li>
 </ul>
-
 
 <p>Analog Devices社製各種評価ボードの他，金子システム社製 <a href="http://www.kaneko-sys.co.jp/shop/00001.html">ACB-BF592 基板</a>およびデバイスドライバーズ社製<a href="http://e-kit.jp/products/E!Kit-BF533/#BF533">E!KIT BF533</a>など各社評価ボードでもお使いいただけます．</p>
 
-<p>&ldquo;PizzaFactory Tiny JTAG for Blackfin/Sharc"は，<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">Amazon.co.jp にて購入可能</a>です．
+<p>“PizzaFactory Tiny JTAG for Blackfin/Sharc”は，<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">Amazon.co.jp にて購入可能</a>です．
 お住まいの地域によっては，お急ぎ便や当日お急ぎ便も可能となっております．</p>
+
 ]]></content>
   </entry>
   
@@ -102,6 +103,7 @@
 登録情報は，<a href="http://secure-alliance.renesas.com/jp/searchPartner.partner?action=profile&amp;userid=9678">ルネサス エレクトロニクス(株)のwebサイトに掲載</a>されております．</p>
 
 <p>弊社が開発環境統合開発環境ディストリビューション PizzaFactory を軸として，ルネサスエレクトロニクス社製のMPUを用いた製品開発の，お手伝いを今後も続けて参ります．</p>
+
 ]]></content>
   </entry>
   
