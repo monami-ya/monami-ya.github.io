@@ -4,7 +4,7 @@
   <title><![CDATA[Category: products | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/products/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-03-07T14:27:57+09:00</updated>
+  <updated>2014-03-14T13:18:49+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,19 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PizzaFactory Tiny JTAG for Blackfin/Sharc の活用事例のご紹介]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice/"/>
+    <updated>2014-03-14T13:02:02+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice</id>
+    <content type="html"><![CDATA[<p>ブログ「<a href="http://bfin.sakura.ne.jp/">DSP空挺団</a>」にて，酔漢様が<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a>を用いてADSP-BF592のデバッグを行うための留意点を<a href="http://bfin.sakura.ne.jp/?p=125">公開</a>なさっています．</p>
+
+<p>(リンク先にある「もなみ製ICE 刺身包丁」は，弊社取扱の「PizzaFactory Tiny JTAG for Blackfin/Sharc」の愛称です．)</p>
+
+<p><em>注) 本エントリは，弊社製品をご活用頂く際の参考としてご紹介するものです．弊社は，リンクにてご紹介差し上げたコンテンツの正確性について，一切の保証をいたしません．</em></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ヘルプデスクサービスを設置致しました．]]></title>
@@ -90,19 +103,6 @@
 
 <p>“PizzaFactory Tiny JTAG for Blackfin/Sharc”は，<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">Amazon.co.jp にて購入可能</a>です．
 お住まいの地域によっては，お急ぎ便や当日お急ぎ便も可能となっております．</p>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ルネサスアライアンプログラムに参加いたしました．]]></title>
-    <link href="http://www.monami-ya.jp/blog/2012/11/16/23/"/>
-    <updated>2012-11-16T22:03:45+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2012/11/16/23</id>
-    <content type="html"><![CDATA[<p>弊社(合同会社もなみ屋)は，ルネサス エレクトロニクス(株)で運営するマイコン(MCU)に関連するパートナー企業との連携プログラムである「ルネサスアライアンスプログラム」のパートナーとなりました．
-登録情報は，<a href="http://secure-alliance.renesas.com/jp/searchPartner.partner?action=profile&amp;userid=9678">ルネサス エレクトロニクス(株)のwebサイトに掲載</a>されております．</p>
-
-<p>弊社が開発環境統合開発環境ディストリビューション PizzaFactory を軸として，ルネサスエレクトロニクス社製のMPUを用いた製品開発の，お手伝いを今後も続けて参ります．</p>
 
 ]]></content>
   </entry>
