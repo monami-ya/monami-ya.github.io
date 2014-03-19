@@ -4,7 +4,7 @@
   <title><![CDATA[Category: product | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/product/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-03-19T13:12:37+09:00</updated>
+  <updated>2014-03-19T13:56:04+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -72,7 +72,7 @@
   </tbody>
 </table>
 
-<p><img src="/blog/2014/03/14/connection.jpg" alt="結線の様子" /></p>
+<p><img src="/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/connection.jpg" alt="結線の様子" /></p>
 
 <p>写真では間違いを避けるために，<a href="http://www.amazon.co.jp/o/ASIN/B00GN3YQK8/monamiya-22">変換基板</a>を用いています．
 しかしRaspberry Pi の P1端子とPF-JTAG とを直結しても問題はありません．</p>
@@ -137,7 +137,7 @@ openocd -f raspi2.cfg
 
 <p>sudo は不要です．</p>
 
-<p><img src="/blog/2014/03/14/openocd-start.png" alt="OpenOCD の起動ログ" /></p>
+<p><img src="/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/openocd-start.png" alt="OpenOCD の起動ログ" /></p>
 
 <h2 id="section-2">注意事項</h2>
 
