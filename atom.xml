@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-03-16T15:03:59+09:00</updated>
+  <updated>2014-03-19T12:42:57+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -187,6 +187,17 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
 <p>(リンク先にある「もなみ製ICE 刺身包丁」は，弊社取扱の「PizzaFactory Tiny JTAG for Blackfin/Sharc」の愛称です．)</p>
 
 <p><em>注) 本エントリは，弊社製品をご活用頂く際の参考としてご紹介するものです．弊社は，リンクにてご紹介差し上げたコンテンツの正確性について，一切の保証をいたしません．</em></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[代表電話ならびにFAXが停止しております]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/03/11/tel-fax-not-available/"/>
+    <updated>2014-03-11T16:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/03/11/tel-fax-not-available</id>
+    <content type="html"><![CDATA[<p>弊社契約の電話回線事業者の都合により，弊社代表電話ならびにFAXが繋がらなくなっております．
+新番号取得までの間は，<a href="http://helpdesk.monami-ya.com/contact/">お問い合わせフォーム</a>をご利用ください．
+ご不便をお掛けすることをお詫び申し上げます．</p>
 ]]></content>
   </entry>
   
@@ -443,19 +454,6 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
 <p>書店等でお見かけの際は，ぜひお手にとってご一読ください．</p>
 
 <p><a href="http://www.amazon.co.jp/o/ASIN/B00BOTTRLY/monamiya-22"><img src="http://images-jp.amazon.com/images/P/B00BOTTRLY.09.MZZZZZZZ.jpg" />&lt;/img&gt;</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Interface誌2013年3月号への記事寄稿について]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/01/25/27/"/>
-    <updated>2013-01-25T20:05:59+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/01/25/27</id>
-    <content type="html"><![CDATA[<p>CQ出版(株)発行の月刊誌「Interface」2013年3月号(2月25日発行)に掲載の連載記事「基礎ほど奥深〜い！Cプログラミングの当たり前！？」にて「エラーが出なくて見つけづらい！プリプロセッサが原因のバグ」と称して，弊社代表の邑中が寄稿しております．</p>
-
-<p>書店等でお見かけの際は，ぜひお手にとってご一読ください．</p>
-
-<p><a href="http://www.amazon.co.jp/o/ASIN/B00AT1E7AO/monamiya-22"><img src="http://images-jp.amazon.com/images/P/B00AT1E7AO.09.MZZZZZZZ.jpg" />&lt;/img&gt;</a></p>
 ]]></content>
   </entry>
   
