@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: RaspberryPi | 合同会社もなみ屋]]></title>
+  <link href="http://www.monami-ya.jp/blog/categories/raspberrypi/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2014-03-31T14:35:55+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
+  <author>
+    <name><![CDATA[Monami-ya LLC, Japan.]]></name>
+    <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[[教育用途限定:お試しモニタ募集] RaspberryPi対応GPIO変換基板キット]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/03/31/try-rpi-gpio/"/>
+    <updated>2014-03-31T14:35:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/03/31/try-rpi-gpio</id>
+    <content type="html"><![CDATA[<p>新学期となり，RaspberryPiを使った授業，クラブ活動，勉強会などの企画をなさる教育者の方々も多いかと思います．</p>
+
+<p>合同会社もなみ屋では，そのような教育者の方々の教材作成をお手伝いをいたしたく，弊社製品「RaspberryPi対応GPIO変換基板キット」を数量限定でプレゼントいたします．
+下記条件を満たす方で，弊社製品にご興味をお持ちの方は，ぜひご応募ください．</p>
+
+<h2 id="section">プレゼントの内容と当選人数</h2>
+
+<ul>
+  <li><a href="http://www.amazon.co.jp/o/ASIN/B00GN3YQK8/monamiya-22">Raspberry Pi対応GPIO変換基板キット (ケーブル無し)</a>  1セット</li>
+  <li><a href="http://www.amazon.co.jp/o/ASIN/B00F1MLOAW/monamiya-22">Raspberry Pi対応GPIOリボンケーブル(2x13)</a> 1セット</li>
+</ul>
+
+<p>各1セットずつ．5名．</p>
+
+<p>ただし，「RaspberryPi対応GPIO変換基板キット (ケーブル無し)」は，アウトレット品となります．
+(アウトレット品は，基板等に小キズ等が認められたものです．審美上の理由で正規品としておりませんが，機能上の不都合はございません．)</p>
+
+<p>プレゼントの送料は，弊社が負担いたします．</p>
+
+<h2 id="section-1">応募条件</h2>
+
+<p>下記条件の全てを満たすことが必要です．</p>
+
+<ul>
+  <li>弊社からプレゼントをお届け可能な，日本の住所をお持ちの方(職場でも結構です)</li>
+  <li>プレゼントを用いた授業，クラブ活動，勉強会などの教材を作成検討中の教育者の方
+  教員免許の有無等の資格は問いません．教育機関でなくても，職場や業界の勉強会でも結構です．
+  今回は，教育目的に限ります．開発用途でのご応募はご遠慮ください．</li>
+  <li>当選の際には，プレゼントお届け後 3ヶ月を目安に，400字程度の感想とプレゼントの活用に関する写真1枚をお寄せ頂き，弊社webページでの公開に同意頂ける方
+  公開の際，お名前やご所属については実名・匿名・ペンネームのいずれでも結構です．</li>
+</ul>
+
+<h2 id="section-2">応募の方法と期間</h2>
+
+<p>Googleドライブを用いた<a href="https://docs.google.com/a/monaka.org/forms/d/17k-JHDgEvwx8G602mtWDrQI7hAsaVEx1JGDnVDyr1vw/">応募フォームをご用意</a>いたしました．
+4月20日00:00(日本時間)締切といたします．</p>
+
+<h2 id="section-3">選考と結果の発表</h2>
+
+<p>応募者多数の場合には，抽選と致します．</p>
+
+<p>結果の発表は，応募フォームにご記入頂いたメールアドレス宛のEメールにてお知らせいたします．</p>
+
+]]></content>
+  </entry>
+  
+</feed>
