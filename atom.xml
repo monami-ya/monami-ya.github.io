@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-04-03T14:40:50+09:00</updated>
+  <updated>2014-04-03T15:43:31+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,23 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[代表電話番号が変更になりました。]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/04/03/phone-number-changed/"/>
+    <updated>2014-04-03T15:17:07+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/03/phone-number-changed</id>
+    <content type="html"><![CDATA[<p>弊社の代表電話番号が変更になりました。</p>
+
+<ul>
+  <li>旧番号 : 03-4550-0313</li>
+  <li>新番号 : 03-4588-8718</li>
+</ul>
+
+<p>なお FAX は廃止いたしました。
+図版が必要なご連絡につきましては電子メールにてお願い致します。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ossss Guidebook Released]]></title>
@@ -501,15 +518,6 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
 
 <p>今後も，機会のあるごとに，mrubyならびにmonami-ya.mrbの紹介解説を継続していく所存です．
 引き続きご注目ください．</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Monami-ya.mrb サイトをオープンいたしました]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/04/19/site-open/"/>
-    <updated>2013-04-19T18:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/04/19/site-open</id>
-    <content type="html"><![CDATA[<p>http://www.monami-ya.jp/ から，関連情報を分離いたしました．</p>
 ]]></content>
   </entry>
   
