@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-03-31T14:42:47+09:00</updated>
+  <updated>2014-04-03T14:40:50+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,33 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ossss Guidebook Released]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released/"/>
+    <updated>2014-04-03T00:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released</id>
+    <content type="html"><![CDATA[<p>弊社(合同会社もなみ屋)が提供しているオープンソースサポートサービス(OSSSS)の利用法について解説したガイドブック「OSSSSガイドブック」を電子書籍として作成いたしました。</p>
+
+<p>ガイドブックは，下記サイトから無償でダウンロード可能です。</p>
+
+<p>http://support.monami-ya.com/oss-support-guidebook/downloads</p>
+
+<p>再配布条件は，Creative Commons (CC BY-ND)としておりますので，改変しなければ自由に再配布して頂けます。</p>
+
+<p>初版の目次は下記のとおりです。</p>
+
+<blockquote>
+  <p>第 1 章 はじめに
+第 2 章 ヘルプデスクへのオンラインサインアップ
+第 3 章 弊社への OSSSS ライセンスコードの通知
+第 4 章 チケットの発行
+第 5 章 オープンソース・ソフトウェア サポートサービス約款</p>
+</blockquote>
+
+<p>是非ご一読頂き，弊社提供のオープンソースサポートサービスの導入をご検討ください。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[[教育用途限定:お試しモニタ募集] RaspberryPi対応GPIO変換基板キット]]></title>
@@ -483,15 +510,6 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
     <updated>2013-04-19T18:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/04/19/site-open</id>
     <content type="html"><![CDATA[<p>http://www.monami-ya.jp/ から，関連情報を分離いたしました．</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[「機器組込み向け軽量Rubyライブラリ」の製品情報を公開しました．]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/04/10/31/"/>
-    <updated>2013-04-10T03:17:56+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/04/10/31</id>
-    <content type="html"><![CDATA[<p>機器組込み向け軽量Ruby ライブラリである<a href="http://www.monami-ya.jp/mruby">「monami-ya.mrb」の製品情報を当サイトにて公開</a>いたしました．</p>
 ]]></content>
   </entry>
   
