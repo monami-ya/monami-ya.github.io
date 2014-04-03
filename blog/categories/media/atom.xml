@@ -4,7 +4,7 @@
   <title><![CDATA[Category: media | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/media/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-04-03T15:43:31+09:00</updated>
+  <updated>2014-04-04T08:33:11+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[OSSSSガイドブックがGoogle Booksに登録されました。]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books/"/>
+    <updated>2014-04-04T08:25:36+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books</id>
+    <content type="html"><![CDATA[<p>弊社オープンソースサポートサービスへの登録方法は活用方法を記した OSSSSガイドブックが<a href="http://books.google.co.jp/books?id=xCc-AwAAQBAJ">Google Booksに登録されました</a>。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Tech village に弊社代表によるmrubyのビルド環境に関する連載が，スタートいたしました．]]></title>
@@ -55,19 +64,6 @@
     <updated>2012-12-15T20:03:14+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2012/12/15/26</id>
     <content type="html"><![CDATA[<p><a href="http://www.kumikomi.net/">「組み込みネット」</a>に，弊社代表の邑中による解説記事<a href="http://www.kumikomi.net/archives/2012/12/ep17mrb3.php">「組み込みC言語プログラマのためのmruby入門（後編） ―― mrubyの組み込み方とJavaとの違い」</a>が掲載されました．</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Interface誌2013年1月号への記事寄稿について]]></title>
-    <link href="http://www.monami-ya.jp/blog/2012/11/25/25/"/>
-    <updated>2012-11-25T19:19:18+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2012/11/25/25</id>
-    <content type="html"><![CDATA[<p>CQ出版(株)発行の月刊誌「Interface」2013年1月号(12月25日発行)から，連載記事「基礎ほど奥深〜い！Cプログラミングの当たり前！？」が開始されました．第１回は「意外と制約の多い！識別子の名前の付け方」と称して，弊社代表の邑中が寄稿しております．</p>
-
-<p>書店等でお見かけの際は，ぜひお手にとってご一読ください．</p>
-
-<p><a href="http://www.amazon.co.jp/o/ASIN/B009YK3V7Q/monamiya-22"><img src="http://images-jp.amazon.com/images/P/B009YK3V7Q.09.MZZZZZZZ.jpg"></img></a></p>
 ]]></content>
   </entry>
   

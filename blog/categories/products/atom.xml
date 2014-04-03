@@ -4,7 +4,7 @@
   <title><![CDATA[Category: products | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/products/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-04-03T15:43:31+09:00</updated>
+  <updated>2014-04-04T08:33:11+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,33 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[オープンソースサポートサービスのガイドブックを作成いたしました。]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released/"/>
+    <updated>2014-04-03T14:28:22+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released</id>
+    <content type="html"><![CDATA[<p>弊社(合同会社もなみ屋)が提供しているオープンソースサポートサービス(OSSSS)の利用法について解説したガイドブック「OSSSSガイドブック」を電子書籍として作成いたしました。</p>
+
+<p>ガイドブックは，下記サイトから無償でダウンロード可能です。</p>
+
+<p>http://support.monami-ya.com/oss-support-guidebook/downloads</p>
+
+<p>再配布条件は，Creative Commons (CC BY-ND)としておりますので，改変しなければ自由に再配布して頂けます。</p>
+
+<p>初版の目次は下記のとおりです。</p>
+
+<blockquote>
+  <p>第 1 章 はじめに
+第 2 章 ヘルプデスクへのオンラインサインアップ
+第 3 章 弊社への OSSSS ライセンスコードの通知
+第 4 章 チケットの発行
+第 5 章 オープンソース・ソフトウェア サポートサービス約款</p>
+</blockquote>
+
+<p>是非ご一読頂き，弊社提供のオープンソースサポートサービスの導入をご検討ください。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[PizzaFactory Tiny JTAG for Blackfin/Sharc の活用事例のご紹介]]></title>
@@ -83,26 +110,6 @@
 <p>また，TOPPERS/ASP学習教材に含まれていた， PizzaFactory3のインストーラバイナリは，<a href="http://www.pizzafactory.jp/pizzafactory3-edu-becomes-free-beer">PizzaFactory プロジェクトが無償公開</a>しております．</p>
 
 <p>組込みソフトウェアやリアルタイムシステムの学習に，是非お役立てください．</p>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[値下げいたしました．"PizzaFactory Tiny JTAG for Blackfin/Sharc" ]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/05/06/35/"/>
-    <updated>2013-05-06T07:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/05/06/35</id>
-    <content type="html"><![CDATA[<p>弊社製品直販ショップ Monami-ya Online Shop で販売中の，”PizzaFactory Tiny JTAG for Blackfin/Sharc” の本体価格が，下記の通り価格改定となりました．</p>
-
-<ul>
-  <li>従来 : 14,000円</li>
-  <li>新価格 : 5,000円 </li>
-</ul>
-
-<p>Analog Devices社製各種評価ボードの他，金子システム社製 <a href="http://www.kaneko-sys.co.jp/shop/00001.html">ACB-BF592 基板</a>およびデバイスドライバーズ社製<a href="http://e-kit.jp/products/E!Kit-BF533/#BF533">E!KIT BF533</a>など各社評価ボードでもお使いいただけます．</p>
-
-<p>“PizzaFactory Tiny JTAG for Blackfin/Sharc”は，<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">Amazon.co.jp にて購入可能</a>です．
-お住まいの地域によっては，お急ぎ便や当日お急ぎ便も可能となっております．</p>
 
 ]]></content>
   </entry>
