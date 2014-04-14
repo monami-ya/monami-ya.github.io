@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-04-14T10:20:06+09:00</updated>
+  <updated>2014-04-14T15:51:54+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,24 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Amazonから購入可能になりました．]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon/"/>
+    <updated>2014-04-14T15:45:54+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon</id>
+    <content type="html"><![CDATA[<p>「オープンソース・ソフトウェア サポート・サービス」のライセンスコードが，Amazonから購入可能になりました．
+本日時点で下記のソフトウェアが対象となります．</p>
+
+<ul>
+  <li><a href="http://www.amazon.co.jp/o/ASIN/B00JO70KL4/monamiya-22">TOPPERS/JSP</a></li>
+  <li>[TOPPERS/FI4)(http://www.amazon.co.jp/o/ASIN/B00JO76DBU/monamiya-22)</li>
+  <li>[TOPPERS/HRP)(http://www.amazon.co.jp/o/ASIN/B00JO780HA/monamiya-22)</li>
+  <li><a href="http://www.amazon.co.jp/o/ASIN/B00JO791SM/monamiya-22">FatFsPro</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[OSSSSガイドブックがGoogle Booksに登録されました。]]></title>
@@ -495,22 +513,6 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
 
 <p>ご不便をお掛けいたしますが，宜しくお願い申し上げます．</p>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[QCon Tokyo 2013 講演のご報告]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/04/25/32/"/>
-    <updated>2013-04-25T09:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/04/25/32</id>
-    <content type="html"><![CDATA[<p>2013年4月23日に開催されたQCon Tokyo 2013にて，弊社代表である邑中雅樹が，講演「mrubyの今，そして目指すもの」を行いました．</p>
-
-<p>当日は，機器組込みとエンタープライズコンピューティングを結ぶキーコンポーネントとして最近注目を集めている mruby について，ソースコードコミッターの立場から，現状の紹介や今後の可能性などご紹介差し上げました．</p>
-
-<p>当日ご来場頂いた方々には，熱く御礼申し上げます．</p>
-
-<p>今後も，機会のあるごとに，mrubyならびにmonami-ya.mrbの紹介解説を継続していく所存です．
-引き続きご注目ください．</p>
 ]]></content>
   </entry>
   

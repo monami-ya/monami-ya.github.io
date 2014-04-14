@@ -4,7 +4,7 @@
   <title><![CDATA[Category: products | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/products/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-04-14T10:20:06+09:00</updated>
+  <updated>2014-04-14T15:51:54+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,24 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Amazonから購入可能になりました．]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon/"/>
+    <updated>2014-04-14T15:45:54+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon</id>
+    <content type="html"><![CDATA[<p>「オープンソース・ソフトウェア サポート・サービス」のライセンスコードが，Amazonから購入可能になりました．
+本日時点で下記のソフトウェアが対象となります．</p>
+
+<ul>
+  <li><a href="http://www.amazon.co.jp/o/ASIN/B00JO70KL4/monamiya-22">TOPPERS/JSP</a></li>
+  <li>[TOPPERS/FI4)(http://www.amazon.co.jp/o/ASIN/B00JO76DBU/monamiya-22)</li>
+  <li>[TOPPERS/HRP)(http://www.amazon.co.jp/o/ASIN/B00JO780HA/monamiya-22)</li>
+  <li><a href="http://www.amazon.co.jp/o/ASIN/B00JO791SM/monamiya-22">FatFsPro</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[オープンソースサポートサービスのガイドブックを作成いたしました。]]></title>
@@ -92,24 +110,6 @@
     <content type="html"><![CDATA[<p>Google Play Store で無償公開中の Android アプリケーション「<a href="https://play.google.com/store/apps/details?id=com.monami_ya.android.gpsfinder">GPS Finder</a>」のソースコードを<a href="http://support.monami-ya.com/gpsfinder/">オープンソース公開</a>いたしました．</p>
 
 <p>ソースツリーには，GPL3, APL2.0, Public domain のソースファイルが混在しています．再利用時には各ソースファイル冒頭のライセンス文言をご参照ください．</p>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[TOPPERS/ASP学習教材同梱のPizzaFactory3ユーザマニュアルを電子書籍として販売開始]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/05/16/37/"/>
-    <updated>2013-05-16T19:00:42+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/05/16/37</id>
-    <content type="html"><![CDATA[<p><a href="http://www.amazon.co.jp/o/ASIN/B004KV9Q82/monamiya-22">TOPPERS/ASP学習教材</a>は，各地の組込みセミナーの教材としてご好評頂いておりました，
-このたび，TOPPERS/ASP学習教材に同梱されおりました，「TOPPERS/ASP学習教材 / PizzaFactory3 Users Manual」の [Kindle版]が出版されました．<a href="http://www.amazon.co.jp/o/ASIN/B00CQNLIB4/monamiya-22">Amazon.co.jp</a> を始めとする，各国 Amazon サイトからご購入可能です．</p>
-
-<p>本版は，α版です．近日中出版予定の正式版はリフロー対応のePub形式となります．
-α版をご購入頂いた読者は，無償で正式版も入手頂けます．</p>
-
-<p>また，TOPPERS/ASP学習教材に含まれていた， PizzaFactory3のインストーラバイナリは，<a href="http://www.pizzafactory.jp/pizzafactory3-edu-becomes-free-beer">PizzaFactory プロジェクトが無償公開</a>しております．</p>
-
-<p>組込みソフトウェアやリアルタイムシステムの学習に，是非お役立てください．</p>
 
 ]]></content>
   </entry>
