@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-04-18T15:10:29+09:00</updated>
+  <updated>2014-05-24T13:43:27+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,29 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Movsign Map Redirect をβ版公開いたしました．]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/05/24/movsign-map-redirect-beta/"/>
+    <updated>2014-05-24T13:28:22+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/05/24/movsign-map-redirect-beta</id>
+    <content type="html"><![CDATA[<p>合同会社もなみ屋は，地図リンクに特化した短縮URLサービス「Movsign Map Redirect」をβリリースいたしました．
+正式リリースまで，機能制限なくお使いいただけます．</p>
+
+<p>Movsign Map Redirect は，登録ユーザが望む緯度・経度情報と一意に対応する短縮URLを発行し保持する機能を提供します．
+発行された短縮URLは，非登録ユーザでも参照が可能であり，またそのURLの参照を Google Analytics により解析させることが可能です．</p>
+
+<p>Movsign Map Redirect を活用することにより，印刷物(QRコード等)やNFCタグといった offline デバイスから，スマートフォンなどで参照できる online 地図サービスへの導線を確保し，また，その効果を測定することが可能となります．</p>
+
+<h2 id="section">応用例</h2>
+
+<p>地域観光を紹介するコンテンツの電子化は進んでおりますが，バッテリー容量の制約などから，いまだに印刷物への需要も根強いものがあります．</p>
+
+<p>合同会社もなみ屋は，観光とITとの融合を試みている自治体等に対して，本ソリューションを広く提供していく予定です．</p>
+
+<p>Webサイト: http://mapr.movsign.info/</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Amazonから購入可能になりました．]]></title>
@@ -497,22 +520,6 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
     <id>http://www.monami-ya.jp/blog/2013/04/27/33</id>
     <content type="html"><![CDATA[<p><a href="http://www.kumikomi.net/">「組み込みネット」</a>に，弊社代表の邑中による解説記事「mruby組み込み活用テクニック」の連載が始まっています．
 初回は<a href="http://www.kumikomi.net/archives/2013/04/ep05rak1.php">「mrubyのビルド・ツールRakeを知る」</a>と称して，Ruby言語の知識が必要とされるRakeビルドツールを，Ruby言語に詳しくない組み込みエンジニアの方々にもご理解頂けるよう留意した解説となっています．</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[2013年5月連休中の営業について]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/04/26/34/"/>
-    <updated>2013-04-26T09:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/04/26/34</id>
-    <content type="html"><![CDATA[<p>5月の連休につきましては，4月27日から5月6日まで，本社休日と致します．
-当該期間中，お問い合わせに滞りが生じる可能性につきまして，ご容赦ください．</p>
-
-<p>なお，PizzaFactory のサポート体制につきましては，上記スケジュールとは別途に，ご契約に応じて，最短翌営業日内返信を継続しております．
-お急ぎの方は，ご契約内容をご確認ください．</p>
-
-<p>ご不便をお掛けいたしますが，宜しくお願い申し上げます．</p>
-
 ]]></content>
   </entry>
   
