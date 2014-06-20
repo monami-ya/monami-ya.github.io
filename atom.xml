@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-06-18T11:49:32+09:00</updated>
+  <updated>2014-06-20T12:03:51+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[monami-ya.mrb の製品情報を更新いたしました。]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb/"/>
+    <updated>2014-06-18T11:48:01+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb</id>
+    <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/product/monami-ya.mrb/about/index.html">monami-ya.mrb の製品情報</a>を更新いたしました。
+この度の更新により，monami-ya.mrb のソースツリーはオープンソース版のみとなりました。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Movsign Map Redirect をβ版公開いたしました．]]></title>
@@ -510,16 +520,6 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
 <p>“PizzaFactory Tiny JTAG for Blackfin/Sharc”は，<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">Amazon.co.jp にて購入可能</a>です．
 お住まいの地域によっては，お急ぎ便や当日お急ぎ便も可能となっております．</p>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tech village に弊社代表によるmrubyのビルド環境に関する連載が，スタートいたしました．]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/04/27/33/"/>
-    <updated>2013-04-27T20:50:11+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/04/27/33</id>
-    <content type="html"><![CDATA[<p><a href="http://www.kumikomi.net/">「組み込みネット」</a>に，弊社代表の邑中による解説記事「mruby組み込み活用テクニック」の連載が始まっています．
-初回は<a href="http://www.kumikomi.net/archives/2013/04/ep05rak1.php">「mrubyのビルド・ツールRakeを知る」</a>と称して，Ruby言語の知識が必要とされるRakeビルドツールを，Ruby言語に詳しくない組み込みエンジニアの方々にもご理解頂けるよう留意した解説となっています．</p>
 ]]></content>
   </entry>
   
