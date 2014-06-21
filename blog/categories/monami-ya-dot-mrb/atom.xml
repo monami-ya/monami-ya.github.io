@@ -4,7 +4,7 @@
   <title><![CDATA[Category: monami-ya.mrb | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/monami-ya-dot-mrb/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-06-20T12:03:51+09:00</updated>
+  <updated>2014-06-21T13:05:01+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -14,12 +14,39 @@
 
   
   <entry>
+    <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/"/>
+    <updated>2014-06-21T12:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support</id>
+    <content type="html"><![CDATA[<h2 id="section">概要</h2>
+<p>2014年6月21日以降、monami-ya.mrb は、TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。
+詳細につきましては、TOPPERS/JSP カーネルの<a href="/service/toppers-jsp/">オープンソースサポートサービス</a> のページをご参照ください。</p>
+
+<p>2014年6月20日以前に monami-ya.mrb のオープンソースサポートサービスを締結された方は、自動的に TOPPERS/JSP カーネルのオープンソースサポートサービスが追加されます。</p>
+
+<h2 id="sla-">適用される SLA の詳細</h2>
+
+<p>今回のサービス統合により、monami-ya.mrb のオープンソースサポートサービスのサービスレベルアグリーメント(SLA)は、[TOPPERS/JSP に対するもの]と同一となります。</p>
+
+<h2 id="section-1">今回の統合によるお客様へのメリット</h2>
+
+<p>この統合により、monami-ya.mrb の導入をご検討なさっている開発者の方々は、static thread binding の機能に対する技術サポートをより低コストで享受することができます。</p>
+
+<p>また、従来から TOPPERS/JSP カーネルのオープンソースサポートサービスをご利用の開発者の方々は、より先進的な開発環境である monami-ya.mrb の技術サポートを、追加の費用を弊社にお支払い戴くことなく、受けることができます。</p>
+
+<h2 id="section-2">導入ご検討中の皆様への追加情報</h2>
+
+<p>TOPPERS/JSP カーネルのオープンソースサポートサービスの開始に必要な『オープンソースサポートサービス・スタートパック(TOPPERS/JSP)』は、弊社直販のほか、<a href="http://www.amazon.co.jp/o/ASIN/B00JO70KL4/monamiya-22">Amazon.co.jp</a>から購入可能です。</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[monami-ya.mrb の製品情報を更新いたしました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb/"/>
     <updated>2014-06-18T11:48:01+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb</id>
     <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/product/monami-ya.mrb/about/index.html">monami-ya.mrb の製品情報</a>を更新いたしました。
-この度の更新により，monami-ya.mrb のソースツリーはオープンソース版のみとなりました。</p>
+この度の更新により、monami-ya.mrb のソースツリーはオープンソース版のみとなりました。</p>
 ]]></content>
   </entry>
   
@@ -28,7 +55,7 @@
     <link href="http://www.monami-ya.jp/blog/2013/05/08/coverage/"/>
     <updated>2013-05-08T01:05:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/05/08/coverage</id>
-    <content type="html"><![CDATA[<p>本エントリ発信時点の，monami-ya.mrb のソースレベルカバレッジ結果を<a href="http://mrb.monami-ya.jp/lcov/monami-ya.mrb/develop/2013-05-08/">公開</a>いたします．</p>
+    <content type="html"><![CDATA[<p>本エントリ発信時点の、monami-ya.mrb のソースレベルカバレッジ結果を<a href="http://mrb.monami-ya.jp/lcov/monami-ya.mrb/develop/2013-05-08/">公開</a>いたします。</p>
 ]]></content>
   </entry>
   
@@ -37,14 +64,14 @@
     <link href="http://www.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013/"/>
     <updated>2013-04-25T00:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013</id>
-    <content type="html"><![CDATA[<p>2013年4月23日に開催されたQCon Tokyo 2013にて，monami-ya.mrbの開発者である邑中雅樹が，講演「mrubyの今，そして目指すもの」を行いました．</p>
+    <content type="html"><![CDATA[<p>2013年4月23日に開催されたQCon Tokyo 2013にて、monami-ya.mrbの開発者である邑中雅樹が，講演「mrubyの今，そして目指すもの」を行いました。</p>
 
-<p>当日は，機器組込みとエンタープライズコンピューティングを結ぶキーコンポーネントとして最近注目を集めている mruby について，ソースコードコミッターの立場から，現状の紹介や今後の可能性などご紹介差し上げました．</p>
+<p>当日は、機器組込みとエンタープライズコンピューティングを結ぶキーコンポーネントとして最近注目を集めている mruby について，ソースコードコミッターの立場から，現状の紹介や今後の可能性などご紹介差し上げました。</p>
 
-<p>当日ご来場頂いた方々には，熱く御礼申し上げます．</p>
+<p>当日ご来場頂いた方々には、熱く御礼申し上げます。</p>
 
-<p>今後も，機会のあるごとに，mrubyならびにmonami-ya.mrbの紹介解説を継続していく所存です．
-引き続きご注目ください．</p>
+<p>今後も、機会のあるごとに，mrubyならびにmonami-ya.mrbの紹介解説を継続していく所存です。
+引き続きご注目ください。</p>
 ]]></content>
   </entry>
   
@@ -53,7 +80,7 @@
     <link href="http://www.monami-ya.jp/blog/2013/04/19/site-open/"/>
     <updated>2013-04-19T18:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/04/19/site-open</id>
-    <content type="html"><![CDATA[<p>http://www.monami-ya.jp/ から，関連情報を分離いたしました．</p>
+    <content type="html"><![CDATA[<p>http://www.monami-ya.jp/ から、関連情報を分離いたしました。</p>
 ]]></content>
   </entry>
   

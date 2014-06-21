@@ -4,7 +4,7 @@
   <title><![CDATA[Category: product | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/product/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-06-20T12:03:51+09:00</updated>
+  <updated>2014-06-21T13:05:01+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -18,22 +18,22 @@
     <link href="http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/"/>
     <updated>2014-03-14T13:14:48+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice</id>
-    <content type="html"><![CDATA[<p><a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a> (以下，PF-JTAG)はアナログ・デバイセズ社の文書EE-68に準拠したデバッグコネクタとなっています．</p>
+    <content type="html"><![CDATA[<p><a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a> (以下、PF-JTAG)はアナログ・デバイセズ社の文書EE-68に準拠したデバッグコネクタとなっています。</p>
 
-<p>しかしながら，JTAG は IEEE 1149.1 という標準規格に基づくものですので，信号電圧等合致すれば，セミコンダクタメーカの別を問わずに接続できます．</p>
+<p>しかしながら、JTAG は IEEE 1149.1 という標準規格に基づくものですので，信号電圧等合致すれば，セミコンダクタメーカの別を問わずに接続できます。</p>
 
-<p>一例として，PF-JTAG と Raspberry Pi ボードを繋ぎ，Linux 上から OpenOCD で接続する方法を概説します．</p>
+<p>一例として、PF-JTAG と Raspberry Pi ボードを繋ぎ，Linux 上から OpenOCD で接続する方法を概説します。</p>
 
 <h2 id="section">バージョン等</h2>
 
-<p>本稿で用いた Raspberry Pi ボードのリビジョンは 2 です．
-リビジョン 1 ボードは，JTAG 関連のピン配置が異なりますので，本稿のとおりには動きません．</p>
+<p>本稿で用いた Raspberry Pi ボードのリビジョンは 2 です。
+リビジョン 1 ボードは、JTAG 関連のピン配置が異なりますので，本稿のとおりには動きません。</p>
 
-<p>Linux は Ubuntu Linux 12.0.4.4 LTS を用いています．</p>
+<p>Linux は Ubuntu Linux 12.0.4.4 LTS を用いています。</p>
 
 <h2 id="section-1">結線</h2>
 
-<p>下表のように結線します．</p>
+<p>下表のように結線します。</p>
 
 <table>
   <thead>
@@ -74,14 +74,14 @@
 
 <p><img src="/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/connection.jpg" alt="結線の様子" /></p>
 
-<p>写真では間違いを避けるために，<a href="http://www.amazon.co.jp/o/ASIN/B00GN3YQK8/monamiya-22">変換基板</a>を用いています．
-しかしRaspberry Pi の P1端子とPF-JTAG とを直結しても問題はありません．</p>
+<p>写真では間違いを避けるために、<a href="http://www.amazon.co.jp/o/ASIN/B00GN3YQK8/monamiya-22">変換基板</a>を用いています。
+しかしRaspberry Pi の P1端子とPF-JTAG とを直結しても問題はありません。</p>
 
 <h2 id="openocd-">OpenOCD のインストール</h2>
 
-<p>Ubuntu Linux は，apt のリポジトリに OpenOCD が存在します．
-PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは libftdi を用います．
-よって，OpenOCD は，下記のようにしてインストールが可能です．</p>
+<p>Ubuntu Linux は、apt のリポジトリに OpenOCD が存在します。
+PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは libftdi を用います。
+よって、OpenOCD は，下記のようにしてインストールが可能です。</p>
 
 <p><code>
 sudo apt-get install openocd libftdi1
@@ -89,7 +89,7 @@ sudo apt-get install openocd libftdi1
 
 <h2 id="openocd--1">OpenOCD に与えるコンフィグレーションファイル</h2>
 
-<p>下記リストのようになります．</p>
+<p>下記リストのようになります。</p>
 
 <p>```
 interface ft2232
@@ -129,20 +129,20 @@ jtag newtap $_CHIPNAME arm -irlen 5 -expected-id $_CPU_TAPID</p>
 target create $_TARGETNAME arm11 -chain-position $_TARGETNAME
 ```</p>
 
-<p>このリストを，例えば raspi.cfg として保存し，下記のようにして openocd を起動します．</p>
+<p>このリストを、例えば raspi.cfg として保存し，下記のようにして openocd を起動します。</p>
 
 <p><code>
 openocd -f raspi2.cfg
 </code></p>
 
-<p>sudo は不要です．</p>
+<p>sudo は不要です。</p>
 
 <p><img src="/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/openocd-start.png" alt="OpenOCD の起動ログ" /></p>
 
 <h2 id="section-2">注意事項</h2>
 
-<p><em>本稿は，参考情報として掲示しております．
-本稿を参照して作業をなさったことに起因して，お客様にいかなる損失が発生しても，弊社は責を負いません．</em></p>
+<p><em>本稿は、参考情報として掲示しております。
+本稿を参照して作業をなさったことに起因して、お客様にいかなる損失が発生しても，弊社は責を負いません。</em></p>
 ]]></content>
   </entry>
   

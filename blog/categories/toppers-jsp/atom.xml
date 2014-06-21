@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: toppers-jsp | 合同会社もなみ屋]]></title>
+  <link href="http://www.monami-ya.jp/blog/categories/toppers-jsp/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2014-06-21T13:05:01+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
+  <author>
+    <name><![CDATA[Monami-ya LLC, Japan.]]></name>
+    <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/"/>
+    <updated>2014-06-21T12:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support</id>
+    <content type="html"><![CDATA[<h2 id="section">概要</h2>
+<p>2014年6月21日以降、monami-ya.mrb は、TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。
+詳細につきましては、TOPPERS/JSP カーネルの<a href="/service/toppers-jsp/">オープンソースサポートサービス</a> のページをご参照ください。</p>
+
+<p>2014年6月20日以前に monami-ya.mrb のオープンソースサポートサービスを締結された方は、自動的に TOPPERS/JSP カーネルのオープンソースサポートサービスが追加されます。</p>
+
+<h2 id="sla-">適用される SLA の詳細</h2>
+
+<p>今回のサービス統合により、monami-ya.mrb のオープンソースサポートサービスのサービスレベルアグリーメント(SLA)は、[TOPPERS/JSP に対するもの]と同一となります。</p>
+
+<h2 id="section-1">今回の統合によるお客様へのメリット</h2>
+
+<p>この統合により、monami-ya.mrb の導入をご検討なさっている開発者の方々は、static thread binding の機能に対する技術サポートをより低コストで享受することができます。</p>
+
+<p>また、従来から TOPPERS/JSP カーネルのオープンソースサポートサービスをご利用の開発者の方々は、より先進的な開発環境である monami-ya.mrb の技術サポートを、追加の費用を弊社にお支払い戴くことなく、受けることができます。</p>
+
+<h2 id="section-2">導入ご検討中の皆様への追加情報</h2>
+
+<p>TOPPERS/JSP カーネルのオープンソースサポートサービスの開始に必要な『オープンソースサポートサービス・スタートパック(TOPPERS/JSP)』は、弊社直販のほか、<a href="http://www.amazon.co.jp/o/ASIN/B00JO70KL4/monamiya-22">Amazon.co.jp</a>から購入可能です。</p>
+]]></content>
+  </entry>
+  
+</feed>

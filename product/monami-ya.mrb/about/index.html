@@ -123,104 +123,108 @@
         </header>
       
       <div class="entry-content">
-        <p>「monami-ya.mrb」(もなみ や えむあーるびー)は，軽量Ruby言語処理系である mruby に対して，機器組込み向けの拡張を行ったディストリビューションパッケージです．</p>
+        <p>「monami-ya.mrb」(もなみ や えむあーるびー)は、軽量Ruby言語処理系である mruby に対して，機器組込み向けの拡張を行ったディストリビューションパッケージです。</p>
 
 <h2 id="ruby">機器組み込みに最適化された軽量Rubyを低コストで実現</h2>
 
-<p>monami-ya.mrb は bitbucket.org 上のホスティングサービスを用いて公開されており，どなたでもダウンロード可能です．
-また，オープンソースライセンスに基づく再配布条件の範囲で，自由な再配布や機器組込みが可能です．</p>
+<p>monami-ya.mrb は bitbucket.org 上のホスティングサービスを用いて公開されており、どなたでもダウンロード可能です。
+また、オープンソースライセンスに基づく再配布条件の範囲で，自由な再配布や機器組込みが可能です。</p>
 
 <p><a href="https://bitbucket.org/monami_ya_mrb/monami-ya.mrb/">https://bitbucket.org/monami_ya_mrb/monami-ya.mrb/</a></p>
 
 <h2 id="monami-yamrb-">monami-ya.mrb の特徴</h2>
 
-<p>monami-ya.mrb では，github.com 上のホスティングサービスで開発が行われている公式リリースのmruby(以下，mrubyと略記)に対して，下記のような，機器組込み向けの拡張を行なっております．</p>
+<p>monami-ya.mrb では、github.com 上のホスティングサービスで開発が行われている公式リリースのmruby(以下，mrubyと略記)に対して，下記のような，機器組込み向けの拡張を行なっております。</p>
 
-<p>拡張は，RiteVM (mruby のバイトコード処理系)，Rakefile (mruby のビルドスクリプト)，RTOS との統合など，多岐にわたります．
-それぞれについて，概略を示します．</p>
+<p>拡張は、RiteVM (mruby のバイトコード処理系)，Rakefile (mruby のビルドスクリプト)，RTOS との統合など，多岐にわたります。
+それぞれについて、概略を示します。</p>
 
-<h3 id="section">機器組み込みを想定した，独自のエラー処理</h3>
+<h3 id="section">機器組み込みを想定した、独自のエラー処理</h3>
 
-<p>mruby では，メモリ枯渇に対する処理が甘く，不定動作に対して厳しい機器組み込み開発での応用は難しいと，弊社では考えました．
-そこで，独自のエラー処理フレームワークを追加しています．
-エラー処理に関する，主な拡張機能は，下記のとおりです．</p>
+<p>mruby では、メモリ枯渇に対する処理が甘く，不定動作に対して厳しい機器組み込み開発での応用は難しいと，弊社では考えました。
+そこで、独自のエラー処理フレームワークを追加しています。
+エラー処理に関する、主な拡張機能は，下記のとおりです。</p>
 
 <ul>
   <li>設計時想定以上のスタック使用に対する早期の例外送出</li>
   <li>副作用が予想される極度のメモリ枯渇時の実行停止</li>
   <li>エラー時のログ出力先のカスタマイズ</li>
-  <li>C言語API用のテストフレームワークによる，テスト環境の利便性向上</li>
+  <li>C言語API用のテストフレームワークによる、テスト環境の利便性向上</li>
 </ul>
 
 <h3 id="section-1">メモリアロケータの改善による省メモリ環境対応</h3>
 
-<p>mruby では，メモリアロケータは libc が提供する malloc を用いることが想定されています．
-libc が提供する malloc をそのまま mruby で使う場合は，下記のような問題が指摘されています．</p>
+<p>mruby では、メモリアロケータは libc が提供する malloc を用いることが想定されています。
+libc が提供する malloc をそのまま mruby で使う場合は、下記のような問題が指摘されています。</p>
 
 <ul>
   <li>実装毎の性能差が大きい</li>
-  <li>少量のメモリチャンクを頻繁に取得するため，メモリフラグメントを起こしやすく性能低下を招きやすい</li>
-  <li>ジャイアントロックがかかる実装があり，複数の RiteVM 実行環境を持てる mruby のメリットを発揮しづらい</li>
-  <li>特定の RiteVM 実行環境がメモリを大量に取得することにより，システムに存在する全ての RiteVM がメモリ枯渇を起こす</li>
+  <li>少量のメモリチャンクを頻繁に取得するため、メモリフラグメントを起こしやすく性能低下を招きやすい</li>
+  <li>ジャイアントロックがかかる実装があり、複数の RiteVM 実行環境を持てる mruby のメリットを発揮しづらい</li>
+  <li>特定の RiteVM 実行環境がメモリを大量に取得することにより、システムに存在する全ての RiteVM がメモリ枯渇を起こす</li>
 </ul>
 
-<p>monami-ya.mrb では，メモリアロケータの改善により，機器組み込みシステムの特徴である省メモリ環境に対応させました．
-メモリアロケータに関する，主な拡張機能は，下記のとおりです．</p>
+<p>monami-ya.mrb では、メモリアロケータの改善により，機器組み込みシステムの特徴である省メモリ環境に対応させました。
+メモリアロケータに関する、主な拡張機能は，下記のとおりです。</p>
 
 <ul>
-  <li>メモリフラグメントを起こしづらい TLSF メモリアロケータを，処理系に統合しました．</li>
-  <li>システム上に複数存在しうる RiteVM 実行環境毎に，使用可能なヒープメモリを設定可能としました．</li>
-  <li>RiteVM 実行環境自身の生成を除き，malloc 時のロックが起きない実装となっています．</li>
+  <li>メモリフラグメントを起こしづらい TLSF メモリアロケータを、処理系に統合しました。</li>
+  <li>システム上に複数存在しうる RiteVM 実行環境毎に、使用可能なヒープメモリを設定可能としました。</li>
+  <li>RiteVM 実行環境自身の生成を除き、malloc 時のロックが起きない実装となっています。</li>
 </ul>
 
-<p>また，mruby との下位互換性確保のため，libc が提供する malloc との併用も可能となっています．</p>
+<p>また、mruby との下位互換性確保のため，libc が提供する malloc との併用も可能となっています。</p>
 
 <h4 id="baisokuorg--tlsf-">安定性能に定評のある baisoku.org 版 TLSF の採用</h4>
 
-<p>TLSF メモリアロケータの実装として，baisoku.org 版を採用しています．
-u-boot ブートローダなどベアメタルでの動作を行うオープンソースでの採用実績が豊富で，安定性能に定評があります．</p>
+<p>TLSF メモリアロケータの実装として、baisoku.org 版を採用しています。
+u-boot ブートローダなどベアメタルでの動作を行うオープンソースでの採用実績が豊富で、安定性能に定評があります。</p>
 
 <h4 id="section-2">パブリックドメインライセンス</h4>
 
-<p>TLSF メモリアロケータは，ブリックドメインライセンスでの再配布が認められています．
-mruby のコードとのライセンス矛盾はなく，機器組み込み時のソースコード開示義務もありません．</p>
+<p>TLSF メモリアロケータは、ブリックドメインライセンスでの再配布が認められています。
+mruby のコードとのライセンス矛盾はなく、機器組み込み時のソースコード開示義務もありません。</p>
 
 <h3 id="mrbgems--sandbox-">mrbgems の sandbox 内実行</h3>
 
-<p>mrbgems は，mruby の機能拡張を容易にする，優れたプラグインシステムです．
-しかしながら，同一システム上の，全ての RiteVM の実行環境で同じ mrbgems が使用可能になるため，メモリ効率やセキュリティ面で設計が難しいものとなっていました．</p>
+<p>mrbgems は、mruby の機能拡張を容易にする，優れたプラグインシステムです。
+しかしながら、同一システム上の，全ての RiteVM の実行環境で同じ mrbgems が使用可能になるため，メモリ効率やセキュリティ面で設計が難しいものとなっていました。</p>
 
-<p>monami-ya.mrb では，RiteVM 実行環境毎に，sandbox (砂箱)を設定できます．
-sandbox の指定は，ビルドスクリプト中で静的に行います．
-実行時に sandbox の設定を変更することはできないため，セキュリティリスクの低減が望めます．</p>
+<p>monami-ya.mrb では、RiteVM 実行環境毎に，sandbox (砂箱)を設定できます。
+sandbox の指定は、ビルドスクリプト中で静的に行います。
+実行時に sandbox の設定を変更することはできないため、セキュリティリスクの低減が望めます。</p>
 
 <h4 id="sandbox-">sandbox の使用例</h4>
 
-<p>例えば，ハードウェアにアクセスする処理を 特定の RiteVM 実行環境にのみ許可することで，
-ユーザアプリケーションからの予期せぬハードウェアアクセスというリスクを軽減することができます．</p>
+<p>例えば、ハードウェアにアクセスする処理を 特定の RiteVM 実行環境にのみ許可することで，
+ユーザアプリケーションからの予期せぬハードウェアアクセスというリスクを軽減することができます。</p>
 
 <h3 id="static-thread-binding--rtos-">static thread binding による RTOS サポート</h3>
 
-<p>mruby が動作する規模の組み込みソフトウェアでは，ベアメタルの場合でも RTOS のサポートがあり，
-マルチスレッド実行や，割り込みハンドラの記述等ができるものが多いと思われます．</p>
+<p>mruby が動作する規模の組み込みソフトウェアでは、ベアメタルの場合でも RTOS のサポートがあり，
+マルチスレッド実行や、割り込みハンドラの記述等ができるものが多いと思われます。</p>
 
-<p>しかしながら，mruby は，言語レベルでのマルチスレッドのサポートを行っていません．</p>
+<p>しかしながら、mruby は，言語レベルでのマルチスレッドのサポートを行っていません。</p>
 
-<p>monami-ya.mrb では，RTOS のスレッドと RiteVM 実行環境とを 1対1 に対応させるために，
-static thread binding という機構を用意しています．</p>
+<p>monami-ya.mrb では、RTOS のスレッドと RiteVM 実行環境とを 1対1 に対応させるために，
+static thread binding という機構を用意しています。</p>
 
-<p>static thread binding に対応した RTOS では，RTOS 固有の設定ファイルや初期化ルーチンを，
-monami-ya.mrb のビルドスクリプトが自動生成します．
-RTOS に依存するコードに悩まされることが無くなります．</p>
+<p>static thread binding に対応した RTOS では、RTOS 固有の設定ファイルや初期化ルーチンを，
+monami-ya.mrb のビルドスクリプトが自動生成します。
+RTOS に依存するコードに悩まされることが無くなります。</p>
 
 <h2 id="section-3">サポート</h2>
 
-<p>monami-ya.mrb の導入をお考えのお客様に，技術サポートを提供いたします．
-詳細につきましては，<a href="/service/monami-ya.mrb">オープンソースサポートサービス</a> のページをご参照ください．</p>
+<p>monami-ya.mrb の導入をお考えのお客様に、技術サポートを提供いたします。</p>
 
-<p>また，お客様の環境に合わせたカスタマイズの受託も可能です．
-(特定ボードへの移植，GCC以外のCコンパイラへの対応等)
-詳細につきましては，弊社ヘルプデスク inquiry@helpdesk.monami-ya.com までお問い合わせください．</p>
+<p>2014年6月21日以降、monami-ya.mrb は，TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。
+詳細につきましては、TOPPERS/JSP カーネルの<a href="/service/toppers-jsp/">オープンソースサポートサービス</a> のページをご参照ください。</p>
+
+<p>2014年6月20日以前に monami-ya.mrb のオープンソースサポートサービスを締結された方は、自動的に TOPPERS/JSP カーネルのオープンソースサポートサービスが追加されます。</p>
+
+<p>また、上記オープンソースサポートサービスの範囲を超えた，お客様の環境に合わせたカスタマイズの受託も可能です。
+(特定ボードへの移植、GCC以外のCコンパイラへの対応等)
+詳細につきましては、弊社ヘルプデスク inquiry@helpdesk.monami-ya.com までお問い合わせください。</p>
 
       </div>
       
@@ -273,15 +277,15 @@ RTOS に依存するコードに悩まされることが無くなります．</p
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/">TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。</a>
+    
     <a class="list-group-item " href="/blog/2014/06/18/update-information-for-monami-ya-dot-mrb/">monami-ya.mrb の製品情報を更新いたしました。</a>
     
-    <a class="list-group-item " href="/blog/2014/05/24/movsign-map-redirect-beta/">Movsign Map Redirect をβ版公開いたしました．</a>
+    <a class="list-group-item " href="/blog/2014/05/24/movsign-map-redirect-beta/">Movsign Map Redirect をβ版公開いたしました。</a>
     
-    <a class="list-group-item " href="/blog/2014/04/14/support-packs-on-amazon/">Amazonから購入可能になりました．</a>
+    <a class="list-group-item " href="/blog/2014/04/14/support-packs-on-amazon/">Amazonから購入可能になりました。</a>
     
     <a class="list-group-item " href="/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books/">OSSSSガイドブックがGoogle Booksに登録されました。</a>
-    
-    <a class="list-group-item " href="/blog/2014/04/03/phone-number-changed/">代表電話番号が変更になりました。</a>
     
   </div>
 </section>
@@ -290,7 +294,7 @@ RTOS に依存するコードに悩まされることが無くなります．</p
     <h3 class="panel-title">Categories</h3>
   </div>
   <div id="categories" class="list-group">
-    <a class='list-group-item' href='/blog/categories/event/'>Event (1)</a><a class='list-group-item' href='/blog/categories/raspberrypi/'>RaspberryPi (1)</a><a class='list-group-item' href='/blog/categories/campaign/'>campaign (1)</a><a class='list-group-item' href='/blog/categories/coverage/'>coverage (1)</a><a class='list-group-item' href='/blog/categories/events/'>events (5)</a><a class='list-group-item' href='/blog/categories/information/'>information (5)</a><a class='list-group-item' href='/blog/categories/media/'>media (16)</a><a class='list-group-item' href='/blog/categories/monami-ya-dot-mrb/'>monami-ya.mrb (4)</a><a class='list-group-item' href='/blog/categories/movsign/'>movsign (1)</a><a class='list-group-item' href='/blog/categories/mruby/'>mruby (1)</a><a class='list-group-item' href='/blog/categories/product/'>product (1)</a><a class='list-group-item' href='/blog/categories/products/'>products (8)</a><a class='list-group-item' href='/blog/categories/rpi-gpio/'>rpi-gpio (3)</a><a class='list-group-item' href='/blog/categories/huo-yong-shi-li/'>活用事例 (2)</a><a class='list-group-item' href='/blog/categories/dian-zi-gong-gao/'>電子公告 (1)</a>
+    <a class='list-group-item' href='/blog/categories/event/'>Event (1)</a><a class='list-group-item' href='/blog/categories/raspberrypi/'>RaspberryPi (1)</a><a class='list-group-item' href='/blog/categories/campaign/'>campaign (1)</a><a class='list-group-item' href='/blog/categories/coverage/'>coverage (1)</a><a class='list-group-item' href='/blog/categories/events/'>events (5)</a><a class='list-group-item' href='/blog/categories/information/'>information (6)</a><a class='list-group-item' href='/blog/categories/media/'>media (16)</a><a class='list-group-item' href='/blog/categories/monami-ya-dot-mrb/'>monami-ya.mrb (5)</a><a class='list-group-item' href='/blog/categories/movsign/'>movsign (1)</a><a class='list-group-item' href='/blog/categories/mruby/'>mruby (1)</a><a class='list-group-item' href='/blog/categories/product/'>product (1)</a><a class='list-group-item' href='/blog/categories/products/'>products (9)</a><a class='list-group-item' href='/blog/categories/rpi-gpio/'>rpi-gpio (3)</a><a class='list-group-item' href='/blog/categories/toppers-jsp/'>toppers-jsp (1)</a><a class='list-group-item' href='/blog/categories/huo-yong-shi-li/'>活用事例 (2)</a><a class='list-group-item' href='/blog/categories/dian-zi-gong-gao/'>電子公告 (1)</a>
   </div>
 </section>
 

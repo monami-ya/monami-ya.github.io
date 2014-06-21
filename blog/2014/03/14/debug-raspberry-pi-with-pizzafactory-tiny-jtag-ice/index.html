@@ -126,22 +126,22 @@
   </header>
 
 
-<div class="entry-content clearfix"><p><a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a> (以下，PF-JTAG)はアナログ・デバイセズ社の文書EE-68に準拠したデバッグコネクタとなっています．</p>
+<div class="entry-content clearfix"><p><a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a> (以下、PF-JTAG)はアナログ・デバイセズ社の文書EE-68に準拠したデバッグコネクタとなっています。</p>
 
-<p>しかしながら，JTAG は IEEE 1149.1 という標準規格に基づくものですので，信号電圧等合致すれば，セミコンダクタメーカの別を問わずに接続できます．</p>
+<p>しかしながら、JTAG は IEEE 1149.1 という標準規格に基づくものですので，信号電圧等合致すれば，セミコンダクタメーカの別を問わずに接続できます。</p>
 
-<p>一例として，PF-JTAG と Raspberry Pi ボードを繋ぎ，Linux 上から OpenOCD で接続する方法を概説します．</p>
+<p>一例として、PF-JTAG と Raspberry Pi ボードを繋ぎ，Linux 上から OpenOCD で接続する方法を概説します。</p>
 
 <h2 id="section">バージョン等</h2>
 
-<p>本稿で用いた Raspberry Pi ボードのリビジョンは 2 です．
-リビジョン 1 ボードは，JTAG 関連のピン配置が異なりますので，本稿のとおりには動きません．</p>
+<p>本稿で用いた Raspberry Pi ボードのリビジョンは 2 です。
+リビジョン 1 ボードは、JTAG 関連のピン配置が異なりますので，本稿のとおりには動きません。</p>
 
-<p>Linux は Ubuntu Linux 12.0.4.4 LTS を用いています．</p>
+<p>Linux は Ubuntu Linux 12.0.4.4 LTS を用いています。</p>
 
 <h2 id="section-1">結線</h2>
 
-<p>下表のように結線します．</p>
+<p>下表のように結線します。</p>
 
 <table>
   <thead>
@@ -182,21 +182,21 @@
 
 <p><img src="/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/connection.jpg" alt="結線の様子" /></p>
 
-<p>写真では間違いを避けるために，<a href="http://www.amazon.co.jp/o/ASIN/B00GN3YQK8/monamiya-22">変換基板</a>を用いています．
-しかしRaspberry Pi の P1端子とPF-JTAG とを直結しても問題はありません．</p>
+<p>写真では間違いを避けるために、<a href="http://www.amazon.co.jp/o/ASIN/B00GN3YQK8/monamiya-22">変換基板</a>を用いています。
+しかしRaspberry Pi の P1端子とPF-JTAG とを直結しても問題はありません。</p>
 
 <h2 id="openocd-">OpenOCD のインストール</h2>
 
-<p>Ubuntu Linux は，apt のリポジトリに OpenOCD が存在します．
-PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは libftdi を用います．
-よって，OpenOCD は，下記のようにしてインストールが可能です．</p>
+<p>Ubuntu Linux は、apt のリポジトリに OpenOCD が存在します。
+PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは libftdi を用います。
+よって、OpenOCD は，下記のようにしてインストールが可能です。</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 </pre></td><td class="code"><pre><code class=""><span class="line">sudo apt-get install openocd libftdi1</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <h2 id="openocd--1">OpenOCD に与えるコンフィグレーションファイル</h2>
 
-<p>下記リストのようになります．</p>
+<p>下記リストのようになります。</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -269,19 +269,19 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
 </span><span class="line">set _TARGETNAME $_CHIPNAME.arm
 </span><span class="line">target create $_TARGETNAME arm11 -chain-position $_TARGETNAME</span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>このリストを，例えば raspi.cfg として保存し，下記のようにして openocd を起動します．</p>
+<p>このリストを、例えば raspi.cfg として保存し，下記のようにして openocd を起動します。</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 </pre></td><td class="code"><pre><code class=""><span class="line">openocd -f raspi2.cfg</span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>sudo は不要です．</p>
+<p>sudo は不要です。</p>
 
 <p><img src="/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/openocd-start.png" alt="OpenOCD の起動ログ" /></p>
 
 <h2 id="section-2">注意事項</h2>
 
-<p><em>本稿は，参考情報として掲示しております．
-本稿を参照して作業をなさったことに起因して，お客様にいかなる損失が発生しても，弊社は責を負いません．</em></p>
+<p><em>本稿は、参考情報として掲示しております。
+本稿を参照して作業をなさったことに起因して、お客様にいかなる損失が発生しても，弊社は責を負いません。</em></p>
 </div>
 
 
@@ -356,15 +356,15 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
   
   <div id="recent_posts" class="list-group">
     
+    <a class="list-group-item " href="/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/">TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。</a>
+    
     <a class="list-group-item " href="/blog/2014/06/18/update-information-for-monami-ya-dot-mrb/">monami-ya.mrb の製品情報を更新いたしました。</a>
     
-    <a class="list-group-item " href="/blog/2014/05/24/movsign-map-redirect-beta/">Movsign Map Redirect をβ版公開いたしました．</a>
+    <a class="list-group-item " href="/blog/2014/05/24/movsign-map-redirect-beta/">Movsign Map Redirect をβ版公開いたしました。</a>
     
-    <a class="list-group-item " href="/blog/2014/04/14/support-packs-on-amazon/">Amazonから購入可能になりました．</a>
+    <a class="list-group-item " href="/blog/2014/04/14/support-packs-on-amazon/">Amazonから購入可能になりました。</a>
     
     <a class="list-group-item " href="/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books/">OSSSSガイドブックがGoogle Booksに登録されました。</a>
-    
-    <a class="list-group-item " href="/blog/2014/04/03/phone-number-changed/">代表電話番号が変更になりました。</a>
     
   </div>
 </section>
@@ -373,7 +373,7 @@ PF-JTAG は，回路的には oocdlink-s と等価ですので，ドライバは
     <h3 class="panel-title">Categories</h3>
   </div>
   <div id="categories" class="list-group">
-    <a class='list-group-item' href='/blog/categories/event/'>Event (1)</a><a class='list-group-item' href='/blog/categories/raspberrypi/'>RaspberryPi (1)</a><a class='list-group-item' href='/blog/categories/campaign/'>campaign (1)</a><a class='list-group-item' href='/blog/categories/coverage/'>coverage (1)</a><a class='list-group-item' href='/blog/categories/events/'>events (5)</a><a class='list-group-item' href='/blog/categories/information/'>information (5)</a><a class='list-group-item' href='/blog/categories/media/'>media (16)</a><a class='list-group-item' href='/blog/categories/monami-ya-dot-mrb/'>monami-ya.mrb (4)</a><a class='list-group-item' href='/blog/categories/movsign/'>movsign (1)</a><a class='list-group-item' href='/blog/categories/mruby/'>mruby (1)</a><a class='list-group-item' href='/blog/categories/product/'>product (1)</a><a class='list-group-item' href='/blog/categories/products/'>products (8)</a><a class='list-group-item' href='/blog/categories/rpi-gpio/'>rpi-gpio (3)</a><a class='list-group-item' href='/blog/categories/huo-yong-shi-li/'>活用事例 (2)</a><a class='list-group-item' href='/blog/categories/dian-zi-gong-gao/'>電子公告 (1)</a>
+    <a class='list-group-item' href='/blog/categories/event/'>Event (1)</a><a class='list-group-item' href='/blog/categories/raspberrypi/'>RaspberryPi (1)</a><a class='list-group-item' href='/blog/categories/campaign/'>campaign (1)</a><a class='list-group-item' href='/blog/categories/coverage/'>coverage (1)</a><a class='list-group-item' href='/blog/categories/events/'>events (5)</a><a class='list-group-item' href='/blog/categories/information/'>information (6)</a><a class='list-group-item' href='/blog/categories/media/'>media (16)</a><a class='list-group-item' href='/blog/categories/monami-ya-dot-mrb/'>monami-ya.mrb (5)</a><a class='list-group-item' href='/blog/categories/movsign/'>movsign (1)</a><a class='list-group-item' href='/blog/categories/mruby/'>mruby (1)</a><a class='list-group-item' href='/blog/categories/product/'>product (1)</a><a class='list-group-item' href='/blog/categories/products/'>products (9)</a><a class='list-group-item' href='/blog/categories/rpi-gpio/'>rpi-gpio (3)</a><a class='list-group-item' href='/blog/categories/toppers-jsp/'>toppers-jsp (1)</a><a class='list-group-item' href='/blog/categories/huo-yong-shi-li/'>活用事例 (2)</a><a class='list-group-item' href='/blog/categories/dian-zi-gong-gao/'>電子公告 (1)</a>
   </div>
 </section>
 

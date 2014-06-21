@@ -4,7 +4,7 @@
   <title><![CDATA[Category: products | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/products/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-06-20T12:03:51+09:00</updated>
+  <updated>2014-06-21T13:05:01+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -14,12 +14,39 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Amazonから購入可能になりました．]]></title>
+    <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/"/>
+    <updated>2014-06-21T12:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support</id>
+    <content type="html"><![CDATA[<h2 id="section">概要</h2>
+<p>2014年6月21日以降、monami-ya.mrb は、TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。
+詳細につきましては、TOPPERS/JSP カーネルの<a href="/service/toppers-jsp/">オープンソースサポートサービス</a> のページをご参照ください。</p>
+
+<p>2014年6月20日以前に monami-ya.mrb のオープンソースサポートサービスを締結された方は、自動的に TOPPERS/JSP カーネルのオープンソースサポートサービスが追加されます。</p>
+
+<h2 id="sla-">適用される SLA の詳細</h2>
+
+<p>今回のサービス統合により、monami-ya.mrb のオープンソースサポートサービスのサービスレベルアグリーメント(SLA)は、[TOPPERS/JSP に対するもの]と同一となります。</p>
+
+<h2 id="section-1">今回の統合によるお客様へのメリット</h2>
+
+<p>この統合により、monami-ya.mrb の導入をご検討なさっている開発者の方々は、static thread binding の機能に対する技術サポートをより低コストで享受することができます。</p>
+
+<p>また、従来から TOPPERS/JSP カーネルのオープンソースサポートサービスをご利用の開発者の方々は、より先進的な開発環境である monami-ya.mrb の技術サポートを、追加の費用を弊社にお支払い戴くことなく、受けることができます。</p>
+
+<h2 id="section-2">導入ご検討中の皆様への追加情報</h2>
+
+<p>TOPPERS/JSP カーネルのオープンソースサポートサービスの開始に必要な『オープンソースサポートサービス・スタートパック(TOPPERS/JSP)』は、弊社直販のほか、<a href="http://www.amazon.co.jp/o/ASIN/B00JO70KL4/monamiya-22">Amazon.co.jp</a>から購入可能です。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Amazonから購入可能になりました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon/"/>
     <updated>2014-04-14T15:45:54+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon</id>
-    <content type="html"><![CDATA[<p>「オープンソース・ソフトウェア サポート・サービス」のライセンスコードが，Amazonから購入可能になりました．
-本日時点で下記のソフトウェアが対象となります．</p>
+    <content type="html"><![CDATA[<p>「オープンソース・ソフトウェア サポート・サービス」のライセンスコードが、Amazonから購入可能になりました。
+本日時点で下記のソフトウェアが対象となります。</p>
 
 <ul>
   <li><a href="http://www.amazon.co.jp/o/ASIN/B00JO70KL4/monamiya-22">TOPPERS/JSP</a></li>
@@ -38,11 +65,11 @@
     <id>http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released</id>
     <content type="html"><![CDATA[<p>弊社(合同会社もなみ屋)が提供しているオープンソースサポートサービス(OSSSS)の利用法について解説したガイドブック「OSSSSガイドブック」を電子書籍として作成いたしました。</p>
 
-<p>ガイドブックは，下記サイトから無償でダウンロード可能です。</p>
+<p>ガイドブックは、下記サイトから無償でダウンロード可能です。</p>
 
 <p>http://support.monami-ya.com/oss-support-guidebook/downloads</p>
 
-<p>再配布条件は，Creative Commons (CC BY-ND)としておりますので，改変しなければ自由に再配布して頂けます。</p>
+<p>再配布条件は、Creative Commons (CC BY-ND)としておりますので，改変しなければ自由に再配布して頂けます。</p>
 
 <p>初版の目次は下記のとおりです。</p>
 
@@ -54,7 +81,7 @@
 第 5 章 オープンソース・ソフトウェア サポートサービス約款</p>
 </blockquote>
 
-<p>是非ご一読頂き，弊社提供のオープンソースサポートサービスの導入をご検討ください。</p>
+<p>是非ご一読頂き、弊社提供のオープンソースサポートサービスの導入をご検討ください。</p>
 ]]></content>
   </entry>
   
@@ -63,54 +90,42 @@
     <link href="http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice/"/>
     <updated>2014-03-14T13:02:02+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice</id>
-    <content type="html"><![CDATA[<p>ブログ「<a href="http://bfin.sakura.ne.jp/">DSP空挺団</a>」にて，酔漢様が<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a>を用いてADSP-BF592のデバッグを行うための留意点を<a href="http://bfin.sakura.ne.jp/?p=125">公開</a>なさっています．</p>
+    <content type="html"><![CDATA[<p>ブログ「<a href="http://bfin.sakura.ne.jp/">DSP空挺団</a>」にて、酔漢様が<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a>を用いてADSP-BF592のデバッグを行うための留意点を<a href="http://bfin.sakura.ne.jp/?p=125">公開</a>なさっています。</p>
 
-<p>(リンク先にある「もなみ製ICE 刺身包丁」は，弊社取扱の「PizzaFactory Tiny JTAG for Blackfin/Sharc」の愛称です．)</p>
+<p>(リンク先にある「もなみ製ICE 刺身包丁」は、弊社取扱の「PizzaFactory Tiny JTAG for Blackfin/Sharc」の愛称です。)</p>
 
-<p><em>注) 本エントリは，弊社製品をご活用頂く際の参考としてご紹介するものです．弊社は，リンクにてご紹介差し上げたコンテンツの正確性について，一切の保証をいたしません．</em></p>
+<p><em>注) 本エントリは、弊社製品をご活用頂く際の参考としてご紹介するものです。弊社は，リンクにてご紹介差し上げたコンテンツの正確性について，一切の保証をいたしません．</em></p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[ヘルプデスクサービスを設置致しました．]]></title>
+    <title type="html"><![CDATA[ヘルプデスクサービスを設置致しました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/01/16/44/"/>
     <updated>2014-01-16T06:25:47+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/01/16/44</id>
-    <content type="html"><![CDATA[<p>合同会社もなみ屋(弊社)は，以前からオープンソース・ソフトウェア(OSS)を中心とした，ソフトウェアの保守に関するサポートを提供してまいりました．
-このたび，サービス品質を向上させる目的で，ヘルプデスクサービスを立ち上げます．</p>
+    <content type="html"><![CDATA[<p>合同会社もなみ屋(弊社)は、以前からオープンソース・ソフトウェア(OSS)を中心とした，ソフトウェアの保守に関するサポートを提供してまいりました。
+このたび、サービス品質を向上させる目的で，ヘルプデスクサービスを立ち上げます。</p>
 
-<p>ヘルプデスクサービスは，この分野の代表的なOSS製品である <a href="http://www.orts.org/">ORTS</a> を基盤として，もなみ屋が培ってきた OSS 関連の知見を盛り込んだ改良版を用います．
-この改良部分は，ORTS が設定している AGPL ライセンスに基づき，順次公開していきます．</p>
+<p>ヘルプデスクサービスは、この分野の代表的なOSS製品である <a href="http://www.orts.org/">ORTS</a> を基盤として，もなみ屋が培ってきた OSS 関連の知見を盛り込んだ改良版を用います。
+この改良部分は、ORTS が設定している AGPL ライセンスに基づき，順次公開していきます。</p>
 
-<p>弊社のヘルプデスクサービスは，以下の2つの機能を持ちます．</p>
+<p>弊社のヘルプデスクサービスは、以下の2つの機能を持ちます。</p>
 
 <ul>
-  <li>弊社へのご質問(電子メール/FAX)と，その回答を蓄積するサポートデータベースとその Webフロントエンド</li>
-  <li>ヘルプデスクが収集した情報から，お客様との同意を頂いた上で固有の情報を除き，広く閲覧可能にするFAQデータベース</li>
+  <li>弊社へのご質問(電子メール/FAX)と、その回答を蓄積するサポートデータベースとその Webフロントエンド</li>
+  <li>ヘルプデスクが収集した情報から、お客様との同意を頂いた上で固有の情報を除き，広く閲覧可能にするFAQデータベース</li>
 </ul>
 
-<p>ヘルプデスクの URL は下記のとおりです．</p>
+<p>ヘルプデスクの URL は下記のとおりです。</p>
 
 <p><a href="http://helpdesk.monami-ya.com/">http://helpdesk.monami-ya.com/</a></p>
 
 <h1 id="section">ご注意事項</h1>
 
-<p>本記事公開時点では，ヘルプデスクサービスはβ版です．
-現在，弊社とのサポート契約を締結されているお客様は，もうしばらくの間，現行システムをご利用ください．移行の時期は，別途ご連絡差し上げる予定です．</p>
+<p>本記事公開時点では、ヘルプデスクサービスはβ版です。
+現在、弊社とのサポート契約を締結されているお客様は，もうしばらくの間，現行システムをご利用ください。移行の時期は，別途ご連絡差し上げる予定です．</p>
 
-<p>また， β版の期間は，ヘルプデスクサービスへの登録は無料で自由に行って頂けますが，正式版の公開に併せて，運用形態について見直しを行う可能性があります．予めご承知ください．</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Androidアプリ「GPS Finder」のソースコードを公開]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/05/26/38/"/>
-    <updated>2013-05-26T15:30:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/05/26/38</id>
-    <content type="html"><![CDATA[<p>Google Play Store で無償公開中の Android アプリケーション「<a href="https://play.google.com/store/apps/details?id=com.monami_ya.android.gpsfinder">GPS Finder</a>」のソースコードを<a href="http://support.monami-ya.com/gpsfinder/">オープンソース公開</a>いたしました．</p>
-
-<p>ソースツリーには，GPL3, APL2.0, Public domain のソースファイルが混在しています．再利用時には各ソースファイル冒頭のライセンス文言をご参照ください．</p>
-
+<p>また、 β版の期間は，ヘルプデスクサービスへの登録は無料で自由に行って頂けますが，正式版の公開に併せて，運用形態について見直しを行う可能性があります。予めご承知ください．</p>
 ]]></content>
   </entry>
   
