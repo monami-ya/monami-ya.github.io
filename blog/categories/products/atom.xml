@@ -4,7 +4,7 @@
   <title><![CDATA[Category: products | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/products/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-06-25T18:10:33+09:00</updated>
+  <updated>2014-06-25T20:05:51+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,39 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[PizzaFactory Tiny JTAG ご購入で、Amazonギフト券500円分を還元]]></title>
+    <link href="http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign/"/>
+    <updated>2014-06-25T17:46:24+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign</id>
+    <content type="html"><![CDATA[<p>弊社が開発を行い、技術者向けサポートを提供している、 monami-ya.mrb の推奨開発環境として、<a href="http://www.kaneko-sys.co.jp/shop/00016.html">金子システム製 Blackfin ボード UCB-BF512</a> が加わりました。
+これを記念して、UCB-BF512 での開発効率を高める、PizzaFactory Tiny JTAG for Blackfin/SHARC をご購入頂いたお客様のうち、下記の手順を沿ってご応募頂いた方に、Amazonギフト券500円分を還元いたします。</p>
+
+<p>この機会に、PizzaFactory Tiny JTAG for Blackfin/SHARC の導入をご検討ください。</p>
+
+<h2 id="section">応募方法</h2>
+
+<p>下記の手順でご応募ください。</p>
+
+<ul>
+  <li>Amazon.co.jp で <a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/SHARC</a> をご購入ください。</li>
+  <li><a href="http://www.kaneko-sys.co.jp/shop/00016.html">金子システム製 Blackfin ボード UCB-BF512</a> と、ご購入頂いた PizzaFactory Tiny JTAG for Blackfin/SHARC とが一緒に写っている画像ファイルをご用意ください。</li>
+  <li>上記画像ファイルと、Amazon.co.jp でのご購入日時を添えて、電子メールにて support@monami-ya.com までメールをご送信ください。</li>
+</ul>
+
+<h2 id="section-1">締切</h2>
+
+<p>7月20日までのご購入分が対象となります。</p>
+
+<h2 id="section-2">ギフト券の発送方法と日時</h2>
+
+<p>500円分のギフト券は、Eメールタイプで、ご応募頂いたメールアドレスに、8月中旬頃ににお届けします。</p>
+
+<p>なお、ご申告頂いたご購入日時に相当する出荷が Amazon.co.jp の記録に存在しない場合、また1台のPizzaFactory Tiny JTAG for Blackfin/SHARC に対する複数の応募と認められる場合には、ギフト券発送の前に、ご質問のメールを差し上げることがあります。</p>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
@@ -95,37 +128,6 @@
 <p>(リンク先にある「もなみ製ICE 刺身包丁」は、弊社取扱の「PizzaFactory Tiny JTAG for Blackfin/Sharc」の愛称です。)</p>
 
 <p><em>注) 本エントリは、弊社製品をご活用頂く際の参考としてご紹介するものです。弊社は，リンクにてご紹介差し上げたコンテンツの正確性について，一切の保証をいたしません．</em></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ヘルプデスクサービスを設置致しました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/01/16/44/"/>
-    <updated>2014-01-16T06:25:47+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/01/16/44</id>
-    <content type="html"><![CDATA[<p>合同会社もなみ屋(弊社)は、以前からオープンソース・ソフトウェア(OSS)を中心とした，ソフトウェアの保守に関するサポートを提供してまいりました。
-このたび、サービス品質を向上させる目的で，ヘルプデスクサービスを立ち上げます。</p>
-
-<p>ヘルプデスクサービスは、この分野の代表的なOSS製品である <a href="http://www.orts.org/">ORTS</a> を基盤として，もなみ屋が培ってきた OSS 関連の知見を盛り込んだ改良版を用います。
-この改良部分は、ORTS が設定している AGPL ライセンスに基づき，順次公開していきます。</p>
-
-<p>弊社のヘルプデスクサービスは、以下の2つの機能を持ちます。</p>
-
-<ul>
-  <li>弊社へのご質問(電子メール/FAX)と、その回答を蓄積するサポートデータベースとその Webフロントエンド</li>
-  <li>ヘルプデスクが収集した情報から、お客様との同意を頂いた上で固有の情報を除き，広く閲覧可能にするFAQデータベース</li>
-</ul>
-
-<p>ヘルプデスクの URL は下記のとおりです。</p>
-
-<p><a href="http://helpdesk.monami-ya.com/">http://helpdesk.monami-ya.com/</a></p>
-
-<h1 id="section">ご注意事項</h1>
-
-<p>本記事公開時点では、ヘルプデスクサービスはβ版です。
-現在、弊社とのサポート契約を締結されているお客様は，もうしばらくの間，現行システムをご利用ください。移行の時期は，別途ご連絡差し上げる予定です．</p>
-
-<p>また、 β版の期間は，ヘルプデスクサービスへの登録は無料で自由に行って頂けますが，正式版の公開に併せて，運用形態について見直しを行う可能性があります。予めご承知ください．</p>
 ]]></content>
   </entry>
   
