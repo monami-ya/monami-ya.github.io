@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2014-06-25T20:05:51+09:00</updated>
+  <updated>2014-06-26T08:22:28+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -18,10 +18,10 @@
     <link href="http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign/"/>
     <updated>2014-06-25T17:46:24+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign</id>
-    <content type="html"><![CDATA[<p>弊社が開発を行い、技術者向けサポートを提供している、 monami-ya.mrb の推奨開発環境として、<a href="http://www.kaneko-sys.co.jp/shop/00016.html">金子システム製 Blackfin ボード UCB-BF512</a> が加わりました。
+    <content type="html"><![CDATA[<p>弊社が開発を行い、技術者向けサポートを提供している、 monami-ya.mrb のターゲットボードに、<a href="http://www.kaneko-sys.co.jp/shop/00016.html">金子システム製 Blackfin ボード UCB-BF512</a> が加わりました。
 これを記念して、UCB-BF512 での開発効率を高める、PizzaFactory Tiny JTAG for Blackfin/SHARC をご購入頂いたお客様のうち、下記の手順を沿ってご応募頂いた方に、Amazonギフト券500円分を還元いたします。</p>
 
-<p>この機会に、PizzaFactory Tiny JTAG for Blackfin/SHARC の導入をご検討ください。</p>
+<p>この機会に、PizzaFactory Tiny JTAG for Blackfin/SHARC の導入を、是非ご検討ください。</p>
 
 <h2 id="section">応募方法</h2>
 
