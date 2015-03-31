@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: company | 合同会社もなみ屋]]></title>
+  <link href="http://www.monami-ya.jp/blog/categories/company/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2015-03-31T14:57:10+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
+  <author>
+    <name><![CDATA[Monami-ya LLC, Japan.]]></name>
+    <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[joined-to-r-in]]></title>
+    <link href="http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in/"/>
+    <updated>2015-04-01T00:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+</feed>

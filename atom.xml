@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2015-03-30T11:18:38+09:00</updated>
+  <updated>2015-03-31T14:57:10+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[joined-to-r-in]]></title>
+    <link href="http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in/"/>
+    <updated>2015-04-01T00:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[本店所在地変更のお知らせ]]></title>
@@ -536,18 +545,6 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
 基板にはユニバーサル部を用意し、簡単な回路であれば基板に直接実装することもできます。</p>
 
 <p>キットは、<a href="http://www.amazon.co.jp/o/ASIN/B00EQ4OA9I/monamiya-22">Amazon.co.jp</a> からお求め頂けます。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Androidアプリ「GPS Finder」のソースコードを公開]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/05/26/38/"/>
-    <updated>2013-05-26T15:30:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/05/26/38</id>
-    <content type="html"><![CDATA[<p>Google Play Store で無償公開中の Android アプリケーション「<a href="https://play.google.com/store/apps/details?id=com.monami_ya.android.gpsfinder">GPS Finder</a>」のソースコードを<a href="http://support.monami-ya.com/gpsfinder/">オープンソース公開</a>いたしました。</p>
-
-<p>ソースツリーには、GPL3, APL2.0, Public domain のソースファイルが混在しています。再利用時には各ソースファイル冒頭のライセンス文言をご参照ください．</p>
-
 ]]></content>
   </entry>
   

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: information | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/information/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2015-03-30T11:18:38+09:00</updated>
+  <updated>2015-03-31T14:57:10+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[joined-to-r-in]]></title>
+    <link href="http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in/"/>
+    <updated>2015-04-01T00:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[本店所在地変更のお知らせ]]></title>
@@ -71,23 +80,6 @@
     <updated>2014-04-04T08:25:36+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books</id>
     <content type="html"><![CDATA[<p>弊社オープンソースサポートサービスへの登録方法は活用方法を記した OSSSSガイドブックが<a href="http://books.google.co.jp/books?id=xCc-AwAAQBAJ">Google Booksに登録されました</a>。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[代表電話番号が変更になりました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/04/03/phone-number-changed/"/>
-    <updated>2014-04-03T15:17:07+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/04/03/phone-number-changed</id>
-    <content type="html"><![CDATA[<p>弊社の代表電話番号が変更になりました。</p>
-
-<ul>
-  <li>旧番号 : 03-4550-0313</li>
-  <li>新番号 : 03-4588-8718</li>
-</ul>
-
-<p>なお FAX は廃止いたしました。
-図版が必要なご連絡につきましては電子メールにてお願い致します。</p>
 ]]></content>
   </entry>
   
