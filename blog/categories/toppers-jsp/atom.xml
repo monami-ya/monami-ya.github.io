@@ -4,7 +4,7 @@
   <title><![CDATA[Category: toppers-jsp | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/toppers-jsp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-03-31T05:35:06+00:00</updated>
+  <updated>2016-03-31T14:40:38+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/"/>
-    <updated>2014-06-21T03:00:00+00:00</updated>
+    <updated>2014-06-21T12:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support</id>
     <content type="html"><![CDATA[<h2 id="section">概要</h2>
 <p>2014年6月21日以降、monami-ya.mrb は、TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。

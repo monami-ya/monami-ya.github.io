@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-03-31T05:35:06+00:00</updated>
+  <updated>2016-03-31T14:40:38+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[R-INコンソーシアムに参加いたしました．]]></title>
-    <link href="http://www.monami-ya.jp/blog/2015/03/31/joined-to-r-in/"/>
-    <updated>2015-03-31T15:00:00+00:00</updated>
-    <id>http://www.monami-ya.jp/blog/2015/03/31/joined-to-r-in</id>
+    <link href="http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in/"/>
+    <updated>2015-04-01T00:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋は，ルネサスエレクトロニクス(株)が提供するR-INマイコンを軸に，ワールドワイドのインダストリー(産業界)を効率化、高付加価値化及び活性化を行うことを目的とする「R-INコンソーシアム」に参加いたしました．
 オープンソースを軸としたコンパイラ・デバッガ・RTOS・IDEといったソリューションを基盤に，mruby を始めとする次世代の産業界 (IoT, Industory4.0) に影響を及ぼしうる技術を携えて，様々なソリューションを引き続き提案していく所存です．</p>
 ]]></content>
@@ -26,7 +26,7 @@
   <entry>
     <title type="html"><![CDATA[本店所在地変更のお知らせ]]></title>
     <link href="http://www.monami-ya.jp/blog/2015/03/17/registration-of-relocation-of-head-office/"/>
-    <updated>2015-03-17T03:50:37+00:00</updated>
+    <updated>2015-03-17T12:50:37+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2015/03/17/registration-of-relocation-of-head-office</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋は，定款にて定める本店所在地を「東京都新宿区」に変更し，関連登記を完了いたしました．</p>
 
@@ -41,7 +41,7 @@
   <entry>
     <title type="html"><![CDATA[PizzaFactory Tiny JTAG ご購入で、Amazonギフト券500円分を還元]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign/"/>
-    <updated>2014-06-25T08:46:24+00:00</updated>
+    <updated>2014-06-25T17:46:24+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign</id>
     <content type="html"><![CDATA[<p>弊社が開発を行い、技術者向けサポートを提供している、 monami-ya.mrb のターゲットボードに、<a href="http://www.kaneko-sys.co.jp/shop/00016.html">金子システム製 Blackfin ボード UCB-BF512</a> が加わりました。
 これを記念して、UCB-BF512 での開発効率を高める、PizzaFactory Tiny JTAG for Blackfin/SHARC をご購入頂いたお客様のうち、下記の手順を沿ってご応募頂いた方に、Amazonギフト券500円分を還元いたします。</p>
@@ -74,7 +74,7 @@
   <entry>
     <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/"/>
-    <updated>2014-06-21T03:00:00+00:00</updated>
+    <updated>2014-06-21T12:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support</id>
     <content type="html"><![CDATA[<h2 id="section">概要</h2>
 <p>2014年6月21日以降、monami-ya.mrb は、TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。
@@ -101,7 +101,7 @@
   <entry>
     <title type="html"><![CDATA[monami-ya.mrb の製品情報を更新いたしました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb/"/>
-    <updated>2014-06-18T02:48:01+00:00</updated>
+    <updated>2014-06-18T11:48:01+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb</id>
     <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/product/monami-ya.mrb/about/index.html">monami-ya.mrb の製品情報</a>を更新いたしました。
 この度の更新により、monami-ya.mrb のソースツリーはオープンソース版のみとなりました。</p>
@@ -111,7 +111,7 @@
   <entry>
     <title type="html"><![CDATA[Movsign Map Redirect をβ版公開いたしました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/05/24/movsign-map-redirect-beta/"/>
-    <updated>2014-05-24T04:28:22+00:00</updated>
+    <updated>2014-05-24T13:28:22+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/05/24/movsign-map-redirect-beta</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋は、地図リンクに特化した短縮URLサービス「Movsign Map Redirect」をβリリースいたしました。
 正式リリースまで、機能制限なくお使いいただけます。</p>
@@ -134,7 +134,7 @@
   <entry>
     <title type="html"><![CDATA[Amazonから購入可能になりました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon/"/>
-    <updated>2014-04-14T06:45:54+00:00</updated>
+    <updated>2014-04-14T15:45:54+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon</id>
     <content type="html"><![CDATA[<p>「オープンソース・ソフトウェア サポート・サービス」のライセンスコードが、Amazonから購入可能になりました。
 本日時点で下記のソフトウェアが対象となります。</p>
@@ -151,9 +151,9 @@
   
   <entry>
     <title type="html"><![CDATA[OSSSSガイドブックがGoogle Booksに登録されました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-avaliable-on-google-books/"/>
-    <updated>2014-04-03T23:25:36+00:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-avaliable-on-google-books</id>
+    <link href="http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books/"/>
+    <updated>2014-04-04T08:25:36+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books</id>
     <content type="html"><![CDATA[<p>弊社オープンソースサポートサービスへの登録方法は活用方法を記した OSSSSガイドブックが<a href="http://books.google.co.jp/books?id=xCc-AwAAQBAJ">Google Booksに登録されました</a>。</p>
 ]]></content>
   </entry>
@@ -161,7 +161,7 @@
   <entry>
     <title type="html"><![CDATA[代表電話番号が変更になりました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/04/03/phone-number-changed/"/>
-    <updated>2014-04-03T06:17:07+00:00</updated>
+    <updated>2014-04-03T15:17:07+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/04/03/phone-number-changed</id>
     <content type="html"><![CDATA[<p>弊社の代表電話番号が変更になりました。</p>
 
@@ -178,7 +178,7 @@
   <entry>
     <title type="html"><![CDATA[オープンソースサポートサービスのガイドブックを作成いたしました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released/"/>
-    <updated>2014-04-03T05:28:22+00:00</updated>
+    <updated>2014-04-03T14:28:22+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released</id>
     <content type="html"><![CDATA[<p>弊社(合同会社もなみ屋)が提供しているオープンソースサポートサービス(OSSSS)の利用法について解説したガイドブック「OSSSSガイドブック」を電子書籍として作成いたしました。</p>
 
@@ -205,7 +205,7 @@
   <entry>
     <title type="html"><![CDATA[[教育用途限定:お試しモニタ募集] RaspberryPi対応GPIO変換基板キット]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/03/31/try-rpi-gpio/"/>
-    <updated>2014-03-31T05:35:00+00:00</updated>
+    <updated>2014-03-31T14:35:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/31/try-rpi-gpio</id>
     <content type="html"><![CDATA[<p>新学期となり、RaspberryPiを使った授業，クラブ活動，勉強会などの企画をなさる教育者の方々も多いかと思います。</p>
 
@@ -256,7 +256,7 @@
   <entry>
     <title type="html"><![CDATA[Pizzafactory Tiny JTAG ICE での Raspberry Pi デバッグ]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/"/>
-    <updated>2014-03-14T04:14:48+00:00</updated>
+    <updated>2014-03-14T13:14:48+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice</id>
     <content type="html"><![CDATA[<p><a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a> (以下、PF-JTAG)はアナログ・デバイセズ社の文書EE-68に準拠したデバッグコネクタとなっています。</p>
 
@@ -420,7 +420,7 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
   <entry>
     <title type="html"><![CDATA[PizzaFactory Tiny JTAG for Blackfin/Sharc の活用事例のご紹介]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice/"/>
-    <updated>2014-03-14T04:02:02+00:00</updated>
+    <updated>2014-03-14T13:02:02+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice</id>
     <content type="html"><![CDATA[<p>ブログ「<a href="http://bfin.sakura.ne.jp/">DSP空挺団</a>」にて、酔漢様が<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a>を用いてADSP-BF592のデバッグを行うための留意点を<a href="http://bfin.sakura.ne.jp/?p=125">公開</a>なさっています。</p>
 
@@ -433,7 +433,7 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
   <entry>
     <title type="html"><![CDATA[代表電話ならびにFAXが停止しております]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/03/11/tel-fax-not-available/"/>
-    <updated>2014-03-11T07:00:00+00:00</updated>
+    <updated>2014-03-11T16:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/11/tel-fax-not-available</id>
     <content type="html"><![CDATA[<p>弊社契約の電話回線事業者の都合により、弊社代表電話ならびにFAXが繋がらなくなっております。
 新番号取得までの間は、<a href="http://helpdesk.monami-ya.com/contact/">お問い合わせフォーム</a>をご利用ください。
@@ -444,7 +444,7 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
   <entry>
     <title type="html"><![CDATA[ヘルプデスクサービスの緊急メンテナンスを行います。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/03/04/45/"/>
-    <updated>2014-03-04T14:00:00+00:00</updated>
+    <updated>2014-03-04T23:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/04/45</id>
     <content type="html"><![CDATA[<p>本日14:00(JST)から、ヘルプデスクサービスの緊急メンテナンスを行います。
 同16:00(JST)には再開の予定です。</p>
@@ -462,9 +462,9 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
   
   <entry>
     <title type="html"><![CDATA[ヘルプデスクサービスを設置致しました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/01/15/44/"/>
-    <updated>2014-01-15T21:25:47+00:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/01/15/44</id>
+    <link href="http://www.monami-ya.jp/blog/2014/01/16/44/"/>
+    <updated>2014-01-16T06:25:47+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/01/16/44</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋(弊社)は、以前からオープンソース・ソフトウェア(OSS)を中心とした，ソフトウェアの保守に関するサポートを提供してまいりました。
 このたび、サービス品質を向上させる目的で，ヘルプデスクサービスを立ち上げます。</p>
 
@@ -494,7 +494,7 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
   <entry>
     <title type="html"><![CDATA[「組込みネット」に弊社代表インタビューが掲載されました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/01/09/43/"/>
-    <updated>2014-01-09T14:40:00+00:00</updated>
+    <updated>2014-01-09T23:40:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/01/09/43</id>
     <content type="html"><![CDATA[<p>CQ出版社が運営している技術者向けWebサイト「<a href="http://www.kumikomi.net/">組み込みネット</a>」にて、<a href="http://www.kumikomi.net/archives/2014/01/in04mona.php">弊社代表である邑中雅樹へのインタビュー記事が掲載</a>されました。</p>
 
@@ -507,7 +507,7 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
   <entry>
     <title type="html"><![CDATA[ソフトウェアのビルド状況を公開しています。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/01/05/42/"/>
-    <updated>2014-01-05T00:00:00+00:00</updated>
+    <updated>2014-01-05T09:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/01/05/42</id>
     <content type="html"><![CDATA[<p>弊社で開発中のソフトウェアのうち、ビルド状況をを公開可能なものについて，<a href="http://builder.monami-ya.com:8080/">Web上での公開</a>を開始しています。</p>
 
@@ -528,18 +528,18 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
   
   <entry>
     <title type="html"><![CDATA[「RaspberryPi対応GPIO変換基板キット」組み立て時の注意点]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/08/27/41/"/>
-    <updated>2013-08-27T17:22:42+00:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/08/27/41</id>
+    <link href="http://www.monami-ya.jp/blog/2013/08/28/41/"/>
+    <updated>2013-08-28T02:22:42+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2013/08/28/41</id>
     <content type="html"><![CDATA[<p>「RaspberryPi対応GPIO変換基板キット」の組み立て時においては、CONN1のコネクタの向きにご注意ください。<a href="https://www.dropbox.com/sc/l77bzrrqyybv6tv/0wN8vWwhcv">リンク先にある写真</a> のように，基板外側にコネクタの切り欠きが向くようにしてください．</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[「RaspberryPi対応GPIO変換基板キット」の販売を開始いたしました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/08/27/40/"/>
-    <updated>2013-08-27T16:45:28+00:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/08/27/40</id>
+    <link href="http://www.monami-ya.jp/blog/2013/08/28/40/"/>
+    <updated>2013-08-28T01:45:28+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2013/08/28/40</id>
     <content type="html"><![CDATA[<p>圧倒的なコストパフォーマンスで大きな話題となっているRaspberry Piは、その拡張のためのGPIOが2列のピンヘッダとなっているため，ブレッドボードとの接続が難しく，ラピッドプロトタイピングの障壁となっていました。</p>
 
 <p>このたび、合同会社もなみ屋は，2x13ピンヘッダから1x26ピンに変換する基板を作成し，必要なケーブルやコネクタを同梱したキットを作成いたしました。

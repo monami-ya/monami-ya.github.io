@@ -4,7 +4,7 @@
   <title><![CDATA[Category: product | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/product/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-03-31T05:35:06+00:00</updated>
+  <updated>2016-03-31T14:40:38+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Pizzafactory Tiny JTAG ICE での Raspberry Pi デバッグ]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/"/>
-    <updated>2014-03-14T04:14:48+00:00</updated>
+    <updated>2014-03-14T13:14:48+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice</id>
     <content type="html"><![CDATA[<p><a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a> (以下、PF-JTAG)はアナログ・デバイセズ社の文書EE-68に準拠したデバッグコネクタとなっています。</p>
 

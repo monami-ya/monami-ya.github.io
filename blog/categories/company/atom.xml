@@ -4,7 +4,7 @@
   <title><![CDATA[Category: company | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/company/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-03-31T05:35:06+00:00</updated>
+  <updated>2016-03-31T14:40:38+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[R-INコンソーシアムに参加いたしました．]]></title>
-    <link href="http://www.monami-ya.jp/blog/2015/03/31/joined-to-r-in/"/>
-    <updated>2015-03-31T15:00:00+00:00</updated>
-    <id>http://www.monami-ya.jp/blog/2015/03/31/joined-to-r-in</id>
+    <link href="http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in/"/>
+    <updated>2015-04-01T00:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋は，ルネサスエレクトロニクス(株)が提供するR-INマイコンを軸に，ワールドワイドのインダストリー(産業界)を効率化、高付加価値化及び活性化を行うことを目的とする「R-INコンソーシアム」に参加いたしました．
 オープンソースを軸としたコンパイラ・デバッガ・RTOS・IDEといったソリューションを基盤に，mruby を始めとする次世代の産業界 (IoT, Industory4.0) に影響を及ぼしうる技術を携えて，様々なソリューションを引き続き提案していく所存です．</p>
 ]]></content>

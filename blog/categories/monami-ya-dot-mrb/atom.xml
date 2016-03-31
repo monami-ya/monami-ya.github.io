@@ -4,7 +4,7 @@
   <title><![CDATA[Category: monami-ya.mrb | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/monami-ya-dot-mrb/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-03-31T05:35:06+00:00</updated>
+  <updated>2016-03-31T14:40:38+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[PizzaFactory Tiny JTAG ご購入で、Amazonギフト券500円分を還元]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign/"/>
-    <updated>2014-06-25T08:46:24+00:00</updated>
+    <updated>2014-06-25T17:46:24+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign</id>
     <content type="html"><![CDATA[<p>弊社が開発を行い、技術者向けサポートを提供している、 monami-ya.mrb のターゲットボードに、<a href="http://www.kaneko-sys.co.jp/shop/00016.html">金子システム製 Blackfin ボード UCB-BF512</a> が加わりました。
 これを記念して、UCB-BF512 での開発効率を高める、PizzaFactory Tiny JTAG for Blackfin/SHARC をご購入頂いたお客様のうち、下記の手順を沿ってご応募頂いた方に、Amazonギフト券500円分を還元いたします。</p>
@@ -49,7 +49,7 @@
   <entry>
     <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/"/>
-    <updated>2014-06-21T03:00:00+00:00</updated>
+    <updated>2014-06-21T12:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support</id>
     <content type="html"><![CDATA[<h2 id="section">概要</h2>
 <p>2014年6月21日以降、monami-ya.mrb は、TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。
@@ -76,7 +76,7 @@
   <entry>
     <title type="html"><![CDATA[monami-ya.mrb の製品情報を更新いたしました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb/"/>
-    <updated>2014-06-18T02:48:01+00:00</updated>
+    <updated>2014-06-18T11:48:01+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb</id>
     <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/product/monami-ya.mrb/about/index.html">monami-ya.mrb の製品情報</a>を更新いたしました。
 この度の更新により、monami-ya.mrb のソースツリーはオープンソース版のみとなりました。</p>
@@ -86,7 +86,7 @@
   <entry>
     <title type="html"><![CDATA[monami-ya.mrbのカバレッジ計測結果]]></title>
     <link href="http://www.monami-ya.jp/blog/2013/05/08/coverage/"/>
-    <updated>2013-05-08T01:05:00+00:00</updated>
+    <updated>2013-05-08T01:05:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/05/08/coverage</id>
     <content type="html"><![CDATA[<p>本エントリ発信時点の、monami-ya.mrb のソースレベルカバレッジ結果を<a href="http://mrb.monami-ya.jp/lcov/monami-ya.mrb/develop/2013-05-08/">公開</a>いたします。</p>
 ]]></content>
@@ -95,7 +95,7 @@
   <entry>
     <title type="html"><![CDATA[QCon Tokyo 2013 講演のご報告]]></title>
     <link href="http://www.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013/"/>
-    <updated>2013-04-25T00:00:00+00:00</updated>
+    <updated>2013-04-25T00:00:00+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/04/25/thanks-qcontokyo-2013</id>
     <content type="html"><![CDATA[<p>2013年4月23日に開催されたQCon Tokyo 2013にて、monami-ya.mrbの開発者である邑中雅樹が，講演「mrubyの今，そして目指すもの」を行いました。</p>
 
