@@ -4,7 +4,7 @@
   <title><![CDATA[Category: media | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/media/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2015-04-01T21:11:54+09:00</updated>
+  <updated>2016-03-31T05:29:52+00:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[OSSSSガイドブックがGoogle Booksに登録されました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books/"/>
-    <updated>2014-04-04T08:25:36+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books</id>
+    <link href="http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-avaliable-on-google-books/"/>
+    <updated>2014-04-03T23:25:36+00:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-avaliable-on-google-books</id>
     <content type="html"><![CDATA[<p>弊社オープンソースサポートサービスへの登録方法は活用方法を記した OSSSSガイドブックが<a href="http://books.google.co.jp/books?id=xCc-AwAAQBAJ">Google Booksに登録されました</a>。</p>
 ]]></content>
   </entry>
@@ -25,7 +25,7 @@
   <entry>
     <title type="html"><![CDATA[Tech village に弊社代表によるmrubyのビルド環境に関する連載が、スタートいたしました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2013/04/27/33/"/>
-    <updated>2013-04-27T20:50:11+09:00</updated>
+    <updated>2013-04-27T11:50:11+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/04/27/33</id>
     <content type="html"><![CDATA[<p><a href="http://www.kumikomi.net/">「組み込みネット」</a>に、弊社代表の邑中による解説記事「mruby組み込み活用テクニック」の連載が始まっています。
 初回は<a href="http://www.kumikomi.net/archives/2013/04/ep05rak1.php">「mrubyのビルド・ツールRakeを知る」</a>と称して、Ruby言語の知識が必要とされるRakeビルドツールを，Ruby言語に詳しくない組み込みエンジニアの方々にもご理解頂けるよう留意した解説となっています。</p>
@@ -34,9 +34,9 @@
   
   <entry>
     <title type="html"><![CDATA[Interface誌2013年5月号への記事寄稿について]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/03/26/29/"/>
-    <updated>2013-03-26T01:54:42+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/03/26/29</id>
+    <link href="http://www.monami-ya.jp/blog/2013/03/25/29/"/>
+    <updated>2013-03-25T16:54:42+00:00</updated>
+    <id>http://www.monami-ya.jp/blog/2013/03/25/29</id>
     <content type="html"><![CDATA[<p>CQ出版(株)発行の月刊誌「Interface」2013年5月号(3月25日発行)に掲載の連載記事「基礎ほど奥深〜い！Cプログラミングの当たり前！？」にて「goto文って使っちゃダメなの? 構造化プログラミングの本当の意味合い」と称して、弊社代表の邑中が寄稿しております。</p>
 
 <p>書店等でお見かけの際は、ぜひお手にとってご一読ください。</p>
@@ -48,7 +48,7 @@
   <entry>
     <title type="html"><![CDATA[Interface誌2013年3月号への記事寄稿について]]></title>
     <link href="http://www.monami-ya.jp/blog/2013/01/25/27/"/>
-    <updated>2013-01-25T20:05:59+09:00</updated>
+    <updated>2013-01-25T11:05:59+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/01/25/27</id>
     <content type="html"><![CDATA[<p>CQ出版(株)発行の月刊誌「Interface」2013年3月号(2月25日発行)に掲載の連載記事「基礎ほど奥深〜い！Cプログラミングの当たり前！？」にて「エラーが出なくて見つけづらい！プリプロセッサが原因のバグ」と称して、弊社代表の邑中が寄稿しております。</p>
 
@@ -61,7 +61,7 @@
   <entry>
     <title type="html"><![CDATA[Tech village に弊社代表によるmrubyの解説記事(後編)が掲載されました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2012/12/15/26/"/>
-    <updated>2012-12-15T20:03:14+09:00</updated>
+    <updated>2012-12-15T11:03:14+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2012/12/15/26</id>
     <content type="html"><![CDATA[<p><a href="http://www.kumikomi.net/">「組み込みネット」</a>に、弊社代表の邑中による解説記事<a href="http://www.kumikomi.net/archives/2012/12/ep17mrb3.php">「組み込みC言語プログラマのためのmruby入門（後編） ―― mrubyの組み込み方とJavaとの違い」</a>が掲載されました。</p>
 ]]></content>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: products | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/products/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2015-04-01T21:11:54+09:00</updated>
+  <updated>2016-03-31T05:29:52+00:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[PizzaFactory Tiny JTAG ご購入で、Amazonギフト券500円分を還元]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign/"/>
-    <updated>2014-06-25T17:46:24+09:00</updated>
+    <updated>2014-06-25T08:46:24+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/25/pf-jtag-with-ucb-bf512-campaign</id>
     <content type="html"><![CDATA[<p>弊社が開発を行い、技術者向けサポートを提供している、 monami-ya.mrb のターゲットボードに、<a href="http://www.kaneko-sys.co.jp/shop/00016.html">金子システム製 Blackfin ボード UCB-BF512</a> が加わりました。
 これを記念して、UCB-BF512 での開発効率を高める、PizzaFactory Tiny JTAG for Blackfin/SHARC をご購入頂いたお客様のうち、下記の手順を沿ってご応募頂いた方に、Amazonギフト券500円分を還元いたします。</p>
@@ -49,7 +49,7 @@
   <entry>
     <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/"/>
-    <updated>2014-06-21T12:00:00+09:00</updated>
+    <updated>2014-06-21T03:00:00+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support</id>
     <content type="html"><![CDATA[<h2 id="section">概要</h2>
 <p>2014年6月21日以降、monami-ya.mrb は、TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。
@@ -76,7 +76,7 @@
   <entry>
     <title type="html"><![CDATA[Amazonから購入可能になりました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon/"/>
-    <updated>2014-04-14T15:45:54+09:00</updated>
+    <updated>2014-04-14T06:45:54+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/04/14/support-packs-on-amazon</id>
     <content type="html"><![CDATA[<p>「オープンソース・ソフトウェア サポート・サービス」のライセンスコードが、Amazonから購入可能になりました。
 本日時点で下記のソフトウェアが対象となります。</p>
@@ -94,7 +94,7 @@
   <entry>
     <title type="html"><![CDATA[オープンソースサポートサービスのガイドブックを作成いたしました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released/"/>
-    <updated>2014-04-03T14:28:22+09:00</updated>
+    <updated>2014-04-03T05:28:22+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-released</id>
     <content type="html"><![CDATA[<p>弊社(合同会社もなみ屋)が提供しているオープンソースサポートサービス(OSSSS)の利用法について解説したガイドブック「OSSSSガイドブック」を電子書籍として作成いたしました。</p>
 
@@ -121,7 +121,7 @@
   <entry>
     <title type="html"><![CDATA[PizzaFactory Tiny JTAG for Blackfin/Sharc の活用事例のご紹介]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice/"/>
-    <updated>2014-03-14T13:02:02+09:00</updated>
+    <updated>2014-03-14T04:02:02+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice</id>
     <content type="html"><![CDATA[<p>ブログ「<a href="http://bfin.sakura.ne.jp/">DSP空挺団</a>」にて、酔漢様が<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a>を用いてADSP-BF592のデバッグを行うための留意点を<a href="http://bfin.sakura.ne.jp/?p=125">公開</a>なさっています。</p>
 

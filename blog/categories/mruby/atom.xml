@@ -4,7 +4,7 @@
   <title><![CDATA[Category: mruby | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/mruby/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2015-04-01T21:11:54+09:00</updated>
+  <updated>2016-03-31T05:29:52+00:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[「機器組込み向け軽量Rubyライブラリ」の製品情報を公開しました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/04/10/31/"/>
-    <updated>2013-04-10T03:17:56+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/04/10/31</id>
+    <link href="http://www.monami-ya.jp/blog/2013/04/09/31/"/>
+    <updated>2013-04-09T18:17:56+00:00</updated>
+    <id>http://www.monami-ya.jp/blog/2013/04/09/31</id>
     <content type="html"><![CDATA[<p>機器組込み向け軽量Ruby ライブラリである<a href="http://www.monami-ya.jp/mruby">「monami-ya.mrb」の製品情報を当サイトにて公開</a>いたしました。</p>
 ]]></content>
   </entry>

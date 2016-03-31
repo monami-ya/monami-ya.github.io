@@ -4,7 +4,7 @@
   <title><![CDATA[Category: coverage | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/coverage/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2015-04-01T21:11:54+09:00</updated>
+  <updated>2016-03-31T05:29:52+00:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[monami-ya.mrbのカバレッジ計測結果]]></title>
     <link href="http://www.monami-ya.jp/blog/2013/05/08/coverage/"/>
-    <updated>2013-05-08T01:05:00+09:00</updated>
+    <updated>2013-05-08T01:05:00+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/05/08/coverage</id>
     <content type="html"><![CDATA[<p>本エントリ発信時点の、monami-ya.mrb のソースレベルカバレッジ結果を<a href="http://mrb.monami-ya.jp/lcov/monami-ya.mrb/develop/2013-05-08/">公開</a>いたします。</p>
 ]]></content>

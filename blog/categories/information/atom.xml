@@ -4,7 +4,7 @@
   <title><![CDATA[Category: information | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/information/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2015-04-01T21:11:54+09:00</updated>
+  <updated>2016-03-31T05:29:52+00:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[R-INコンソーシアムに参加いたしました．]]></title>
-    <link href="http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in/"/>
-    <updated>2015-04-01T00:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in</id>
+    <link href="http://www.monami-ya.jp/blog/2015/03/31/joined-to-r-in/"/>
+    <updated>2015-03-31T15:00:00+00:00</updated>
+    <id>http://www.monami-ya.jp/blog/2015/03/31/joined-to-r-in</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋は，ルネサスエレクトロニクス(株)が提供するR-INマイコンを軸に，ワールドワイドのインダストリー(産業界)を効率化、高付加価値化及び活性化を行うことを目的とする「R-INコンソーシアム」に参加いたしました．
 オープンソースを軸としたコンパイラ・デバッガ・RTOS・IDEといったソリューションを基盤に，mruby を始めとする次世代の産業界 (IoT, Industory4.0) に影響を及ぼしうる技術を携えて，様々なソリューションを引き続き提案していく所存です．</p>
 ]]></content>
@@ -26,7 +26,7 @@
   <entry>
     <title type="html"><![CDATA[本店所在地変更のお知らせ]]></title>
     <link href="http://www.monami-ya.jp/blog/2015/03/17/registration-of-relocation-of-head-office/"/>
-    <updated>2015-03-17T12:50:37+09:00</updated>
+    <updated>2015-03-17T03:50:37+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2015/03/17/registration-of-relocation-of-head-office</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋は，定款にて定める本店所在地を「東京都新宿区」に変更し，関連登記を完了いたしました．</p>
 
@@ -41,7 +41,7 @@
   <entry>
     <title type="html"><![CDATA[TOPPERS/JSP と monami-ya.mrb のオープンソースサポートサービスが、統合されました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support/"/>
-    <updated>2014-06-21T12:00:00+09:00</updated>
+    <updated>2014-06-21T03:00:00+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/21/opensource-support-for-monami-ya-dot-mrb-is-integrated-to-toppers-jsp-support</id>
     <content type="html"><![CDATA[<h2 id="section">概要</h2>
 <p>2014年6月21日以降、monami-ya.mrb は、TOPPERS/JSP カーネルの拡張コンポーネントとしてサポートされます。
@@ -68,7 +68,7 @@
   <entry>
     <title type="html"><![CDATA[monami-ya.mrb の製品情報を更新いたしました。]]></title>
     <link href="http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb/"/>
-    <updated>2014-06-18T11:48:01+09:00</updated>
+    <updated>2014-06-18T02:48:01+00:00</updated>
     <id>http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb</id>
     <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/product/monami-ya.mrb/about/index.html">monami-ya.mrb の製品情報</a>を更新いたしました。
 この度の更新により、monami-ya.mrb のソースツリーはオープンソース版のみとなりました。</p>
@@ -77,9 +77,9 @@
   
   <entry>
     <title type="html"><![CDATA[OSSSSガイドブックがGoogle Booksに登録されました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books/"/>
-    <updated>2014-04-04T08:25:36+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books</id>
+    <link href="http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-avaliable-on-google-books/"/>
+    <updated>2014-04-03T23:25:36+00:00</updated>
+    <id>http://www.monami-ya.jp/blog/2014/04/03/ossss-guidebook-avaliable-on-google-books</id>
     <content type="html"><![CDATA[<p>弊社オープンソースサポートサービスへの登録方法は活用方法を記した OSSSSガイドブックが<a href="http://books.google.co.jp/books?id=xCc-AwAAQBAJ">Google Booksに登録されました</a>。</p>
 ]]></content>
   </entry>
