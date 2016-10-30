@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-03-31T15:33:17+09:00</updated>
+  <updated>2016-10-31T08:32:04+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[The-reason-why-you-should-use-Workflow-engine-instead-of-Java]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java/"/>
+    <updated>2016-10-31T08:22:51+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[R-INコンソーシアムに参加いたしました．]]></title>
@@ -532,20 +541,6 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
     <updated>2013-08-28T02:22:42+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2013/08/28/41</id>
     <content type="html"><![CDATA[<p>「RaspberryPi対応GPIO変換基板キット」の組み立て時においては、CONN1のコネクタの向きにご注意ください。<a href="https://www.dropbox.com/sc/l77bzrrqyybv6tv/0wN8vWwhcv">リンク先にある写真</a> のように，基板外側にコネクタの切り欠きが向くようにしてください．</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[「RaspberryPi対応GPIO変換基板キット」の販売を開始いたしました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2013/08/28/40/"/>
-    <updated>2013-08-28T01:45:28+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2013/08/28/40</id>
-    <content type="html"><![CDATA[<p>圧倒的なコストパフォーマンスで大きな話題となっているRaspberry Piは、その拡張のためのGPIOが2列のピンヘッダとなっているため，ブレッドボードとの接続が難しく，ラピッドプロトタイピングの障壁となっていました。</p>
-
-<p>このたび、合同会社もなみ屋は，2x13ピンヘッダから1x26ピンに変換する基板を作成し，必要なケーブルやコネクタを同梱したキットを作成いたしました。
-基板にはユニバーサル部を用意し、簡単な回路であれば基板に直接実装することもできます。</p>
-
-<p>キットは、<a href="http://www.amazon.co.jp/o/ASIN/B00EQ4OA9I/monamiya-22">Amazon.co.jp</a> からお求め頂けます。</p>
 ]]></content>
   </entry>
   

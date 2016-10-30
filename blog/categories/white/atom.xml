@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: "White | 合同会社もなみ屋]]></title>
+  <link href="http://www.monami-ya.jp/blog/categories/white/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2016-10-31T08:32:04+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
+  <author>
+    <name><![CDATA[Monami-ya LLC, Japan.]]></name>
+    <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[The-reason-why-you-should-use-Workflow-engine-instead-of-Java]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java/"/>
+    <updated>2016-10-31T08:22:51+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+</feed>
