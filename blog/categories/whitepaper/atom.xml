@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: paper" | 合同会社もなみ屋]]></title>
-  <link href="http://www.monami-ya.jp/blog/categories/paper/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Whitepaper | 合同会社もなみ屋]]></title>
+  <link href="http://www.monami-ya.jp/blog/categories/whitepaper/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-11-01T13:45:38+09:00</updated>
+  <updated>2016-11-01T14:10:20+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -18,7 +18,7 @@
     <link href="http://www.monami-ya.jp/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java/"/>
     <updated>2016-10-31T08:22:51+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java</id>
-    <content type="html"><![CDATA[<h1 id="pure-java--mwe2-">Pure Java でのモデリングワークフローエンジン実装における諸課題と MWE2 を用いた解決</h1>
+    <content type="html"><![CDATA[<h1 id="abstract">Abstract</h1>
 
 <p>ソフトウェア開発の分野でモデルベース設計が広く用いられるに従って，上流の概念設計だけでなく，中流のソースコードや下流のテストコードまでを自動生成することが一般的になってきました。</p>
 
@@ -66,6 +66,8 @@
 <p>A-RTEGEN は<a href="https://www.nces.is.nagoya-u.ac.jp/">名古屋大学大学院情報科学研究科付属 組込みシステム研究センター(NCES)</a>が中心となって開発しており，ソースコードが公開されています。</p>
 
 <p>A-RTEGEN の内部構造のうち，モデルワークフローを管理している部分のみを抽出すると，概ね図の通りになります。</p>
+
+<p><img src="/images/2016-10-30-the-reason-why-you-should-use-workflow-engine-instead-of-java-1.png"></p>
 
 <p>GENERATE, CONTRACT 各フェーズの具体的なソースコードは <a href="https://github.com/PizzaFactory/a_rtegen/blob/1.3.0/src/jp.ac.nagoya_u.is.nces.a_rte.app/src/jp/ac/nagoya_u/is/nces/a_rte/app/internal/GeneratePhaseRteGenerator.java">https://github.com/PizzaFactory/a_rtegen/blob/1.3.0/src/jp.ac.nagoya_u.is.nces.a_rte.app/src/jp/ac/nagoya_u/is/nces/a_rte/app/internal/GeneratePhaseRteGenerator.java</a> および <a href="https://github.com/PizzaFactory/a_rtegen/blob/1.3.0/src/jp.ac.nagoya_u.is.nces.a_rte.app/src/jp/ac/nagoya_u/is/nces/a_rte/app/internal/ContractPhaseRteGenerator.java">https://github.com/PizzaFactory/a_rtegen/blob/1.3.0/src/jp.ac.nagoya_u.is.nces.a_rte.app/src/jp/ac/nagoya_u/is/nces/a_rte/app/internal/ContractPhaseRteGenerator.java
 </a>
