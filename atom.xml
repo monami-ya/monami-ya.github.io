@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-10-31T08:32:04+09:00</updated>
+  <updated>2016-11-01T13:45:38+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -14,11 +14,303 @@
 
   
   <entry>
-    <title type="html"><![CDATA[The-reason-why-you-should-use-Workflow-engine-instead-of-Java]]></title>
+    <title type="html"><![CDATA[Pure Java でのモデリングワークフローエンジン実装における諸課題と MWE2 を用いた解決]]></title>
     <link href="http://www.monami-ya.jp/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java/"/>
     <updated>2016-10-31T08:22:51+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java</id>
-    <content type="html"><![CDATA[
+    <content type="html"><![CDATA[<h1 id="pure-java--mwe2-">Pure Java でのモデリングワークフローエンジン実装における諸課題と MWE2 を用いた解決</h1>
+
+<p>ソフトウェア開発の分野でモデルベース設計が広く用いられるに従って，上流の概念設計だけでなく，中流のソースコードや下流のテストコードまでを自動生成することが一般的になってきました。</p>
+
+<p>このような開発プロセス全体にモデルが影響する場合には，上流から下流までの各段階でモデル変換を行いながら，詳細化，ならびにソースコード等成果物の出力を行います。
+このようなモデルを軸とする開発の流れはモデリングワークフローと呼ばれます。
+このようなモデル変換のフローを制御するソフトウェアはワークフローエンジンと呼ばれます。</p>
+
+<p>従来，ワークフローエンジンは，Java や Ruby など汎用のプログラミング言語を用いて記述されてきました。
+しかしながら，汎用プログラミング言語では，その記述の自由度が裏目に出てしまい，再利用性や記述の容易性が損なわれてしまいます。</p>
+
+<p>そこで，大規模なモデルワークフローにおいては，独自の言語(DSL - Domain Specific Language)を定義し，再利用性や記述の容易性を担保しようという取組みが進められています。</p>
+
+<p>本稿では，大規模なモデルワークフローを前提としている仕様である AUTOSAR を題材に，そのモデルワークフローエンジンを Pure Java で記述している実装例を分析し，課題を抽出します。
+また，モデルワークフロー記述のための MWE2 言語を用いることで，課題が適切に解決されうることを示します。</p>
+
+<h2 id="section">前提</h2>
+
+<h3 id="autosar-">AUTOSAR の特徴</h3>
+
+<p>AUTOSAR は，欧州の自動車関連企業が中心となって仕様策定を進めている，車載ソフトウェアのための標準仕様です。AUTOSARは，下記のような特徴を持っています。</p>
+
+<ul>
+  <li>(補助的な外部モデルは存在するものの，概ね) 単一のメタモデルにより成立します。</li>
+  <li>OEM の設計から始まる V 字開発フローの大半が，メタモデルの中でモデル変換のワークフローとして形式化できます。</li>
+</ul>
+
+<h3 id="section-1">モデリングワークフロー構築時の留意点</h3>
+
+<p>モデリングワークフローは，開発プロセスの全体を串刺しするように用いられます。
+開発プロセスの各段階で，特定の箇所が別の箇所の開発進捗を阻害するようなことがあると，プロセス全体が停滞するダウンリスクがあります。
+そこで，ワークフローエンジンは，下記のような点に注意しなければなりません。</p>
+
+<p>留意点A) ワークフローは分岐を可能な限り減らすべきです。分岐の多さ，すなわち高い循環的複雑度はテストケースの増大を招きます。</p>
+
+<p>留意点B) ワークフローのコピーは，可能な限り減らすべきです。あるワークフローが変更された時の，他のワークフローへの影響分析コストが上昇します。</p>
+
+<p>留意点C) ワークフローの各ワークノードが参照するリソースのスコープは，適切に設定されるべきです。ワークノード間の参照透明性が低いと，ワークフロー変更時の影響分析コストが上昇します。</p>
+
+<p>留意点D) ワークフローエンジン，エンジンが処理するワークフローの実装，含まれるワークノードの実装は，それぞれ独立であるべきです。これらを分割統治することで，並列開発が可能となり，開発の規模に応じて開発者数をスケールさせることが可能となります。</p>
+
+<h2 id="pure-java-">Pure Java 実装例の分析</h2>
+
+<p>Pure Java での AUTOSAR 対応のモデリングワークフローエンジンの例示として，本稿では A-RTEGEN を用いることとします。</p>
+
+<p>A-RTEGEN は<a href="https://www.nces.is.nagoya-u.ac.jp/">名古屋大学大学院情報科学研究科付属 組込みシステム研究センター(NCES)</a>が中心となって開発しており，ソースコードが公開されています。</p>
+
+<p>A-RTEGEN の内部構造のうち，モデルワークフローを管理している部分のみを抽出すると，概ね図の通りになります。</p>
+
+<p>GENERATE, CONTRACT 各フェーズの具体的なソースコードは <a href="https://github.com/PizzaFactory/a_rtegen/blob/1.3.0/src/jp.ac.nagoya_u.is.nces.a_rte.app/src/jp/ac/nagoya_u/is/nces/a_rte/app/internal/GeneratePhaseRteGenerator.java">https://github.com/PizzaFactory/a_rtegen/blob/1.3.0/src/jp.ac.nagoya_u.is.nces.a_rte.app/src/jp/ac/nagoya_u/is/nces/a_rte/app/internal/GeneratePhaseRteGenerator.java</a> および <a href="https://github.com/PizzaFactory/a_rtegen/blob/1.3.0/src/jp.ac.nagoya_u.is.nces.a_rte.app/src/jp/ac/nagoya_u/is/nces/a_rte/app/internal/ContractPhaseRteGenerator.java">https://github.com/PizzaFactory/a_rtegen/blob/1.3.0/src/jp.ac.nagoya_u.is.nces.a_rte.app/src/jp/ac/nagoya_u/is/nces/a_rte/app/internal/ContractPhaseRteGenerator.java
+</a>
+にあります。</p>
+
+<p>これらのコードは，先に一般論で挙げた留意点をことごとく満たしません。</p>
+
+<h3 id="a">留意点Aについて</h3>
+
+<p>まず，留意点A について，return 文による分岐，例外脱出による分岐，if 文による分岐が混合しており，また関数呼び出しのネストも存在します。
+これらは Java 言語での記述としては自然です。静的解析ツールにかけた結果としては，Java 言語で記述されたソースコードとしては，むしろ品質は良い部類です。
+しかし，ワークフローを Java で記述するという最上流の判断が間違えているといえます。</p>
+
+<h3 id="b">留意点Bについて</h3>
+
+<p>留意点B については，ソースコードの目視，また上掲の図を見ても理解可能なように CONTRACT / GENERATE の多くの箇所でソースクローンが存在しており満たせません。
+クローン部分のみのテストが不可能な状態で，信頼性の担保が難しい状態になっています。</p>
+
+<h3 id="c">留意点Cについて</h3>
+
+<p>留意点C については，ソースコードのコンストラクタをご覧いただくと，満たせていないことが解ります。
+使用するほぼすべてのオブジェクトがコンストラクタで生成されており，クラス内の処理から参照/変更が可能となっています。
+車載ソフトウェアでもグローバル変数の使用は問題視されますが，同様の問題が，このコードには存在しています。</p>
+
+<p>なお，使用するオブジェクトをコンストラクタで用意するのは，Java 言語での設計戦略としては悪くはありません。依存性注入のテクニックとしてコンストラクタインジェクションという技法があり，Java 言語の世界，特にエンタープライズ分野では広く使われています。
+留意点Cを満たせない理由は，Java の単一クラスでワークフローを記述しようとした最上流の設計の失敗といえます。</p>
+
+<h3 id="d">留意点Dについて</h3>
+<p>留意点D については，A-RTEGEN が単一のアプリケーションとして提供されていることから，明らかに満たしていません。</p>
+
+<h2 id="mwe2-">MWE2 にすると何が変わるのか?</h2>
+
+<p>MWE2 は，最も狭義には，ワークフローエンジンです。広めに捉えると，ワークフローエンジンへの入力となる言語と，各ワークノードを実装するための API のセットと言えます。</p>
+
+<p>A-RTEGEN の CONTRACT フェーズと等価な MWE2 言語記述は，下記のようになります。(イメージです。この記述は厳密には正しくなく，MWE2 は処理できません)</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">var diagnostics = BasicDiagnostic {}
+</span><span class="line">var loader = AutosarModelLoader {}
+</span><span class="line">var GeneratorInitOptions initOptions 
+</span><span class="line">
+</span><span class="line">/** 
+</span><span class="line"> * CONTRACTフェーズ向けのRTEを生成する。
+</span><span class="line"> */
+</span><span class="line">Workflow {
+</span><span class="line">	component = SystemOutPrintln {
+</span><span class="line">		message = "Checking input AUTOSAR XMLs..."
+</span><span class="line">	}
+</span><span class="line">	component = InitResource {}
+</span><span class="line">	component = LoadM2 {
+</span><span class="line">		loader = loader
+</span><span class="line">	}
+</span><span class="line">	component = ValidateM2 {
+</span><span class="line">		rteValidatorM2 = ModelValidator.forRteContractPhaseM2
+</span><span class="line">		bswmValidatorM2 = ModelValidator.forBswmContractPhaseM2
+</span><span class="line">		commonValidatorM2 = ModelValidator.forCommonContractPhaseM2
+</span><span class="line">		diagnostics = diagnostics
+</span><span class="line">	}
+</span><span class="line">	component = LoadInstance {
+</span><span class="line">		loader = loader
+</span><span class="line">	}
+</span><span class="line">	component = ValidateInstance {
+</span><span class="line">		rteValidatorInstance = ModelValidator.forRteContractPhaseInstance
+</span><span class="line">		bswmValidatorInstance = ModelValidator.forBswmContractPhaseInstance
+</span><span class="line">		commonValidatorInstance = ModelValidator.forCommonContractPhaseInstance
+</span><span class="line">		diagnostics = diagnostics
+</span><span class="line">	}
+</span><span class="line">	component = CheckDiagnostics {
+</span><span class="line">		diagnostics = diagnostics
+</span><span class="line">	}
+</span><span class="line">	component = PrintPreBuildMessage {}
+</span><span class="line">	component = BuildModuleModel {
+</span><span class="line">		moduleModelBuilder = RteModuleModelBuilder {}
+</span><span class="line">	}
+</span><span class="line">	component = GenerateRte {
+</span><span class="line">		codeGenerator = RteCodeGenerator {
+</span><span class="line">			codeFormatter = UncrustifyCodeFormatter {
+</span><span class="line">				executableFile = generatorInitOptions.uncrustifyExecutableFile
+</span><span class="line">				configFile = generatorInitOptions.uncrustifyConfigFile
+</span><span class="line">			}
+</span><span class="line">		}
+</span><span class="line">	}
+</span><span class="line">	component = SystemOutPrintln {
+</span><span class="line">		message = "Generation done." 
+</span><span class="line">	}
+</span><span class="line">	component = DumpModel {
+</span><span class="line">		ignoreAbort = true
+</span><span class="line">		modelFileName = "modeldump.xmi"
+</span><span class="line">		serializer = ModelSerializer {}
+</span><span class="line">	}
+</span><span class="line">}</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>この記述には，component(ワークノード)の実行順序と，実行に際し必要となるオブジェクトの値設定が含まれます。</p>
+
+<p><code>LoadInstance</code>, <code>ValidateInstance</code> 等は，ワークノードです。これらは MWE2 自身では提供されず，MWE2 が提供する API を基に，実装する必要があります。
+たとえば，<code>LoadInstance</code> は下記のように記述されます。</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">package jp.ac.nagoya_u.is.nces.a_rte.app.internal.workflow.contract
+</span><span class="line">
+</span><span class="line">import org.eclipse.emf.mwe2.runtime.workflow.IWorkflowContext
+</span><span class="line">import org.eclipse.xtend.lib.annotations.Accessors
+</span><span class="line">import jp.ac.nagoya_u.is.nces.a_rte.persist.AutosarModelLoader
+</span><span class="line">import jp.ac.nagoya_u.is.nces.a_rte.app.internal.workflow.ARteBuildAction
+</span><span class="line">
+</span><span class="line">/**
+</span><span class="line"> * AUTOSAR Instanceモデルの読み込み
+</span><span class="line"> */
+</span><span class="line">class LoadInstance extends ARteBuildAction {
+</span><span class="line">	@Accessors var AutosarModelLoader loader
+</span><span class="line">
+</span><span class="line">	override action(IWorkflowContext ctx) {
+</span><span class="line">		this.loader.loadInstance(ctx.resource)
+</span><span class="line">	}	
+</span><span class="line">}</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>最終的には汎用言語で処理を記述する必要はありますが，処理の粒度を細かくすることで再利用性が高まります。
+またワークフローの作成者とワークノードの作成者が分離することで，<code>留意点D</code>が解決されます。</p>
+
+<p>MWE2 のソースコードに戻ります。MWE2 スクリプトの初めに幾つかの大域変数が定義されていますが，これらは component から直接に参照することはできず，中括弧内で代入されることでのみ可視になります。
+つまり<code>留意点C</code>が解決されています。</p>
+
+<p>MWE2 スクリプトには，例外脱出の処理記述がありません。これではエラー中断ができないように思われるかもしれません。
+この問題は component に一枚の薄皮を被せることで解決可能です。</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class=""><span class="line">abstract class AutosarBuildAction implements IWorkflowComponent {
+</span><span class="line">	static val ABORT_RETURN = "a-rtegen.abortReturn"
+</span><span class="line">	@Accessors var boolean ignoreAbort = false
+</span><span class="line"> 
+</span><span class="line">	/**
+</span><span class="line">	 * Use `action` method instead of this.
+</span><span class="line">	 */
+</span><span class="line">	override final invoke(IWorkflowContext ctx) {
+</span><span class="line">		if (ctx.get(ABORT_RETURN) == null || ignoreAbort) {
+</span><span class="line">			action(ctx)
+</span><span class="line">		}
+</span><span class="line">	}</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>ワークノード中で例外が発生した場合，以降のすべてのワークノードは実行されない状態にし，かつエラー処理を行いたい場合は MWE2 ファイルに <code>ignoreAbort=true</code> と明示することで，強制的にワークノード内処理を行うようにします。
+分岐のないワークフローであればこれで十分です。<code>留意点 B</code> が解決されます。</p>
+
+<p>残るは <code>留意点 A</code> についてです。
+MWE2 を採用しても，CONTRACT / GENERATE それぞれのフェーズは，似てはいますが微妙に違います。つまり，似通っている 2つの mwe2 ファイルが必要になります。これは AUTOSAR 仕様に依存する事柄なのですが，同様のことは他のモデリングワークフローでも起こり得ることです。
+ここは MWE2 のみを採用している範囲では解決できません。解決の方法は2通りありえます。</p>
+
+<ul>
+  <li>MWE2 に制御構文に相当する機能を付加する Viatra というツールを，Eclipse プロジェクトからダウンロードします。</li>
+  <li>CONTRACT / GENERAGE の両方の情報を内包するモデルから MWE2 を生成するようにします。</li>
+</ul>
+
+<p>どちらかができたならば，<code>留意点 A</code> も解決します。</p>
+
+<p>もし読者が最新版の AUTOSAR 仕様の愛読者であったならば，後者の方法でこの問題を解決する方法が暗に仕様記述されていることに気づくでしょう。</p>
+
+<p>ここまでで，留意点AからDまですべての課題が解決されました。</p>
+
+<h2 id="section-2">まとめ</h2>
+
+<p>近年開発プロセスに浸透してきているモデリングワークフローを支えるツールを作成する際に，Pure Java で作成する場合の課題を実例を基に紹介し，ワークフロー記述用の DSL である MWE2 を用いることで課題を解消できることを紹介いたしました。</p>
+
+<p>A-RTEGEN の実装者各位の名誉のために申し添えますが，Java アプリケーションとしての A-RTEGEN の品質は悪くはありません。目視によるレビューや静的解析ツールの結果も，それを裏付けています。
+しかしながら，「Pure Java アプリケーションとしてワークフローを実装する」という最上流の方針決定に失敗しているとは言えます。
+これは他の言語(Ruby を使った言語内 DSL など)を選んだとしても，汎用言語である限り同じ結果になりがちです。</p>
+
 ]]></content>
   </entry>
   
