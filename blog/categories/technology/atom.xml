@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Technology | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/technology/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-11-02T22:45:56+09:00</updated>
+  <updated>2016-11-02T22:49:46+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -14,11 +14,210 @@
 
   
   <entry>
-    <title type="html"><![CDATA[metrics-comparment-between-pure-java-and-mwe2]]></title>
+    <title type="html"><![CDATA[Pure Java と MWE2 - メトリクスによる比較]]></title>
     <link href="http://www.monami-ya.jp/blog/2016/11/02/metrics-comparment-between-pure-java-and-mwe2/"/>
     <updated>2016-11-02T22:39:49+09:00</updated>
     <id>http://www.monami-ya.jp/blog/2016/11/02/metrics-comparment-between-pure-java-and-mwe2</id>
-    <content type="html"><![CDATA[
+    <content type="html"><![CDATA[<h2 id="abstract">Abstract</h2>
+
+<p><a href="/blog/2016/10/31/the-reason-why-you-should-use-workflow-engine-instead-of-java/">先日のホワイトペーパー</a>では，モデルワークフローを Pure Java で記述せずに DSL を使うことで得られるメリットを，具体的な実装を基に示しました。</p>
+
+<p>しかし，「設計思想としては優れているものの，採用のコストに見合う効果が得られない」そんなフーレムワークも，ソフトウェアの世界では，しばしば見られるものです。</p>
+
+<p>本稿は，そのような疑念を払拭するために執筆されました。
+実存する Pure Java のモデル変換エンジンを題材に，部分的な MWE2 対応実装に対しメトリクス計測を行い，その結果を示します。</p>
+
+<h2 id="section">評価対象</h2>
+
+<p>先日のホワイトペーパーで例示した A-RTEGEN を利用します。</p>
+
+<p>A-RTEGEN の全てを MWE2 に対応するのは不可能ではありませんが，それなりの工数がかかります。
+そこで今回は，CONTRACT フェーズのワークフローに相当する部分のみを MWE2 相当に修正して比較します。</p>
+
+<p>また，TOPPERSプロジェクトから配布されている A-RTEGEN はビルドシステムのサポートが貧弱でメトリクスを取りづらかったため，PizzaFactory プロジェクトが拡張した版をベースとしています。
+この方針により，ソースコード行数など数値の厳密さは犠牲になっています。</p>
+
+<p>A-RTEGEN は，モデルから自動生成されたソースコードを含み，ソースコード全体における割合も小さくありません。
+そこで，評価対象は全体ではなく，今回の修正で大きな影響を受けた3つの plugin bundle のみとします。</p>
+
+<p>以上のことからから，本稿が掲げる全ての数値は，相対的なもの，または傾向を示すものと捉えてください。</p>
+
+<p>本稿のための MWE2 対応に要した工数は，1人で3.5時間です。
+さらに時間をかければ，さらに MWE2 にとって有利な(つまりMWE2を採用した顧客が得られるメリットが高い)数値を引き出せます。
+しかし，過度にチューニングしすぎた数値を提示しても現実と乖離してしまいますので，本稿では，敢えて時間に制約をかけました。</p>
+
+<h2 id="section-1">循環的複雑度</h2>
+
+<p>まず，ソフトウェアの保守性を示す指標である <strong>循環的複雑度</strong> を比較します。</p>
+
+<p>循環的複雑度は，可読性や改変のしやすさといったプログラマの生産性に関わる情報を示すだけでなく，”全網羅するために最低限必要なテストケースの数”という品質活動に必要な情報を示します。</p>
+
+<p>テストケースの爆発は，ランタイム側で既に起きています。
+ランタイム側のテスト工数抑制を抑えるには，ツールに対する品質活動が欠かせません。
+この流れに伴って，ツール側のテスト工数も増大の傾向にあります。
+ツールの循環的複雑度の低減は，プロセス全体のテスト工数低減のために欠かせない課題です。</p>
+
+<p>それぞれの plugin bundle における，総合・関数平均・クラス平均・ファイル平均の数値を比較すると，次のようになります。</p>
+
+<p>Complexity : jp.ac.nagoya_u.is.nces.a_are.app</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Total</th>
+      <th>Function</th>
+      <th>Class</th>
+      <th>File</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Pure Java</td>
+      <td>124</td>
+      <td>3.4</td>
+      <td>9.5</td>
+      <td>10.3</td>
+    </tr>
+    <tr>
+      <td>MWE2</td>
+      <td>90</td>
+      <td>2.6</td>
+      <td>8.2</td>
+      <td>7.5</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Complexity : jp.ac.nagoya_u.is.nces.a_are.codegen</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Total</th>
+      <th>Function</th>
+      <th>Class</th>
+      <th>File</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Pure Java</td>
+      <td>93</td>
+      <td>1.8</td>
+      <td>8.5</td>
+      <td>8.5</td>
+    </tr>
+    <tr>
+      <td>MWE2</td>
+      <td>91</td>
+      <td>1.8</td>
+      <td>8.3</td>
+      <td>8.3</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Complexity : jp.ac.nagoya_u.is.nces.a_are.validation</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Total</th>
+      <th>Function</th>
+      <th>Class</th>
+      <th>File</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Pure Java</td>
+      <td>55</td>
+      <td>1.5</td>
+      <td>7.9</td>
+      <td>7.9</td>
+    </tr>
+    <tr>
+      <td>MWE2</td>
+      <td>49</td>
+      <td>1.7</td>
+      <td>7.0</td>
+      <td>7.0</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>MWE2 を用いた場合には，Pure Java に比べて循環的複雑度が低下する傾向が見られ，平均すると概ね 10% 弱程度の改善が見られます。</p>
+
+<p>A-RTEGEN は，その背景にある AUTOSAR 仕様全体から見ると，RTE/Os/Schm という大事なソフトウェア部品を生成するツールであるものの，ツールという観点で見ると，他のランタイムコンポーネントのジェネレータに比べて格段に難しいことをしているというわけではありません。
+つまりテストに要するコストは，MWE2 を使ったか Pure Java で組んだかによって，少なくとも 10% 程度の差がでます。</p>
+
+<p>ここで，思い出してください。本稿の調査は，もともとは MWE2 を想定していなかったコードを 1人が 3.5 時間だけかけ，最低限の修正をかけたものに基づいています。
+当初から MWE2 の存在を想定したコンポーネント設計を行っていた場合には，10% 弱の改善は，さらに良いスコアになります。</p>
+
+<p>また，CONTRACT と GENERATE という2つのフェーズのうち，CONTRACT のみ修正していることにもご留意ください。
+全てを修正することで，10% 弱の改善に，2倍前後のレバレッジがかかることになります。</p>
+
+<p>AUTOSAR のランタイムコンポーネントを全て揃えるためには，20億円以上の開発費が必要と言われています。それらのうちテストが占める割合は不明ですが仮に3割として，その20%といえば，その費用的効果は実感して頂けるのではないでしょうか。</p>
+
+<h2 id="section-2">ソースコード行数</h2>
+
+<p>MWE2 がテスト工数の削減に繋がり得ることは示しました。
+しかし，ソースコードの冗長性はどうでしょうか。
+定性的に，フレームワークを採用すると，その流儀に合わせるためのコードが増え，ソースコードの量が増える傾向にあります。</p>
+
+<p>LOC 実測値(コメントや空白行を除いたソースコード行数)を示します。</p>
+
+<p>Lines Of Code</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>artifact-id</th>
+      <th>Pure Java</th>
+      <th>MWE2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>jp.ac….app</td>
+      <td>660</td>
+      <td>508</td>
+    </tr>
+    <tr>
+      <td>jp.ac….codegen</td>
+      <td>467</td>
+      <td>461</td>
+    </tr>
+    <tr>
+      <td>jp.ac….validation</td>
+      <td>323</td>
+      <td>553</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>validation で行数が増えているのは，フレームワーク採用による弊害です。
+この行数増加は抑制することも可能ですが，MWE2 スクリプトの作者のスキルレベル次第では，抑制し過ぎると使い勝手が悪くなるというトレードオフも存在します。</p>
+
+<p>validation 以外の2つのバンドルに関しては，フレームワーク採用の割に，むしろ減っています。
+MWE2 がワークフロー処理を肩代わりしたことによって，この現象は説明付けられます。</p>
+
+<h2 id="section-3">まとめ</h2>
+
+<p>ワークフローエンジンを採用した場合の保守性について，具体例を基に概説いたしました。
+また，コード行数の増減についても軽く触れました。</p>
+
+<p>モデルワークフローをともなうプロセスにおいて，ツールを Pure Java で作成するか MWE2 のようなワークフローエンジンを採用するかは，そのモデルやプロセスの規模感に大きく依存します。
+AUTOSAR のような大規模なモデル仕様ならば MWE2 の採用を強くお勧めします。しかし，アジャイル・プロトタイピングのように初期の小規模な取り組みであれば，Pure Java を選択する余地はあるのかもしれません。</p>
+
+<h2 id="section-4">広告</h2>
+
+<p>MWE2 は，モデルワークフローの構築に大きなメリットをもたらしますが，MWE2 単体をインストールしただけではシステム構築は困難で，Eclipse プラグイン開発，EMF/ecore，Xtend/Xtext 等々の幅広い知識が必要となります。(いったんシステムが構築されてしまえば，利用者には深い知識は不要です)</p>
+
+<p>合同会社もなみ屋では，Eclipse に関する10年の知見を，モデリングワークフローを構築しようとしている団体/企業に提供しています。ご興味をお持ちの方は，<a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#115;&#117;&#112;&#112;&#111;&#114;&#116;&#064;&#109;&#111;&#110;&#097;&#109;&#105;&#045;&#121;&#097;&#046;&#099;&#111;&#109;">弊社サポート窓口</a> まで電子メールにてお問い合わせください。</p>
 ]]></content>
   </entry>
   
