@@ -4,7 +4,7 @@
   <title><![CDATA[Category: information | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/information/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-11-02T22:49:46+09:00</updated>
+  <updated>2016-12-02T11:57:32+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,17 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Twitter アカウント @MonamiYaShop を閉鎖いたしました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/01/one-twitter-account-was-closed/"/>
+    <updated>2016-12-01T09:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/01/one-twitter-account-was-closed</id>
+    <content type="html"><![CDATA[<p>弊社オンラインショップのリニューアル準備に伴い，Twitter アカウント @MonamiYaShop を閉鎖いたしました。
+amazon.co.jp マーケットプレイスでおｎ弊社製品販売は継続しております。
+引き続きのご愛顧を賜りますようお願い申し上げます。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[R-INコンソーシアムに参加いたしました．]]></title>
@@ -72,15 +83,6 @@
     <id>http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb</id>
     <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/product/monami-ya.mrb/about/index.html">monami-ya.mrb の製品情報</a>を更新いたしました。
 この度の更新により、monami-ya.mrb のソースツリーはオープンソース版のみとなりました。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[OSSSSガイドブックがGoogle Booksに登録されました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books/"/>
-    <updated>2014-04-04T08:25:36+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/04/04/ossss-guidebook-avaliable-on-google-books</id>
-    <content type="html"><![CDATA[<p>弊社オープンソースサポートサービスへの登録方法は活用方法を記した OSSSSガイドブックが<a href="http://books.google.co.jp/books?id=xCc-AwAAQBAJ">Google Booksに登録されました</a>。</p>
 ]]></content>
   </entry>
   

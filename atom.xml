@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-11-02T22:49:46+09:00</updated>
+  <updated>2016-12-02T11:57:32+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,17 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Twitter アカウント @MonamiYaShop を閉鎖いたしました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/01/one-twitter-account-was-closed/"/>
+    <updated>2016-12-01T09:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/01/one-twitter-account-was-closed</id>
+    <content type="html"><![CDATA[<p>弊社オンラインショップのリニューアル準備に伴い，Twitter アカウント @MonamiYaShop を閉鎖いたしました。
+amazon.co.jp マーケットプレイスでおｎ弊社製品販売は継続しております。
+引き続きのご愛顧を賜りますようお願い申し上げます。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Pure Java と MWE2 - メトリクスによる比較]]></title>
@@ -1012,28 +1023,6 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
 <p>インタビューは、新春特別企画として行われました。
 弊社代表だけでなく、組み込み関連企業や団体の方々の様々な視点を綴った，読み切り連載となっています。
 是非ご覧ください。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ソフトウェアのビルド状況を公開しています。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/01/05/42/"/>
-    <updated>2014-01-05T09:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/01/05/42</id>
-    <content type="html"><![CDATA[<p>弊社で開発中のソフトウェアのうち、ビルド状況をを公開可能なものについて，<a href="http://builder.monami-ya.com:8080/">Web上での公開</a>を開始しています。</p>
-
-<p>ビルド状況を公開しているソフトウェアのライセンスは様々です。
-オープンソースライセンスが適用されないものも含まれます。
-成果物がダウンロード可能になっている場合でも、その取扱にはご注意ください。</p>
-
-<h4 id="section">2014年1月9日追記</h4>
-<blockquote>
-  <p>本サービスは、Microsoft社のスタートアップ向け支援プログラムBizSparkで提供された計算機資源を活用しています。
-本サービスは、開発作業の一環であり，弊社の主要業務であるオープンソースソフトウェアのサポートや受託開発とは関係がありません。
-(BizSparkは、Microsoft社が提供した計算機資源を，開発等以外の業務に活用することを禁止しています。)</p>
-
-  <p>オープンソース・ソフトウェアに関し、弊社への業務委託をご希望の方は，弊社の<a href="http://www.monami-ya.jp/about_us">会社情報のページ</a>にある方法にてお問い合わせください。</p>
-</blockquote>
 ]]></content>
   </entry>
   
