@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-03T10:51:39+09:00</updated>
+  <updated>2016-12-03T11:07:22+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A-Workflow を製品紹介に加えました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/03/hello-a-workflow/"/>
+    <updated>2016-12-03T11:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/03/hello-a-workflow</id>
+    <content type="html"><![CDATA[<p>モデルベース開発を支援するための MWE2 コンポーネント群である <a href="http://www.monami-ya.jp/product/a-workflow/">A-Workflow</a> を製品紹介に加えました。
+2016年12月中に出荷を開始する予定です。ご期待ください。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Twitter アカウント @MonamiYaShop を閉鎖いたしました]]></title>
@@ -1010,19 +1020,6 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
 現在、弊社とのサポート契約を締結されているお客様は，もうしばらくの間，現行システムをご利用ください。移行の時期は，別途ご連絡差し上げる予定です．</p>
 
 <p>また、 β版の期間は，ヘルプデスクサービスへの登録は無料で自由に行って頂けますが，正式版の公開に併せて，運用形態について見直しを行う可能性があります。予めご承知ください．</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[「組込みネット」に弊社代表インタビューが掲載されました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/01/09/43/"/>
-    <updated>2014-01-09T23:40:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/01/09/43</id>
-    <content type="html"><![CDATA[<p>CQ出版社が運営している技術者向けWebサイト「<a href="http://www.kumikomi.net/">組み込みネット</a>」にて、<a href="http://www.kumikomi.net/archives/2014/01/in04mona.php">弊社代表である邑中雅樹へのインタビュー記事が掲載</a>されました。</p>
-
-<p>インタビューは、新春特別企画として行われました。
-弊社代表だけでなく、組み込み関連企業や団体の方々の様々な視点を綴った，読み切り連載となっています。
-是非ご覧ください。</p>
 ]]></content>
   </entry>
   

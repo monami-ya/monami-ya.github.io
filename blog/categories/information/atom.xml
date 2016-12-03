@@ -4,7 +4,7 @@
   <title><![CDATA[Category: information | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/information/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-03T10:51:39+09:00</updated>
+  <updated>2016-12-03T11:07:22+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A-Workflow を製品紹介に加えました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/03/hello-a-workflow/"/>
+    <updated>2016-12-03T11:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/03/hello-a-workflow</id>
+    <content type="html"><![CDATA[<p>モデルベース開発を支援するための MWE2 コンポーネント群である <a href="/product/a-workflow/">A-Workflow</a> を製品紹介に加えました。
+2016年12月中に出荷を開始する予定です。ご期待ください。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Twitter アカウント @MonamiYaShop を閉鎖いたしました]]></title>
@@ -73,16 +83,6 @@ amazon.co.jp マーケットプレイスでおｎ弊社製品販売は継続し�
 <h2 id="section-2">導入ご検討中の皆様への追加情報</h2>
 
 <p>TOPPERS/JSP カーネルのオープンソースサポートサービスの開始に必要な『オープンソースサポートサービス・スタートパック(TOPPERS/JSP)』は、弊社直販のほか、<a href="http://www.amazon.co.jp/o/ASIN/B00JO70KL4/monamiya-22">Amazon.co.jp</a>から購入可能です。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[monami-ya.mrb の製品情報を更新いたしました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb/"/>
-    <updated>2014-06-18T11:48:01+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/06/18/update-information-for-monami-ya-dot-mrb</id>
-    <content type="html"><![CDATA[<p><a href="http://www.monami-ya.jp/product/monami-ya.mrb/about/index.html">monami-ya.mrb の製品情報</a>を更新いたしました。
-この度の更新により、monami-ya.mrb のソースツリーはオープンソース版のみとなりました。</p>
 ]]></content>
   </entry>
   
