@@ -4,7 +4,7 @@
   <title><![CDATA[Category: products | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/products/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-03T11:07:22+09:00</updated>
+  <updated>2016-12-04T10:45:34+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[GPS Finder のプロプライエタリ・ライセンスを販売開始いたしました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/04/gpsfinder-proprietary-license-on-sale/"/>
+    <updated>2016-12-04T11:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/04/gpsfinder-proprietary-license-on-sale</id>
+    <content type="html"><![CDATA[<p>Android アプリケーション GPS Finder のプロプライエタリ・ライセンスの販売を開始いたしました。
+これに伴い，関連する情報を更新いたしました。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[PizzaFactory Tiny JTAG ご購入で、Amazonギフト券500円分を還元]]></title>
@@ -115,19 +125,6 @@
 </blockquote>
 
 <p>是非ご一読頂き、弊社提供のオープンソースサポートサービスの導入をご検討ください。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PizzaFactory Tiny JTAG for Blackfin/Sharc の活用事例のご紹介]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice/"/>
-    <updated>2014-03-14T13:02:02+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice</id>
-    <content type="html"><![CDATA[<p>ブログ「<a href="http://bfin.sakura.ne.jp/">DSP空挺団</a>」にて、酔漢様が<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a>を用いてADSP-BF592のデバッグを行うための留意点を<a href="http://bfin.sakura.ne.jp/?p=125">公開</a>なさっています。</p>
-
-<p>(リンク先にある「もなみ製ICE 刺身包丁」は、弊社取扱の「PizzaFactory Tiny JTAG for Blackfin/Sharc」の愛称です。)</p>
-
-<p><em>注) 本エントリは、弊社製品をご活用頂く際の参考としてご紹介するものです。弊社は，リンクにてご紹介差し上げたコンテンツの正確性について，一切の保証をいたしません．</em></p>
 ]]></content>
   </entry>
   

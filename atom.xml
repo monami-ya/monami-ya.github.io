@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-03T11:07:22+09:00</updated>
+  <updated>2016-12-04T10:45:34+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[GPS Finder のプロプライエタリ・ライセンスを販売開始いたしました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/04/gpsfinder-proprietary-license-on-sale/"/>
+    <updated>2016-12-04T11:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/04/gpsfinder-proprietary-license-on-sale</id>
+    <content type="html"><![CDATA[<p>Android アプリケーション GPS Finder のプロプライエタリ・ライセンスの販売を開始いたしました。
+これに伴い，関連する情報を更新いたしました。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[A-Workflow を製品紹介に加えました]]></title>
@@ -989,37 +999,6 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
 </ul>
 
 <p>ご利用者の皆様にはご不便をお掛け致しますこと、お詫び申し上げます。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ヘルプデスクサービスを設置致しました。]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/01/16/44/"/>
-    <updated>2014-01-16T06:25:47+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/01/16/44</id>
-    <content type="html"><![CDATA[<p>合同会社もなみ屋(弊社)は、以前からオープンソース・ソフトウェア(OSS)を中心とした，ソフトウェアの保守に関するサポートを提供してまいりました。
-このたび、サービス品質を向上させる目的で，ヘルプデスクサービスを立ち上げます。</p>
-
-<p>ヘルプデスクサービスは、この分野の代表的なOSS製品である <a href="http://www.orts.org/">ORTS</a> を基盤として，もなみ屋が培ってきた OSS 関連の知見を盛り込んだ改良版を用います。
-この改良部分は、ORTS が設定している AGPL ライセンスに基づき，順次公開していきます。</p>
-
-<p>弊社のヘルプデスクサービスは、以下の2つの機能を持ちます。</p>
-
-<ul>
-  <li>弊社へのご質問(電子メール/FAX)と、その回答を蓄積するサポートデータベースとその Webフロントエンド</li>
-  <li>ヘルプデスクが収集した情報から、お客様との同意を頂いた上で固有の情報を除き，広く閲覧可能にするFAQデータベース</li>
-</ul>
-
-<p>ヘルプデスクの URL は下記のとおりです。</p>
-
-<p><a href="http://helpdesk.monami-ya.com/">http://helpdesk.monami-ya.com/</a></p>
-
-<h1 id="section">ご注意事項</h1>
-
-<p>本記事公開時点では、ヘルプデスクサービスはβ版です。
-現在、弊社とのサポート契約を締結されているお客様は，もうしばらくの間，現行システムをご利用ください。移行の時期は，別途ご連絡差し上げる予定です．</p>
-
-<p>また、 β版の期間は，ヘルプデスクサービスへの登録は無料で自由に行って頂けますが，正式版の公開に併せて，運用形態について見直しを行う可能性があります。予めご承知ください．</p>
 ]]></content>
   </entry>
   
