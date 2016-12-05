@@ -4,7 +4,7 @@
   <title><![CDATA[Category: information | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/information/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-05T12:20:13+09:00</updated>
+  <updated>2016-12-05T13:55:18+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,18 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A-RTEGEN のサポートサービスを開始いたしました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/05/a-rtegen-support-now-on-sale/"/>
+    <updated>2016-12-05T13:45:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/05/a-rtegen-support-now-on-sale</id>
+    <content type="html"><![CDATA[<p>TOPPERS/A-RTEGEN の<a href="/service/a-rtegen">活用サポートサービス</a>を開始いたしました。</p>
+
+<p>本サポートサービスには，AUTOSAR 仕様の知財権運用規定に基づく制限事項がございます。
+ご利用の前に，<a href="/service/a-rtegen/sla">SLA</a>を必ずご一読ください。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[GPS Finder のプロプライエタリ・ライセンスを販売開始いたしました]]></title>
@@ -51,21 +63,6 @@ amazon.co.jp マーケットプレイスでおｎ弊社製品販売は継続し�
     <id>http://www.monami-ya.jp/blog/2015/04/01/joined-to-r-in</id>
     <content type="html"><![CDATA[<p>合同会社もなみ屋は，ルネサスエレクトロニクス(株)が提供するR-INマイコンを軸に，ワールドワイドのインダストリー(産業界)を効率化、高付加価値化及び活性化を行うことを目的とする「R-INコンソーシアム」に参加いたしました．
 オープンソースを軸としたコンパイラ・デバッガ・RTOS・IDEといったソリューションを基盤に，mruby を始めとする次世代の産業界 (IoT, Industory4.0) に影響を及ぼしうる技術を携えて，様々なソリューションを引き続き提案していく所存です．</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[本店所在地変更のお知らせ]]></title>
-    <link href="http://www.monami-ya.jp/blog/2015/03/17/registration-of-relocation-of-head-office/"/>
-    <updated>2015-03-17T12:50:37+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2015/03/17/registration-of-relocation-of-head-office</id>
-    <content type="html"><![CDATA[<p>合同会社もなみ屋は，定款にて定める本店所在地を「東京都新宿区」に変更し，関連登記を完了いたしました．</p>
-
-<p>また，事務所を移転いたしました．新住所は以下のとおりです．代表電話番号に変更はございません．</p>
-
-<ul>
-  <li>〒160-0022 東京都新宿区新宿7丁目26-7 ビクセル新宿1F</li>
-</ul>
 ]]></content>
   </entry>
   
