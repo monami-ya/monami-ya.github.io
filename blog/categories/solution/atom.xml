@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: solution | 合同会社もなみ屋]]></title>
+  <link href="http://www.monami-ya.jp/blog/categories/solution/atom.xml" rel="self"/>
+  <link href="http://www.monami-ya.jp/"/>
+  <updated>2016-12-06T15:09:19+09:00</updated>
+  <id>http://www.monami-ya.jp/</id>
+  <author>
+    <name><![CDATA[Monami-ya LLC, Japan.]]></name>
+    <email><![CDATA[inquiry@helpdesk.monami-ya.jp]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[クラウドIDE SaaS - PizzaFactory Camino の提供開始]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/06/pizzafactory-camino-now-avaliable/"/>
+    <updated>2016-12-06T14:27:35+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/06/pizzafactory-camino-now-avaliable</id>
+    <content type="html"><![CDATA[<p>クラウドIDE を提供する SaaS ，<code>PizzaFactory Camino</code> の提供を開始いたしました。
+詳細につきましては，<a href="/solution/pizzafactory/camino/">ソリューション製品紹介のページ</a>を御覧ください。</p>
+]]></content>
+  </entry>
+  
+</feed>

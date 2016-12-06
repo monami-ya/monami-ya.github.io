@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-05T14:00:05+09:00</updated>
+  <updated>2016-12-06T15:09:19+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[クラウドIDE SaaS - PizzaFactory Camino の提供開始]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/06/pizzafactory-camino-now-avaliable/"/>
+    <updated>2016-12-06T14:27:35+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/06/pizzafactory-camino-now-avaliable</id>
+    <content type="html"><![CDATA[<p>クラウドIDE を提供する SaaS ，<code>PizzaFactory Camino</code> の提供を開始いたしました。
+詳細につきましては，<a href="http://www.monami-ya.jp/solution/pizzafactory/camino/">ソリューション製品紹介のページ</a>を御覧ください。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[A-RTEGEN のサポートサービスを開始いたしました]]></title>
@@ -981,17 +991,6 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
 <p>(リンク先にある「もなみ製ICE 刺身包丁」は、弊社取扱の「PizzaFactory Tiny JTAG for Blackfin/Sharc」の愛称です。)</p>
 
 <p><em>注) 本エントリは、弊社製品をご活用頂く際の参考としてご紹介するものです。弊社は，リンクにてご紹介差し上げたコンテンツの正確性について，一切の保証をいたしません．</em></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[代表電話ならびにFAXが停止しております]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/03/11/tel-fax-not-available/"/>
-    <updated>2014-03-11T16:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/03/11/tel-fax-not-available</id>
-    <content type="html"><![CDATA[<p>弊社契約の電話回線事業者の都合により、弊社代表電話ならびにFAXが繋がらなくなっております。
-新番号取得までの間は、<a href="http://helpdesk.monami-ya.com/contact/">お問い合わせフォーム</a>をご利用ください。
-ご不便をお掛けすることをお詫び申し上げます。</p>
 ]]></content>
   </entry>
   
