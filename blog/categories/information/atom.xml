@@ -4,7 +4,7 @@
   <title><![CDATA[Category: information | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/information/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-06T15:09:19+09:00</updated>
+  <updated>2016-12-08T13:07:02+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,18 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[サポートサービスのSLA更新について]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/08/update-sla/"/>
+    <updated>2016-12-08T13:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/08/update-sla</id>
+    <content type="html"><![CDATA[<p>各サポートサービスの SLA において，有効期限を 90 日から 30 日に短縮いたしました。</p>
+
+<p>本 SLA は，2016年12月8日午前0時以降に次回SLA更新までの期間に，各サポートサービスにお問い合わせ頂き契約したお客様に対し適用されます。
+2016年12月8日午前0時よりも前にお問い合わせ頂いているお客様は，適用するLSAを以前のものまたは現在のもの，いずれかを契約時にご選択いただけます。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[クラウドIDE SaaS - PizzaFactory Camino の提供開始]]></title>
@@ -52,17 +64,6 @@
     <id>http://www.monami-ya.jp/blog/2016/12/03/hello-a-workflow</id>
     <content type="html"><![CDATA[<p>モデルベース開発を支援するための MWE2 コンポーネント群である <a href="/product/a-workflow/">A-Workflow</a> を製品紹介に加えました。
 2016年12月中に出荷を開始する予定です。ご期待ください。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Twitter アカウント @MonamiYaShop を閉鎖いたしました]]></title>
-    <link href="http://www.monami-ya.jp/blog/2016/12/01/one-twitter-account-was-closed/"/>
-    <updated>2016-12-01T09:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2016/12/01/one-twitter-account-was-closed</id>
-    <content type="html"><![CDATA[<p>弊社オンラインショップのリニューアル準備に伴い，Twitter アカウント @MonamiYaShop を閉鎖いたしました。
-amazon.co.jp マーケットプレイスでおｎ弊社製品販売は継続しております。
-引き続きのご愛顧を賜りますようお願い申し上げます。</p>
 ]]></content>
   </entry>
   

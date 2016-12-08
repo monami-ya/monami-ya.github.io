@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-06T15:09:19+09:00</updated>
+  <updated>2016-12-08T13:07:02+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,18 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[サポートサービスのSLA更新について]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/08/update-sla/"/>
+    <updated>2016-12-08T13:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/08/update-sla</id>
+    <content type="html"><![CDATA[<p>各サポートサービスの SLA において，有効期限を 90 日から 30 日に短縮いたしました。</p>
+
+<p>本 SLA は，2016年12月8日午前0時以降に次回SLA更新までの期間に，各サポートサービスにお問い合わせ頂き契約したお客様に対し適用されます。
+2016年12月8日午前0時よりも前にお問い合わせ頂いているお客様は，適用するLSAを以前のものまたは現在のもの，いずれかを契約時にご選択いただけます。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[クラウドIDE SaaS - PizzaFactory Camino の提供開始]]></title>
@@ -978,19 +990,6 @@ PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは
 
 <p><em>本稿は、参考情報として掲示しております。
 本稿を参照して作業をなさったことに起因して、お客様にいかなる損失が発生しても，弊社は責を負いません。</em></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PizzaFactory Tiny JTAG for Blackfin/Sharc の活用事例のご紹介]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice/"/>
-    <updated>2014-03-14T13:02:02+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/03/14/user-report-bf592-jtag-ice</id>
-    <content type="html"><![CDATA[<p>ブログ「<a href="http://bfin.sakura.ne.jp/">DSP空挺団</a>」にて、酔漢様が<a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a>を用いてADSP-BF592のデバッグを行うための留意点を<a href="http://bfin.sakura.ne.jp/?p=125">公開</a>なさっています。</p>
-
-<p>(リンク先にある「もなみ製ICE 刺身包丁」は、弊社取扱の「PizzaFactory Tiny JTAG for Blackfin/Sharc」の愛称です。)</p>
-
-<p><em>注) 本エントリは、弊社製品をご活用頂く際の参考としてご紹介するものです。弊社は，リンクにてご紹介差し上げたコンテンツの正確性について，一切の保証をいたしません．</em></p>
 ]]></content>
   </entry>
   
