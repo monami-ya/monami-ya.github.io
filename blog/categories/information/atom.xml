@@ -4,7 +4,7 @@
   <title><![CDATA[Category: information | 合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/blog/categories/information/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-09T15:45:17+09:00</updated>
+  <updated>2016-12-09T17:15:12+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,19 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[IoT アプリケーション構築用クラウド開発環境 (Node-RED) のホスティングサービスを開始いたしました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/09/pizzafactory-camerieri-now-on-sale/"/>
+    <updated>2016-12-09T17:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/09/pizzafactory-camerieri-now-on-sale</id>
+    <content type="html"><![CDATA[<p>IoT アプリケーション構築用クラウド開発環境 PizzaFactory/Camerieri (Camerieri) の提供を開始いたしました。
+Camerieri は，IoT アプリケーション構築用クラウド開発環境である Node-RED をクラウドホスティングする SaaS です。</p>
+
+<p>東日本地区に置かれた 24hours x 7days 稼働のコンテナインスタンスを，30日間 2,500 円からで提供いたします。
+詳細につきましては，<a href="/solution/pizzafactory/camerieri/">ソリューション紹介のページ</a> をご参照ください。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[サポートサービスのSLA更新について]]></title>
@@ -54,16 +67,6 @@
     <id>http://www.monami-ya.jp/blog/2016/12/04/gpsfinder-proprietary-license-on-sale</id>
     <content type="html"><![CDATA[<p>Android アプリケーション GPS Finder のプロプライエタリ・ライセンスの販売を開始いたしました。
 これに伴い，関連する情報を更新いたしました。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[A-Workflow を製品紹介に加えました]]></title>
-    <link href="http://www.monami-ya.jp/blog/2016/12/03/hello-a-workflow/"/>
-    <updated>2016-12-03T11:00:00+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2016/12/03/hello-a-workflow</id>
-    <content type="html"><![CDATA[<p>モデルベース開発を支援するための MWE2 コンポーネント群である <a href="/product/a-workflow/">A-Workflow</a> を製品紹介に加えました。
-2016年12月中に出荷を開始する予定です。ご期待ください。</p>
 ]]></content>
   </entry>
   

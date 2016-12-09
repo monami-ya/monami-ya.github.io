@@ -4,7 +4,7 @@
   <title><![CDATA[合同会社もなみ屋]]></title>
   <link href="http://www.monami-ya.jp/atom.xml" rel="self"/>
   <link href="http://www.monami-ya.jp/"/>
-  <updated>2016-12-09T15:45:17+09:00</updated>
+  <updated>2016-12-09T17:15:12+09:00</updated>
   <id>http://www.monami-ya.jp/</id>
   <author>
     <name><![CDATA[Monami-ya LLC, Japan.]]></name>
@@ -12,6 +12,19 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[IoT アプリケーション構築用クラウド開発環境 (Node-RED) のホスティングサービスを開始いたしました]]></title>
+    <link href="http://www.monami-ya.jp/blog/2016/12/09/pizzafactory-camerieri-now-on-sale/"/>
+    <updated>2016-12-09T17:00:00+09:00</updated>
+    <id>http://www.monami-ya.jp/blog/2016/12/09/pizzafactory-camerieri-now-on-sale</id>
+    <content type="html"><![CDATA[<p>IoT アプリケーション構築用クラウド開発環境 PizzaFactory/Camerieri (Camerieri) の提供を開始いたしました。
+Camerieri は，IoT アプリケーション構築用クラウド開発環境である Node-RED をクラウドホスティングする SaaS です。</p>
+
+<p>東日本地区に置かれた 24hours x 7days 稼働のコンテナインスタンスを，30日間 2,500 円からで提供いたします。
+詳細につきましては，<a href="http://www.monami-ya.jp/solution/pizzafactory/camerieri/">ソリューション紹介のページ</a> をご参照ください。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[サポートサービスのSLA更新について]]></title>
@@ -826,170 +839,6 @@ MWE2 を採用しても，CONTRACT / GENERATE それぞれのフェーズは，�
 
 <p>結果の発表は、応募フォームにご記入頂いたメールアドレス宛のEメールにてお知らせいたします。</p>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Pizzafactory Tiny JTAG ICE での Raspberry Pi デバッグ]]></title>
-    <link href="http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/"/>
-    <updated>2014-03-14T13:14:48+09:00</updated>
-    <id>http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice</id>
-    <content type="html"><![CDATA[<p><a href="http://www.amazon.co.jp/o/ASIN/B003MG4BH2/monamiya-22">PizzaFactory Tiny JTAG for Blackfin/Sharc</a> (以下、PF-JTAG)はアナログ・デバイセズ社の文書EE-68に準拠したデバッグコネクタとなっています。</p>
-
-<p>しかしながら、JTAG は IEEE 1149.1 という標準規格に基づくものですので，信号電圧等合致すれば，セミコンダクタメーカの別を問わずに接続できます。</p>
-
-<p>一例として、PF-JTAG と Raspberry Pi ボードを繋ぎ，Linux 上から OpenOCD で接続する方法を概説します。</p>
-
-<h2 id="section">バージョン等</h2>
-
-<p>本稿で用いた Raspberry Pi ボードのリビジョンは 2 です。
-リビジョン 1 ボードは、JTAG 関連のピン配置が異なりますので，本稿のとおりには動きません。</p>
-
-<p>Linux は Ubuntu Linux 12.0.4.4 LTS を用いています。</p>
-
-<h2 id="section-1">結線</h2>
-
-<p>下表のように結線します。</p>
-
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: left">JTAG端子名</th>
-      <th style="text-align: right">Raspberry PiのP1端子のピン番号</th>
-      <th style="text-align: right">PF-JTAGのピン番号</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">TRST</td>
-      <td style="text-align: right">15</td>
-      <td style="text-align: right">10</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">TDI</td>
-      <td style="text-align: right">7</td>
-      <td style="text-align: right">12</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">TMS</td>
-      <td style="text-align: right">13</td>
-      <td style="text-align: right">6</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">TCK</td>
-      <td style="text-align: right">22</td>
-      <td style="text-align: right">8</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">TDO</td>
-      <td style="text-align: right">18</td>
-      <td style="text-align: right">14</td>
-    </tr>
-  </tbody>
-</table>
-
-<p><img src="http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/connection.jpg" alt="結線の様子" /></p>
-
-<p>写真では間違いを避けるために、<a href="http://www.amazon.co.jp/o/ASIN/B00GN3YQK8/monamiya-22">変換基板</a>を用いています。
-しかしRaspberry Pi の P1端子とPF-JTAG とを直結しても問題はありません。</p>
-
-<h2 id="openocd-">OpenOCD のインストール</h2>
-
-<p>Ubuntu Linux は、apt のリポジトリに OpenOCD が存在します。
-PF-JTAG は、回路的には oocdlink-s と等価ですので，ドライバは libftdi を用います。
-よって、OpenOCD は，下記のようにしてインストールが可能です。</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-</pre></td><td class="code"><pre><code class=""><span class="line">sudo apt-get install openocd libftdi1</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="openocd--1">OpenOCD に与えるコンフィグレーションファイル</h2>
-
-<p>下記リストのようになります。</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-</pre></td><td class="code"><pre><code class=""><span class="line">interface ft2232
-</span><span class="line">ft2232_device_desc "PizzaFactory TinyJTAG"
-</span><span class="line">ft2232_layout oocdlink
-</span><span class="line">ft2232_vid_pid 0x0403 0xbaf8
-</span><span class="line">adapter_khz 5
-</span><span class="line">
-</span><span class="line"># Broadcom 2835 on Raspberry Pi
-</span><span class="line">
-</span><span class="line">telnet_port 4444
-</span><span class="line">#gdb_port 0
-</span><span class="line">#tcl_port 0
-</span><span class="line">
-</span><span class="line">#jtag_khz 1000
-</span><span class="line">adapter_khz 1000
-</span><span class="line">
-</span><span class="line">#jtag_nsrst_delay 400
-</span><span class="line">#jtag_ntrst_delay 400
-</span><span class="line">
-</span><span class="line">if { [info exists CHIPNAME] } {
-</span><span class="line">   set  _CHIPNAME $CHIPNAME
-</span><span class="line">} else {
-</span><span class="line">   set  _CHIPNAME raspi
-</span><span class="line">}
-</span><span class="line">
-</span><span class="line">reset_config none
-</span><span class="line">
-</span><span class="line">if { [info exists CPU_TAPID ] } {
-</span><span class="line">   set _CPU_TAPID $CPU_TAPID
-</span><span class="line">} else {
-</span><span class="line">   set _CPU_TAPID 0x07b7617F
-</span><span class="line">}
-</span><span class="line">jtag newtap $_CHIPNAME arm -irlen 5 -expected-id $_CPU_TAPID
-</span><span class="line">
-</span><span class="line">set _TARGETNAME $_CHIPNAME.arm
-</span><span class="line">target create $_TARGETNAME arm11 -chain-position $_TARGETNAME</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>このリストを、例えば raspi.cfg として保存し，下記のようにして openocd を起動します。</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-</pre></td><td class="code"><pre><code class=""><span class="line">openocd -f raspi2.cfg</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>sudo は不要です。</p>
-
-<p><img src="http://www.monami-ya.jp/blog/2014/03/14/debug-raspberry-pi-with-pizzafactory-tiny-jtag-ice/openocd-start.png" alt="OpenOCD の起動ログ" /></p>
-
-<h2 id="section-2">注意事項</h2>
-
-<p><em>本稿は、参考情報として掲示しております。
-本稿を参照して作業をなさったことに起因して、お客様にいかなる損失が発生しても，弊社は責を負いません。</em></p>
 ]]></content>
   </entry>
   
